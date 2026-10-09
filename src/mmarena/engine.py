@@ -40,8 +40,10 @@ def draw_episode(game: Game, seed: int) -> dict[str, Any]:
     }
 
 
-def _round_tick(x: float, tick: float) -> float:
-    return round(round(x / tick) * tick, 10)
+def _to_tick(x: float, tick: float, up: bool) -> float:
+    """Snap to the tick grid, widening: bids round down, asks round up."""
+    units = round(x / tick, 6)  # absorb float noise such as 9.5 / 0.1 = 94.99999999999999
+    return round((math.ceil(units) if up else math.floor(units)) * tick, 10)
 
 
 def _clean_side(x: Any) -> float | None:
@@ -131,9 +133,9 @@ def run_episode(game: Game, agent: Agent, seed: int) -> dict[str, Any]:
             bid = ask = None
             invalid = invalid or "nonfinite"
         if bid is not None:
-            bid = _round_tick(bid, m.tick)
+            bid = _to_tick(bid, m.tick, up=False)
         if ask is not None:
-            ask = _round_tick(ask, m.tick)
+            ask = _to_tick(ask, m.tick, up=True)
         if bid is not None and ask is not None and bid > ask:
             bid = ask = None
             invalid = invalid or "crossed"

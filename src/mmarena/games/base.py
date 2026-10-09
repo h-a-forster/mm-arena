@@ -117,9 +117,18 @@ class Game:
 
     @property
     def id(self) -> str:
-        """Stable id: family plus a hash of the hidden-state spec and market."""
+        """Stable content id: family plus a hash of the spec, rules text, reveals and market.
+
+        Identical games share an id (and therefore identical episode draws); suites skip them.
+        """
         payload = json.dumps(
-            {"params": _jsonable(self.params), "market": self.market.to_dict()},
+            {
+                "params": _jsonable(self.params),
+                "market": self.market.to_dict(),
+                "reveals": [list(g) for g in self.reveals],
+                "description": self.description,
+                "contract": self.contract,
+            },
             sort_keys=True,
         )
         return f"{self.family}-{hashlib.sha256(payload.encode()).hexdigest()[:8]}"

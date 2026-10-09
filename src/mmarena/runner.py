@@ -51,6 +51,12 @@ def run_suite(
         done = {(t["game"]["id"], t["seed"]) for t in read_traces(out) if t.get("status") == "ok"}
     elif out.exists():
         out.unlink()
+    if out.exists() and out.stat().st_size:
+        with out.open("rb") as fh:
+            fh.seek(-1, 2)
+            if fh.read(1) != b"\n":  # interrupted write: start a fresh line
+                with out.open("a", encoding="utf-8") as fa:
+                    fa.write("\n")
     todo: list[tuple[Game, int]] = [
         (g, s) for g, s in suite.episodes_list() if (g.id, s) not in done
     ]

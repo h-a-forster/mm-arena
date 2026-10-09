@@ -28,9 +28,24 @@ class Suite:
     blocks: tuple[Block, ...]
 
     def games(self) -> Iterator[Game]:
+        """``games`` distinct games per block, from consecutive seeds starting at ``seed``.
+
+        Seeds that rebuild a game already in the suite (possible for classic variants, where only
+        the market is random) are skipped, so every game id appears once.
+        """
+        seen: set[str] = set()
         for b in self.blocks:
-            for i in range(b.games):
-                yield make_game(b.family, b.seed + i, b.variant)
+            seed, made = b.seed, 0
+            while made < b.games:
+                if seed - b.seed > 100 * b.games:
+                    raise ValueError(f"cannot find {b.games} distinct {b.family} games")
+                g = make_game(b.family, seed, b.variant)
+                seed += 1
+                if g.id in seen:
+                    continue
+                seen.add(g.id)
+                made += 1
+                yield g
 
     def episodes_list(self) -> list[tuple[Game, int]]:
         return [(g, e) for g in self.games() for e in range(self.episodes)]

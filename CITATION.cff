@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use mm-arena, please cite it as below."
+title: mm-arena
+abstract: >-
+  Market-making games as a benchmark for LLM agents, scored exactly against a
+  Bayes-optimal quoter.
+type: software
+authors:
+  - alias: h-a-forster
+repository-code: "https://github.com/h-a-forster/mm-arena"
+license: MIT
+version: 0.1.0
+date-released: 2026-10-09

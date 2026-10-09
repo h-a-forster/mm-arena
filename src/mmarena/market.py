@@ -97,7 +97,7 @@ def quote_value(
 def _side_grid(mu: float, lo: float, hi: float, tick: float) -> np.ndarray:
     start = math.floor(lo / tick)
     stop = math.ceil(hi / tick)
-    return np.arange(start, stop + 1) * tick
+    return np.round(np.arange(start, stop + 1) * tick, 10)
 
 
 def side_values(
