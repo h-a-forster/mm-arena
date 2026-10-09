@@ -44,10 +44,12 @@ Families live in `src/mmarena/games/families.py`.
 5. Add the family to a suite TOML in `src/mmarena/suites/` only if it belongs there. Do not
    change a released suite; add a new version instead.
 
-## Adding a provider
+## Adding a provider or agent
 
-Providers turn an `Observation` into a `Quote`. The `Agent` protocol is in
-`src/mmarena/agents/base.py`.
+An LLM provider lives in `src/mmarena/providers/` and implements
+`complete(system, user, *, max_tokens) -> Completion`. Register its spec prefix in
+`src/mmarena/agents/registry.py`; `LLMAgent` handles prompting, parsing and repair. Any other
+agent implements the `Agent` protocol in `src/mmarena/agents/base.py`:
 
 1. Implement `name`, `reset(game)` and `act(obs) -> Quote`.
 2. Raise `AgentError` for unusable model output (scored as an invalid quote). Raise
@@ -55,7 +57,7 @@ Providers turn an `Observation` into a `Quote`. The `Agent` protocol is in
 3. Read API keys from environment variables only. Never log or store them.
 4. Put the SDK behind an optional extra in `pyproject.toml`. The only runtime dependency is
    numpy.
-5. Record raw text, token usage and cost in `Quote.info`.
+5. Return raw text, token usage and cost in the `Completion` (or `Quote.info`).
 6. Test with a fake client. No network in tests.
 
 ## Submitting benchmark results

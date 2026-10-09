@@ -15,7 +15,7 @@ quotes. After the last stage the contract settles.
 Each quoting step:
 
 1. The market maker posts a bid `b` and an ask `a` (either side may be empty, `b <= a`).
-   Quotes are rounded to the game's tick.
+   Quotes snap outward to the game's tick: bids round down, asks round up.
 2. One counterparty arrives.
    - With probability `α` it is **informed**: it knows `V` (optionally with Gaussian noise of
      scale `informed_noise`). It buys one unit if `V > a`, sells one unit if `V < b`.
@@ -84,7 +84,10 @@ xPnL = Σ_t EV_t
 Each quote is a function of public information `H_t`, so by the tower property
 `E[xPnL] = E[PnL]`: it is an unbiased estimator of expected realized P&L. It removes the luck
 of who arrived and what they knew at each step while keeping every consequence of the agent's
-choices. The idea matches luck-adjusted evaluation in poker (DIVAT, AIVAT). Realized P&L is
+choices. Concretely, it integrates out three sources of chance at each step: whether the
+counterparty is informed, the noise trader's valuation shock, and the hidden outcome given the
+public information at that step. The path itself (which reveals and fills happened) is kept,
+so later quotes are scored at the states the agent really reached. The idea matches luck-adjusted evaluation in poker (DIVAT, AIVAT). Realized P&L is
 still reported.
 
 Two further variance controls:
@@ -98,17 +101,30 @@ Two further variance controls:
 
 ## 6. Scores
 
+All money quantities are divided by the game's prior standard deviation of `V` before
+averaging, so wide-range games do not dominate.
+
 | Metric | Definition | Ideal |
 | --- | --- | --- |
-| Edge captured | `100 · Σ xPnL_agent / Σ xPnL_bayes` over the same episodes | 100 |
-| xPnL/sd, PnL/sd | expected and realized P&L per episode, in units of the prior sd of `V` | high |
-| Mid error | `(mid − μ_t)/σ_t` on two-sided quotes; mean absolute value and bias | 0 |
-| β flow | slope of the agent's mid change on the posterior mean change between steps in the same stage (changes caused by trades only) | 1 |
-| β reveal | the same slope across reveals | 1 |
+| Edge captured | `100 · Σ xPnL_agent / Σ xPnL_bayes` over the same `(game, seed)` episodes | 100 |
+| xPnL/sd, PnL/sd | expected and realized P&L per episode | high |
+| Local efficiency | `Σ EV_t(agent) / Σ EV_t(bayes)` at the states the agent actually visited | 1 |
+| Capture, adverse | the two terms of `EV_t`, summed per episode | high, low |
+| Width / Bayes width | quote width relative to the Bayes quote at the same state | ~1 |
+| Mid error | `(mid − μ_t) / max(σ_t, tick)` on two-sided quotes, skipping steps where `V` is already known; mean absolute value, bias, RMSE | ~0 |
+| β flow | slope (through the origin) of the agent's mid change on the Bayes quote's mid change, between consecutive steps in the same stage, where only trades move the posterior | 1 |
+| β reveal | the same slope across stage boundaries, where reveals arrive | 1 |
+| Fill response | share of fills after which the mid moves the right way (up after a buy at the ask) | high |
 | Dominated quotes | bid above the highest still-possible value, or ask below the lowest: a sure loss if hit | 0 |
 | Invalid | unparseable, crossed or non-finite quotes (both sides pulled for that step) | 0 |
 
-`β` below 1 means under-reacting to information; above 1 means over-reacting.
+β uses the Bayes quote's mid rather than `μ_t` because the optimal mid is not `μ_t` when the
+posterior is skewed; regressed on `μ_t`, the Bayes quoter itself scores about 0.7. The
+`μ_t`-based slopes are in `summary.json` as `beta_flow_mu` and `beta_reveal_mu`. β below 1 means
+under-reacting to information; above 1 means over-reacting.
+
+Fill response has a selection effect: a buy tends to arrive when the ask is low, so even a
+random mid moves up afterwards more often than not. Compare it with the `bayes` row, not 0.5.
 
 ## 7. Game families and contamination
 
@@ -143,7 +159,13 @@ suite version.
 - Responses can be cached on disk keyed by the full request, so reruns and rescoring are free
   and reproducible.
 
-## 9. Limitations
+## 9. Trust model
+
+Python agents receive the `Game` object (the outcome table and market parameters, which are
+public information) and are trusted code: a Python agent could recompute the episode's random
+draws from the game id and seed. LLM agents see only the rendered prompt.
+
+## 10. Limitations
 
 - The counterparty model is stylised: one arrival per step, unit size, informed traders see
   `V` exactly by default, noise traders value around the exact public mean.

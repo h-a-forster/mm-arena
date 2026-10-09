@@ -31,6 +31,13 @@ from mmarena.plots import (
 from mmarena.report import build_report, load_run
 
 BASELINES = {"bayes", "bayes-noflow", "glosten-milgrom", "static", "random"}
+# Label placement for the spread chart: (dx, dy in points, horizontal alignment).
+LABEL_OFFSETS = {
+    "opus 5.5@high": (-8, 4, "right"),
+    "bayes-noflow": (7, -12, "left"),
+    "glosten-milgrom": (0, -14, "center"),
+    "haiku 5.5@low": (8, -12, "left"),
+}
 
 
 def short(name: str) -> str:
@@ -45,17 +52,36 @@ def plot_spread(report, path: Path) -> None:
         ratio = row["width_sd"] / row["bayes_width_sd"]
         edge = row["edge_captured"]
         llm = name not in BASELINES
-        ax.scatter(ratio, edge, s=70 if llm else 45, color=SERIES_1 if llm else MUTED,
-                   zorder=3, edgecolor="white", linewidth=0.8)
-        ax.annotate(short(name), (ratio, edge), xytext=(7, 4), textcoords="offset points",
-                    fontsize=9, color=INK if llm else INK_2)
+        ax.scatter(
+            ratio,
+            edge,
+            s=70 if llm else 45,
+            color=SERIES_1 if llm else MUTED,
+            zorder=3,
+            edgecolor="white",
+            linewidth=0.8,
+        )
+        dx, dy, ha = LABEL_OFFSETS.get(short(name), (7, 4, "left"))
+        ax.annotate(
+            short(name),
+            (ratio, edge),
+            xytext=(dx, dy),
+            textcoords="offset points",
+            fontsize=9,
+            color=INK if llm else INK_2,
+            ha=ha,
+        )
     ax.axhline(0, color=INK_2, linewidth=0.8)
     ax.axvline(1, color=SERIES_2, linewidth=1, linestyle="--")
     ax.text(1.0, ax.get_ylim()[0], " Bayes width", color=SERIES_2, fontsize=8.5, va="bottom")
     ax.set_xlabel("quote width / Bayes quote width (same states)")
     ax.set_ylabel("edge captured, % of Bayes")
     ax.grid(True, color=GRID, linewidth=0.6)
-    _title(fig, "Too tight", "LLMs centre their quotes well but quote far narrower than optimal")
+    _title(
+        fig,
+        "Edge tracks quote width",
+        "LLMs centre their quotes well; the shortfall is spreads narrower than optimal",
+    )
     save(fig, path)
 
 
@@ -68,8 +94,12 @@ def main(run_dir: str, out_dir: str) -> None:
     traces = load_run(run_dir)
     agents = load_episodes(traces)
     llms = [r["agent"] for r in report.leaderboard if r["agent"] not in BASELINES]
-    if llms:
-        save(plot_variance(agents, "bayes", llms[0]), out / "variance")
+    if len(llms) >= 2:
+        # The two best LLM runs: close in skill, so the estimator choice matters most.
+        a, b = llms[0], llms[1]
+        fig = plot_variance(agents, a, b)
+        fig.texts[0].set_text(f"Realized vs expected P&L: {short(a)} minus {short(b)}")
+        save(fig, out / "variance")
     for name in llms:
         # The episode where the agent's expected P&L falls furthest below Bayes on its own path.
         eps = [t for t in traces[name] if t["status"] == "ok" and t["game"]["variant"] == "classic"]

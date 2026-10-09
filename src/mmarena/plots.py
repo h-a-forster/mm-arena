@@ -263,7 +263,7 @@ def plot_variance(
     ax1.plot(k, np.cumsum(dx) / k, color=SERIES_1, linewidth=2, label="expected pnl (xpnl)")
     ax1.axhline(0, color=INK_2, linewidth=0.8)
     ax1.set_xlabel("episodes")
-    ax1.set_ylabel(f"running mean of {a} - {b}, prior sd")
+    ax1.set_ylabel("paired difference per episode, prior sd")
     _panel_title(ax1, "Running mean of the paired difference")
     ax1.legend(frameon=False, fontsize=8, labelcolor=INK_2)
 
@@ -293,7 +293,7 @@ def plot_variance(
     ax2.set_ylabel("standard error, prior sd (log)")
     ratio = (sd_p / sd_x) ** 2 if sd_x > 0 else math.nan
     _panel_title(ax2, f"Episodes to detect {delta:g} sd at 80% power: {ratio:.1f}x with pnl")
-    _title(fig, f"Realized vs expected P&L, paired difference {a} - {b}")
+    _title(fig, f"Realized vs expected P&L: {a} minus {b}")
     return _maybe_save(fig, path)
 
 
