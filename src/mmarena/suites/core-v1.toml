@@ -1,0 +1,63 @@
+name = "core-v1"
+description = "Five families; 4 classic and 8 perturbed games each; 2 episodes per game (120 episodes)."
+episodes = 2
+
+[[block]]
+family = "dice"
+variant = "classic"
+games = 4
+seed = 1000
+
+[[block]]
+family = "dice"
+variant = "perturbed"
+games = 8
+seed = 5000
+
+[[block]]
+family = "cards"
+variant = "classic"
+games = 4
+seed = 1100
+
+[[block]]
+family = "cards"
+variant = "perturbed"
+games = 8
+seed = 6000
+
+[[block]]
+family = "transform"
+variant = "classic"
+games = 4
+seed = 1200
+
+[[block]]
+family = "transform"
+variant = "perturbed"
+games = 8
+seed = 7000
+
+[[block]]
+family = "coin"
+variant = "classic"
+games = 4
+seed = 1300
+
+[[block]]
+family = "coin"
+variant = "perturbed"
+games = 8
+seed = 8000
+
+[[block]]
+family = "urn"
+variant = "classic"
+games = 4
+seed = 1400
+
+[[block]]
+family = "urn"
+variant = "perturbed"
+games = 8
+seed = 9000

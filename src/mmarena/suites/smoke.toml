@@ -1,0 +1,33 @@
+name = "smoke"
+description = "One perturbed game per family, one episode each. For CI and quick checks."
+episodes = 1
+
+[[block]]
+family = "dice"
+variant = "perturbed"
+games = 1
+seed = 5000
+
+[[block]]
+family = "cards"
+variant = "perturbed"
+games = 1
+seed = 6000
+
+[[block]]
+family = "transform"
+variant = "perturbed"
+games = 1
+seed = 7000
+
+[[block]]
+family = "coin"
+variant = "perturbed"
+games = 1
+seed = 8000
+
+[[block]]
+family = "urn"
+variant = "perturbed"
+games = 1
+seed = 9000
