@@ -162,6 +162,8 @@ def episode_metrics(trace: Mapping[str, Any]) -> EpisodeMetrics:
         mid = _mid(bid, ask)
         mids.append(mid)
         sd = float(s["sd"])
+        if s["hi"] == s["lo"]:  # value known; float noise can leave sd ~ 1e-15
+            sd = 0.0
         if mid is not None and sd > 0:
             z = (mid - s["mu"]) / max(sd, tick)
             m.z_n += 1

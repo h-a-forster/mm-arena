@@ -65,12 +65,20 @@ class Report:
 
 
 def load_run(run_dir: str | Path) -> dict[str, list[dict[str, Any]]]:
-    """Traces per agent: one ``*.jsonl`` file per agent, keyed by file stem."""
+    """Traces per agent from the ``*.jsonl`` files in ``run_dir``, keyed by the traces' agent name.
+
+    Files are usually one per agent; traces are grouped by their own ``agent`` field (falling
+    back to the file stem), so renamed or merged files still score correctly.
+    """
     run_dir = Path(run_dir)
     files = sorted(run_dir.glob("*.jsonl"))
     if not files:
         raise FileNotFoundError(f"no *.jsonl trace files in {run_dir}")
-    return {p.stem: read_traces(p) for p in files}
+    out: dict[str, list[dict[str, Any]]] = {}
+    for p in files:
+        for t in read_traces(p):
+            out.setdefault(str(t.get("agent") or p.stem), []).append(t)
+    return out
 
 
 def _shared(

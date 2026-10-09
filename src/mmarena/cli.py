@@ -36,6 +36,8 @@ def cmd_run(args: argparse.Namespace) -> int:
         }.items()
         if v is not None
     }
+    if args.name and len(args.agent) > 1:
+        raise SystemExit("--name applies to a single --agent")
     status = 0
     for spec in args.agent:
         factory = make_agent_factory(spec, **options)
@@ -73,7 +75,15 @@ def cmd_run(args: argparse.Namespace) -> int:
 def cmd_report(args: argparse.Namespace) -> int:
     from mmarena.report import build_report
 
-    report = build_report(args.run_dir, plots=not args.no_plots)
+    report = build_report(args.run_dir)
+    if not args.no_plots:
+        try:
+            from mmarena.plots import plot_run
+
+            for p in plot_run(args.run_dir, report=report):
+                print(f"wrote {p}", file=sys.stderr)
+        except ImportError as exc:
+            print(f"plots skipped: {exc}", file=sys.stderr)
     md = Path(args.run_dir) / "REPORT.md"
     if md.exists() and not args.quiet:
         print(md.read_text(encoding="utf-8"))

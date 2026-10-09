@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mmarena.agents.base import AgentError, Observation, Quote
+from mmarena.agents.base import AgentError, InfraError, Observation, Quote
 from mmarena.agents.prompt import parse_quote, render_prompt_parts, render_repair
 from mmarena.cache import CachedProvider
 from mmarena.games.base import Game
@@ -60,7 +60,12 @@ class LLMAgent:
             extra: dict[str, Any] = {}
             if isinstance(self.provider, CachedProvider):
                 extra["salt"] = f"{obs.game.id}/{obs.episode_seed}/{attempt}"
-            comp = self.provider.complete(system, user, max_tokens=self.max_tokens, **extra)
+            try:
+                comp = self.provider.complete(system, user, max_tokens=self.max_tokens, **extra)
+            except (AgentError, InfraError):
+                raise
+            except Exception as exc:  # noqa: BLE001 - a provider or cache bug is not the model's fault
+                raise InfraError(f"{type(exc).__name__}: {exc}") from exc
             calls.append(comp)
             raws.append(comp.text)
             if comp.stop_reason == "refusal":

@@ -43,6 +43,8 @@ def draw_episode(game: Game, seed: int) -> dict[str, Any]:
 def _to_tick(x: float, tick: float, up: bool) -> float:
     """Snap to the tick grid, widening: bids round down, asks round up."""
     units = round(x / tick, 6)  # absorb float noise such as 9.5 / 0.1 = 94.99999999999999
+    if not math.isfinite(units):
+        return math.nan
     return round((math.ceil(units) if up else math.floor(units)) * tick, 10)
 
 
@@ -127,16 +129,13 @@ def run_episode(game: Game, agent: Agent, seed: int) -> dict[str, Any]:
             info = {"error": f"{type(exc).__name__}: {exc}"}
         latency = time.perf_counter() - started
 
-        bid, ask = bid_q, ask_q
+        bid = None if bid_q is None else _to_tick(bid_q, m.tick, up=False)
+        ask = None if ask_q is None else _to_tick(ask_q, m.tick, up=True)
         if (bid is not None and not math.isfinite(bid)) or (
             ask is not None and not math.isfinite(ask)
         ):
             bid = ask = None
             invalid = invalid or "nonfinite"
-        if bid is not None:
-            bid = _to_tick(bid, m.tick, up=False)
-        if ask is not None:
-            ask = _to_tick(ask, m.tick, up=True)
         if bid is not None and ask is not None and bid > ask:
             bid = ask = None
             invalid = invalid or "crossed"

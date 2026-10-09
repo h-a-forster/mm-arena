@@ -192,31 +192,30 @@ def _side(v: Any, side: str) -> float | None:
     raise AgentError(f"{side} must be a number or null, got {v!r}")
 
 
-def _candidates(text: str) -> list[dict[str, Any]]:
-    """Every JSON object in ``text`` (outermost first, in order of appearance)."""
+def _last_quote_object(text: str) -> dict[str, Any] | None:
+    """The bid/ask object that ends last in ``text``, strict JSON or lenient.
+
+    The answer comes last: an earlier format example or a nested object never wins.
+    """
+    best: tuple[int, dict[str, Any]] | None = None
     decoder = json.JSONDecoder()
-    found: list[dict[str, Any]] = []
-    i = text.find("{")
-    while i >= 0:
+    for m in re.finditer(r"\{", text):
         try:
-            obj, end = decoder.raw_decode(text, i)
+            obj, end = decoder.raw_decode(text, m.start())
         except ValueError:
-            obj, end = None, i + 1
-        if isinstance(obj, dict):
-            found.append(obj)
-            # Nested objects inside this one are reported too, after it.
-            found.extend(_candidates(text[i + 1 : end - 1]))
-        i = text.find("{", end if isinstance(obj, dict) else i + 1)
-    return found
-
-
-def _loose(text: str) -> dict[str, Any] | None:
-    """Last brace group with bid and ask keys, read leniently (unquoted keys, None, etc.)."""
-    for chunk in reversed(re.findall(r"\{[^{}]*\}", text)):
-        pairs = {k.lower(): v for k, v in _KEY_RE.findall(chunk)}
-        if "bid" in pairs and "ask" in pairs:
-            return pairs
-    return None
+            continue
+        if (
+            isinstance(obj, dict)
+            and "bid" in obj
+            and "ask" in obj
+            and (best is None or end > best[0])
+        ):
+            best = (end, obj)
+    for m in re.finditer(r"\{[^{}]*\}", text):
+        pairs = {k.lower(): v for k, v in _KEY_RE.findall(m.group(0))}
+        if "bid" in pairs and "ask" in pairs and (best is None or m.end() > best[0]):
+            best = (m.end(), pairs)
+    return best[1] if best else None
 
 
 def parse_quote(text: str) -> tuple[float | None, float | None]:
@@ -226,10 +225,7 @@ def parse_quote(text: str) -> tuple[float | None, float | None]:
     """
     if not text or not text.strip():
         raise AgentError("empty reply")
-    objs = [o for o in _candidates(text) if "bid" in o and "ask" in o]
-    obj: dict[str, Any] | None = objs[-1] if objs else None
-    if obj is None:
-        obj = _loose(text)
+    obj = _last_quote_object(text)
     if obj is None:
         raise AgentError(f"no JSON object with 'bid' and 'ask' keys found; expected {REPLY_FORMAT}")
     bid, ask = _side(obj["bid"], "bid"), _side(obj["ask"], "ask")

@@ -17,6 +17,7 @@ from typing import Any
 from mmarena.agents.base import InfraError
 from mmarena.providers.base import (
     Completion,
+    TransientError,
     UserInput,
     classify_sdk_error,
     is_sdk_error,
@@ -94,11 +95,17 @@ class OpenAIProvider:
 
         def call() -> Any:
             try:
-                return client.chat.completions.create(**req)
+                resp = client.chat.completions.create(**req)
             except Exception as exc:
                 if not is_sdk_error(exc):
                     raise
                 raise classify_sdk_error(exc, "openai") from exc
+            # Routers such as OpenRouter report upstream failures as HTTP 200 with
+            # finish_reason "error": an outage, not the model's answer.
+            choices = getattr(resp, "choices", None) or []
+            if choices and getattr(choices[0], "finish_reason", None) == "error":
+                raise TransientError("openai: upstream provider error (finish_reason=error)")
+            return resp
 
         started = time.perf_counter()
         resp = with_retries(call, attempts=self.retries, what="openai")
