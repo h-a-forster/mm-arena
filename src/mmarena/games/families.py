@@ -344,10 +344,7 @@ def fam_urn(rng: np.random.Generator, classic: bool) -> Spec:
         if mult == 1
         else f"The contract settles at {mult} times the number of red balls originally in the urn."
     )
-    if k <= 3:
-        reveals = tuple((c,) for c in range(1, k + 1))
-    else:
-        reveals = ((1, 2), (3,), (4,))
+    reveals = tuple((c,) for c in range(1, k + 1)) if k <= 3 else ((1, 2), (3,), (4,))
     h = Hidden(
         ("red balls", *(f"draw {i + 1}" for i in range(k))),
         outcomes,

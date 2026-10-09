@@ -13,7 +13,7 @@ class AgentError(Exception):
 
 
 class InfraError(Exception):
-    """Provider or account failure (auth, rate limit, outage). The episode is excluded, not scored."""
+    """Provider or account failure (auth, rate limit, outage). Excludes the episode from scoring."""
 
 
 @dataclass(frozen=True)
