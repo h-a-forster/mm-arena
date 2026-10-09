@@ -104,6 +104,7 @@ def run_episode(game: Game, agent: Agent, seed: int) -> dict[str, Any]:
             cash=cash,
             bid_allowed=bid_allowed,
             ask_allowed=ask_allowed,
+            episode_seed=int(seed),
         )
 
         started = time.perf_counter()

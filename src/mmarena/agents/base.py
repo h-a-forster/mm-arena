@@ -29,6 +29,7 @@ class Observation:
     cash: float
     bid_allowed: bool
     ask_allowed: bool
+    episode_seed: int = 0
 
     @property
     def steps_left(self) -> int:

@@ -31,8 +31,8 @@ How to quote (one line per step):
   h or ?      this help
   r           reprint the rules
   q           quit the game
-Prices are rounded to the tick. A counterparty who buys pays your ask (you go short 1);
-one who sells receives your bid (you go long 1)."""
+Bids round down and asks round up to the tick. A counterparty who buys pays your ask
+(you go short 1); one who sells receives your bid (you go long 1)."""
 
 
 class QuitGame(BaseException):
@@ -115,7 +115,7 @@ def rules_text(game: Game) -> str:
         "your bid.",
         f"- Inventory limit {m.inventory_limit}: at +{m.inventory_limit} (long) your bid is "
         f"pulled, at -{m.inventory_limit} (short) your ask is pulled.",
-        f"- Prices are rounded to the tick, {_g(m.tick)}.",
+        f"- Tick {_g(m.tick)}: bids round down, asks round up.",
         f"- {m.quotes_per_stage} steps per stage, {game.n_stages} stages, "
         f"{game.n_steps} steps in total.",
         "- Revealed to everyone:",
