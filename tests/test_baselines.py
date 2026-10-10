@@ -8,7 +8,10 @@ import pytest
 from mmarena.agents.base import Agent
 from mmarena.agents.baselines import (
     BASELINES,
+    MEAN_K,
     BayesAgent,
+    LookaheadAgent,
+    MeanAgent,
     RandomAgent,
     StaticAgent,
     replay_posterior,
@@ -23,7 +26,15 @@ GAMES = [g for g in load_suite("smoke").games()] + [
 
 
 def test_registry() -> None:
-    assert set(BASELINES) == {"bayes", "bayes-noflow", "glosten-milgrom", "static", "random"}
+    assert set(BASELINES) == {
+        "bayes",
+        "bayes-noflow",
+        "bayes-mean",
+        "bayes-lookahead",
+        "glosten-milgrom",
+        "static",
+        "random",
+    }
     for name, factory in BASELINES.items():
         agent = factory()
         assert isinstance(agent, Agent)
@@ -134,3 +145,68 @@ def test_random_agent_deterministic_per_game() -> None:
     a = run_episode(g, RandomAgent(seed=1), 0)
     b = run_episode(g, RandomAgent(seed=1), 0)
     assert [s["bid_quoted"] for s in a["steps"]] == [s["bid_quoted"] for s in b["steps"]]
+
+
+@pytest.mark.parametrize("game", GAMES, ids=lambda g: f"{g.family}-{g.variant}")
+def test_bayes_mean_is_centred_on_posterior_mean(game) -> None:
+    tick = game.market.tick
+    for seed in range(3):
+        tr = run_episode(game, MeanAgent(), seed)
+        for st in tr["steps"]:
+            assert st["invalid"] is None
+            assert st["info"]["mu"] == st["mu"]
+            half = MEAN_K * max(st["sd"], tick)
+            if st["bid"] is not None:
+                assert st["mu"] - half - tick - 1e-9 <= st["bid"] <= st["mu"] - half + 1e-9
+            if st["ask"] is not None:
+                assert st["mu"] + half - 1e-9 <= st["ask"] <= st["mu"] + half + tick + 1e-9
+            if st["bid"] is not None and st["ask"] is not None:
+                assert 2 * half - 1e-9 <= st["ask"] - st["bid"] <= 2 * half + 2 * tick + 1e-9
+
+
+def test_bayes_mean_deterministic_and_respects_limits() -> None:
+    g = GAMES[0]
+    a = run_episode(g, MeanAgent(), 4)
+    b = run_episode(g, MeanAgent(), 4)
+    assert [(s["bid"], s["ask"]) for s in a["steps"]] == [(s["bid"], s["ask"]) for s in b["steps"]]
+    # width scales with k
+    narrow = run_episode(g, MeanAgent(k=0.5), 4)["steps"][0]
+    wide = run_episode(g, MeanAgent(k=2.0), 4)["steps"][0]
+    assert wide["ask"] - wide["bid"] > narrow["ask"] - narrow["bid"]
+    # at the inventory limit the blocked side is never quoted
+    limit = g.market.inventory_limit
+    for seed in range(20):
+        tr = run_episode(g, MeanAgent(k=0.05), seed)
+        for st in tr["steps"]:
+            assert abs(st["position"]) <= limit
+            assert st["pulled"] == []
+            if not st["bid_allowed"]:
+                assert st["bid"] is None
+            if not st["ask_allowed"]:
+                assert st["ask"] is None
+
+
+def test_lookahead_is_valid_and_close_to_bayes() -> None:
+    # the myopic quote is always a candidate, so lookahead never quotes outside the limits and
+    # stays within a small band of the reference on average
+    g = GAMES[0]
+    ratios = []
+    for seed in range(4):
+        tr = run_episode(g, LookaheadAgent(steps=3), seed)
+        ref = run_episode(g, BayesAgent(), seed)
+        assert tr["status"] == "ok"
+        for st in tr["steps"]:
+            assert st["invalid"] is None and st["pulled"] == []
+            assert st["ev"] <= st["bayes_ev"] + 1e-9
+        ratios.append(tr["xpnl"] / ref["xpnl"])
+    assert 0.9 < float(np.mean(ratios)) < 1.1
+
+
+def test_lookahead_last_step_is_myopic_and_deterministic() -> None:
+    g = GAMES[0]
+    a = run_episode(g, LookaheadAgent(steps=3), 1)
+    b = run_episode(g, LookaheadAgent(steps=3), 1)
+    assert [(s["bid"], s["ask"]) for s in a["steps"]] == [(s["bid"], s["ask"]) for s in b["steps"]]
+    last = a["steps"][-1]
+    assert last["bid"] == pytest.approx(last["bayes_bid"], abs=1e-9)
+    assert last["ask"] == pytest.approx(last["bayes_ask"], abs=1e-9)

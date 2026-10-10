@@ -4,7 +4,8 @@ Spec grammar::
 
     SPEC := BASELINE | PROVIDER ":" MODEL ["@" BASE_URL] ["@" EFFORT]
 
-- ``BASELINE``: one of ``bayes``, ``bayes-noflow``, ``glosten-milgrom``, ``static``, ``random``.
+- ``BASELINE``: one of ``bayes``, ``bayes-noflow``, ``bayes-mean``, ``bayes-lookahead``,
+  ``glosten-milgrom``, ``static``, ``random``.
 - ``anthropic:MODEL`` - Anthropic API (``ANTHROPIC_API_KEY``), e.g. ``anthropic:claude-sonnet-5-5``.
 - ``openai:MODEL`` - OpenAI API (``OPENAI_API_KEY``), e.g. ``openai:gpt-5.1``.
 - ``openai:MODEL@BASE_URL`` - any OpenAI-compatible server, e.g.
