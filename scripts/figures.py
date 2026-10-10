@@ -47,15 +47,17 @@ BASELINES = {
 EFFORTS = ("low", "medium", "high")
 # Label placement for the spread chart: (dx, dy in points, horizontal alignment).
 LABEL_OFFSETS = {
-    "opus 5.5@high": (-8, 4, "right"),
-    "opus 5.5@low": (-8, 4, "right"),
-    "fable 5.1@low": (8, -12, "left"),
-    "haiku 5.5@high": (10, -14, "left"),
-    "opus 5.5@medium": (-8, -14, "right"),
-    "fable 5.1@high": (0, 12, "center"),
-    "bayes-mean": (7, 8, "left"),
-    "sonnet 5.5@high": (-8, 4, "right"),
-    "bayes-noflow": (7, -14, "left"),
+    "opus 5.5@high": (-16, -6, "right"),
+    "opus 5.5@low": (-24, 18, "right"),
+    "fable 5.1@low": (24, -22, "left"),
+    "haiku 5.5@high": (16, -26, "left"),
+    "opus 5.5@medium": (-24, 20, "right"),
+    "fable 5.1@high": (-6, 22, "right"),
+    "bayes": (-14, 14, "right"),
+    "bayes-lookahead": (20, 12, "left"),
+    "bayes-mean": (20, -22, "left"),
+    "sonnet 5.5@high": (22, -22, "left"),
+    "bayes-noflow": (20, 10, "left"),
     "glosten-milgrom": (0, -14, "center"),
     "haiku 5.5@low": (8, -12, "left"),
 }
@@ -102,7 +104,18 @@ def plot_spread(report, path: Path) -> None:
             fontsize=9,
             color=INK if llm else INK_2,
             ha=ha,
+            arrowprops={
+                "arrowstyle": "-",
+                "color": MUTED,
+                "linewidth": 0.7,
+                "shrinkA": 1,
+                "shrinkB": 4,
+            }
+            if max(abs(dx), abs(dy)) > 12
+            else None,
         )
+    ax.set_xlim(0.2, 1.22)
+    ax.set_ylim(-90, 118)
     ax.axhline(0, color=INK_2, linewidth=0.8)
     ax.axvline(1, color=SERIES_2, linewidth=1, linestyle="--")
     ax.text(1.0, ax.get_ylim()[0], " Bayes width", color=SERIES_2, fontsize=8.5, va="bottom")
@@ -112,7 +125,7 @@ def plot_spread(report, path: Path) -> None:
     _title(
         fig,
         "Edge tracks quote width",
-        "Low effort: quotes far too narrow. High effort: centring errors matter as much as "
+        "Low effort: quotes far too narrow. High effort: centring errors cost nearly as much as "
         "width (see Centring vs width)",
     )
     save(fig, path)
@@ -121,11 +134,16 @@ def plot_spread(report, path: Path) -> None:
 MODEL_COLORS = {"haiku": "#3a9e6f", "sonnet": "#7a5cc7", "opus": SERIES_1, "fable": SERIES_2}
 # Label placement for the cost chart, per panel: (dx, dy in points, horizontal alignment).
 COST_OFFSETS = {
-    "usd_1k": {"opus medium": (7, -15, "left")},
+    "usd_1k": {
+        "opus medium": (12, -14, "left"),
+        "sonnet high": (-9, 5, "right"),
+        "opus low": (8, -14, "left"),
+    },
     "sec": {
         "opus low": (6, 7, "left"),
-        "opus medium": (7, -15, "left"),
-        "fable low": (10, -12, "left"),
+        "opus medium": (-10, 10, "right"),
+        "sonnet high": (26, -26, "left"),
+        "fable low": (10, -14, "left"),
     },
 }
 
@@ -226,6 +244,15 @@ def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
                     color=INK,
                     ha=ha,
                     weight="bold" if r in front else "normal",
+                    arrowprops={
+                        "arrowstyle": "-",
+                        "color": MUTED,
+                        "linewidth": 0.7,
+                        "shrinkA": 1,
+                        "shrinkB": 5,
+                    }
+                    if max(abs(dx), abs(dy)) > 9
+                    else None,
                 )
         for y, text in ((100, "bayes"), (static_edge, "static (no model)")):
             ax.axhline(y, color=MUTED, linewidth=0.8, linestyle=":")
@@ -244,6 +271,8 @@ def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
             ticks = [1, 3, 10, 30, 100]
             ax.set_xticks(ticks, [f"${t}" for t in ticks])
             ax.minorticks_off()
+        if key == "sec":
+            ax.set_xlim(8.5, None)
         ax.set_ylim(-8, 106)
         ax.set_xlabel(xlabel)
         ax.set_ylabel("edge captured, % of Bayes")
@@ -283,15 +312,16 @@ def plot_effort(report, path: Path) -> None:
         ]
         ax.plot(xs, ys, color=color, alpha=0.5, lw=1.2, zorder=2)
         ax.errorbar(
-            xs, ys, yerr=err, fmt="o", color=color, ms=6, capsize=3, lw=1.3, zorder=3,
+            xs, ys, yerr=err, fmt="o", color=color, ms=7, capsize=3, lw=1.3, zorder=3,
             label=model,
         )  # fmt: skip
         for x, (_, _, name) in zip(xs, pts, strict=True):
+            side = -1 if k < len(models) / 2 else 1
             extra = [r for r in reps.get(name, []) if r["run"] >= 2]
             for j, r in enumerate(extra):
                 ax.scatter(
-                    x + 0.07 + 0.03 * j, r["edge_captured"], s=16, color=color, alpha=0.6,
-                    edgecolor="white", linewidth=0.5, zorder=4,
+                    x + side * (0.10 + 0.04 * j), r["edge_captured"], s=28, color=color, alpha=0.85,
+                    edgecolor="white", linewidth=0.6, zorder=4,
                 )  # fmt: skip
     ax.axhline(0, color=INK_2, linewidth=0.8)
     ax.set_xticks(range(len(EFFORTS)), EFFORTS)
@@ -303,7 +333,8 @@ def plot_effort(report, path: Path) -> None:
     _title(
         fig,
         "Edge rises with reasoning effort",
-        "Primary runs with 95% game-clustered bootstrap intervals; small dots: replicate runs",
+        "Primary runs with 95% bootstrap intervals; "
+        "small dots: replicate runs (haiku high r2, opus high r2)",
     )
     save(fig, path)
 
