@@ -90,6 +90,15 @@ existing layout; do not overwrite the existing runs). Then add to the README and
 
 If a run fails partway, keep what completed and say so. Don't fake numbers.
 
+## E. Research framing (docs, do last, after new results are in)
+
+The repo will be linked from an AI-evaluation company site as research. In README.md, right after the
+intro, add `## Findings`: 3-5 bullets, each one plain-language insight plus the numbers behind it,
+linked to the exact results section. Use the final, corrected numbers (including new runs) and keep
+the caveats. Before the limitations section, add `## Open questions`: 4-6 concrete research questions
+the data raises, each with a pointer to the files or scripts to start from. Keep the voice concise and
+plain, with no hype.
+
 ## Done-check
 
 pytest (including --runslow where reasonable), ruff check and ruff format --check pass; the report and
