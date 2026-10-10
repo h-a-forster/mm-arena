@@ -150,9 +150,9 @@ Opus 5.5 is the only model run at three effort levels: low 60.0 [56.4, 63.7], me
 17.6], both Holm p = 0.012. Output grows with effort: 664, 1,228 and 1,750 tokens per quote. At
 medium effort Opus's width is 0.77 of the Bayes width, its adverse selection is 0.68 and its β
 flow is 1.03, so it already reads order flow and still quotes too tight. Medium ran on the
-newer Claude Code and high (run 1) on the older one. Within the newer version, high (run 2)
-minus medium is +11.1 [7.6, 14.7], so the curve rises either way, but the +15.0 step mixes in the
-version change. Medium costs $37.70
+newer Claude Code; low and high (run 1) on the older one, so both steps above mix in the version
+change. Within the newer version, high (run 2) minus medium is +11.1 [7.6, 14.7], so the curve
+rises either way. Medium costs $37.70
 per 1,000 quotes at 16.3 s per quote ([Cost](#cost)).
 
 ### Run-to-run variability
