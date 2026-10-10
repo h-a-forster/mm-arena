@@ -8,6 +8,8 @@ myopic Bayes-optimal quoter's expected P&L on the same ``(game, seed)`` episodes
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, fields
@@ -93,6 +95,7 @@ class EpisodeMetrics:
     cost_usd: float = 0.0
     latency_s: float = 0.0
     cost_steps: int = 0  # steps that reported tokens or cost
+    structure: str = ""  # hidden-structure label: games with the same one are not independent
 
     @property
     def key(self) -> Key:
@@ -136,6 +139,30 @@ def _step_usage(
     return tokens, cost
 
 
+def structure_label(game: Mapping[str, Any]) -> str:
+    """Family plus a short hash of the game's hidden structure (``params["hidden"]``).
+
+    The classic games of a family share one structure, so they are one cluster, not several
+    independent draws. Falls back to the game id when the trace does not record the structure.
+    """
+    hidden = (game.get("params") or {}).get("hidden")
+    if hidden is None:
+        return str(game["id"])
+    digest = hashlib.sha256(json.dumps(hidden, sort_keys=True).encode()).hexdigest()[:10]
+    return f"{game['family']}-{digest}"
+
+
+def _step_latency(s: Mapping[str, Any]) -> float:
+    """Provider-reported latency of a step if recorded, else the engine's wall clock.
+
+    The engine's clock reads about zero when a step is replayed from the response cache.
+    """
+    lat = (s.get("info") or {}).get("provider_latency_s")
+    if isinstance(lat, (int, float)) and not isinstance(lat, bool) and math.isfinite(lat):
+        return float(lat)
+    return float(s.get("latency_s") or 0.0)
+
+
 def episode_metrics(trace: Mapping[str, Any]) -> EpisodeMetrics:
     """Compute the additive metrics of one ``ok`` trace."""
     g = trace["game"]
@@ -151,6 +178,7 @@ def episode_metrics(trace: Mapping[str, Any]) -> EpisodeMetrics:
         variant=str(g["variant"]),
         seed=int(trace["seed"]),
         prior_std=s0,
+        structure=structure_label(g),
     )
     steps = trace["steps"]
     m.n_steps = len(steps)
@@ -206,7 +234,7 @@ def episode_metrics(trace: Mapping[str, Any]) -> EpisodeMetrics:
             m.dominated += 1
         if not (s["bid_allowed"] and s["ask_allowed"]):
             m.limit_steps += 1
-        m.latency_s += float(s.get("latency_s") or 0.0)
+        m.latency_s += _step_latency(s)
         tokens, cost = _step_usage(s.get("info") or {}, write_ttl)
         if tokens is not None or cost is not None:
             m.cost_steps += 1

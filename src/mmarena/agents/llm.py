@@ -17,6 +17,8 @@ USAGE_KEYS = (
     "cache_read_tokens",
     "cache_write_tokens",
     "reasoning_tokens",
+    "aux_input_tokens",
+    "aux_output_tokens",
 )
 
 
@@ -89,6 +91,11 @@ class LLMAgent:
     def _info(self, calls: list[Completion], raws: list[str]) -> dict[str, Any]:
         usage = {k: sum(c.usage.get(k, 0) for c in calls) for k in USAGE_KEYS}
         usage = {k: v for k, v in usage.items() if v or k in ("input_tokens", "output_tokens")}
+        if any("cache_write_1h_tokens" in c.usage for c in calls):
+            # Kept even when 0: its presence tells pricing the writes were 5-minute writes.
+            usage["cache_write_1h_tokens"] = sum(
+                c.usage.get("cache_write_1h_tokens", 0) for c in calls
+            )
         costs = [c.cost_usd for c in calls]
         last = calls[-1]
         info: dict[str, Any] = {

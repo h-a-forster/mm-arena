@@ -117,3 +117,18 @@ def test_episodes_needed_and_variance_reduction():
     assert vr["se_ratio"] > 2
     assert vr["episodes_ratio"] == pytest.approx((vr["sd_pnl"] / vr["sd_xpnl"]) ** 2)
     assert vr["episodes_needed_pnl"] > vr["episodes_needed_xpnl"]
+
+
+def test_bootstrap_pvalue_and_gap_test():
+    from mmarena.stats import bootstrap_pvalue, bootstrap_ratio_gap_test
+
+    assert bootstrap_pvalue([1.0, 2.0, 3.0]) == pytest.approx(0.0)
+    assert bootstrap_pvalue([-1.0, 1.0]) == pytest.approx(1.0)
+    assert bootstrap_pvalue([0.0, 0.0, 1.0, 2.0]) == pytest.approx(1.0)
+    assert math.isnan(bootstrap_pvalue([math.nan]))
+    rng = np.random.default_rng(3)
+    a = (rng.normal(5, 1, 30), np.ones(30), list(range(30)))
+    b = (rng.normal(0, 1, 30), np.ones(30), list(range(30, 60)))
+    est, p = bootstrap_ratio_gap_test(a, b, 1.0, 500, 1)
+    assert est == bootstrap_ratio_gap(a, b, 1.0, 500, 1)
+    assert p < 0.01 and est.lo > 0

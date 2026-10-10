@@ -8,13 +8,16 @@ Pareto frontier), variance (realized vs expected P&L) and one example episode pe
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
 import numpy as np
+from matplotlib.colors import to_rgba
 
-from mmarena.metrics import load_episodes
+from mmarena.metrics import _step_usage, load_episodes
 from mmarena.plots import (
+    DPI,
     GRID,
     INK,
     INK_2,
@@ -29,24 +32,50 @@ from mmarena.plots import (
     plot_variance,
     save,
 )
-from mmarena.report import build_report, load_run
+from mmarena.pricing import list_cost
+from mmarena.report import build_report, is_llm, load_run, split_replicate
 
-BASELINES = {"bayes", "bayes-noflow", "glosten-milgrom", "static", "random"}
+BASELINES = {
+    "bayes",
+    "bayes-noflow",
+    "bayes-mean",
+    "bayes-lookahead",
+    "glosten-milgrom",
+    "static",
+    "random",
+}
+EFFORTS = ("low", "medium", "high")
 # Label placement for the spread chart: (dx, dy in points, horizontal alignment).
 LABEL_OFFSETS = {
-    "opus 5.5@high": (-8, 4, "right"),
-    "opus 5.5@low": (-8, 4, "right"),
-    "fable 5.1@low": (8, -12, "left"),
-    "haiku 5.5@high": (8, -16, "left"),
-    "sonnet 5.5@high": (-8, 4, "right"),
-    "bayes-noflow": (7, 2, "left"),
+    "opus 5.5@high": (-16, -6, "right"),
+    "opus 5.5@low": (-24, 18, "right"),
+    "fable 5.1@low": (24, -22, "left"),
+    "haiku 5.5@high": (16, -26, "left"),
+    "opus 5.5@medium": (-24, 20, "right"),
+    "fable 5.1@high": (-6, 22, "right"),
+    "bayes": (-14, 14, "right"),
+    "bayes-lookahead": (20, 12, "left"),
+    "bayes-mean": (20, -22, "left"),
+    "sonnet 5.5@high": (22, -22, "left"),
+    "bayes-noflow": (20, 10, "left"),
     "glosten-milgrom": (0, -14, "center"),
     "haiku 5.5@low": (8, -12, "left"),
 }
 
 
 def short(name: str) -> str:
-    return name.replace("claude-cli:claude-", "").replace("-5-5", " 5.5").replace("-5-1", " 5.1")
+    out = name.replace("claude-cli:claude-", "").replace("-5-5", " 5.5").replace("-5-1", " 5.1")
+    return re.sub(r"#r(\d+)$", r" r\1", out)
+
+
+def is_baseline(name: str) -> bool:
+    return name in BASELINES or not is_llm(name)
+
+
+def file_tag(name: str) -> str:
+    """Short, file-name-safe tag: no spaces, '@', '#' or ':'."""
+    tag = short(name).replace(" 5.5", "").replace(" 5.1", "").replace("@", "-").replace(" ", "-")
+    return re.sub(r"[^A-Za-z0-9._-]", "", tag)
 
 
 def plot_spread(report, path: Path) -> None:
@@ -56,7 +85,7 @@ def plot_spread(report, path: Path) -> None:
         name = row["agent"]
         ratio = row["width_sd"] / row["bayes_width_sd"]
         edge = row["edge_captured"]
-        llm = name not in BASELINES
+        llm = not is_baseline(name)
         ax.scatter(
             ratio,
             edge,
@@ -75,7 +104,18 @@ def plot_spread(report, path: Path) -> None:
             fontsize=9,
             color=INK if llm else INK_2,
             ha=ha,
+            arrowprops={
+                "arrowstyle": "-",
+                "color": MUTED,
+                "linewidth": 0.7,
+                "shrinkA": 1,
+                "shrinkB": 4,
+            }
+            if max(abs(dx), abs(dy)) > 12
+            else None,
         )
+    ax.set_xlim(0.2, 1.22)
+    ax.set_ylim(-90, 118)
     ax.axhline(0, color=INK_2, linewidth=0.8)
     ax.axvline(1, color=SERIES_2, linewidth=1, linestyle="--")
     ax.text(1.0, ax.get_ylim()[0], " Bayes width", color=SERIES_2, fontsize=8.5, va="bottom")
@@ -85,7 +125,8 @@ def plot_spread(report, path: Path) -> None:
     _title(
         fig,
         "Edge tracks quote width",
-        "LLMs centre their quotes well; the shortfall is spreads narrower than optimal",
+        "Low effort: quotes far too narrow. High effort: centring errors cost nearly as much as "
+        "width (see Centring vs width)",
     )
     save(fig, path)
 
@@ -93,29 +134,58 @@ def plot_spread(report, path: Path) -> None:
 MODEL_COLORS = {"haiku": "#3a9e6f", "sonnet": "#7a5cc7", "opus": SERIES_1, "fable": SERIES_2}
 # Label placement for the cost chart, per panel: (dx, dy in points, horizontal alignment).
 COST_OFFSETS = {
-    "usd_1k": {},
-    "sec": {"opus low": (6, 7, "left"), "fable low": (7, -14, "left")},
+    "usd_1k": {
+        "opus medium": (12, -14, "left"),
+        "sonnet high": (-9, 5, "right"),
+        "opus low": (8, -14, "left"),
+    },
+    "sec": {
+        "opus low": (6, 7, "left"),
+        "opus medium": (-10, 10, "right"),
+        "sonnet high": (26, -26, "left"),
+        "fable low": (10, -14, "left"),
+    },
 }
 
 
 def llm_costs(report, traces) -> list[dict]:
-    """Per LLM setup: edge captured, list-price USD per 1,000 quotes, mean seconds per quote."""
+    """Per LLM setup: edge captured, list-price USD per 1,000 quotes, mean seconds per quote.
+
+    Rows are the leaderboard (primary) setups. Cost and latency pool every run of the setup
+    (primary and ``#rN`` replicates). Edge is the pooled edge when the report has one for the
+    setup (several runs), else the primary run's edge.
+    """
+    pooled = {s["setup"]: s["pooled"] for s in (report.replicates or {}).get("setups", [])}
     rows = []
     for row in report.leaderboard:
         name = row["agent"]
-        if name in BASELINES:
+        if is_baseline(name):
             continue
-        steps = [s for t in traces[name] if t["status"] == "ok" for s in t["steps"]]
+        runs = [n for n in traces if split_replicate(n)[0] == name]
+        steps = [s for n in runs for t in traces[n] if t["status"] == "ok" for s in t["steps"]]
         lat = [(s.get("info") or {}).get("provider_latency_s") for s in steps]
         lat = [x for x in lat if isinstance(x, (int, float))]
+        ttl = "1h" if name.startswith("claude-cli:") else "5m"
+        cost = cost5 = 0.0
+        for s in steps:
+            info = s.get("info") or {}
+            cost += _step_usage(info, ttl)[1] or 0.0
+            usage = info.get("usage")
+            five = None
+            if isinstance(usage, dict):
+                five = list_cost(info.get("model"), {**usage, "cache_write_1h_tokens": 0})
+            cost5 += five if five is not None else (_step_usage(info, ttl)[1] or 0.0)
         model, _, effort = short(name).partition("@")
         rows.append(
             {
                 "name": name,
                 "model": model.split()[0],
                 "effort": effort,
-                "edge": row["edge_captured"],
-                "usd_1k": 1000 * row["cost_usd"] / len(steps),
+                "runs": len(runs),
+                "edge": pooled[name]["edge_captured"] if name in pooled else row["edge_captured"],
+                "pooled_edge": name in pooled,
+                "usd_1k": 1000 * cost / len(steps),
+                "usd_1k_5m": 1000 * cost5 / len(steps),
                 "sec": float(np.mean(lat)) if lat else float("nan"),
             }
         )
@@ -146,18 +216,19 @@ def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
         ax.plot(xs, ys, drawstyle="steps-post", color=INK_2, linewidth=1, linestyle="--", zorder=2)
         for model, color in MODEL_COLORS.items():
             pts = sorted(
-                (r for r in rows if r["model"] == model), key=lambda r: r["effort"] != "low"
+                (r for r in rows if r["model"] == model),
+                key=lambda r: EFFORTS.index(r["effort"]) if r["effort"] in EFFORTS else 9,
             )
             if not pts:
                 continue
             ax.plot([r[key] for r in pts], [r["edge"] for r in pts], color=color, alpha=0.5, lw=1.2)
             for r in pts:
-                high = r["effort"] == "high"
+                fill = {"low": SURFACE, "medium": to_rgba(color, 0.45)}.get(r["effort"], color)
                 ax.scatter(
                     r[key],
                     r["edge"],
                     s=70,
-                    color=color if high else SURFACE,
+                    facecolor=fill,
                     edgecolor=color,
                     linewidth=1.6,
                     zorder=3,
@@ -173,6 +244,15 @@ def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
                     color=INK,
                     ha=ha,
                     weight="bold" if r in front else "normal",
+                    arrowprops={
+                        "arrowstyle": "-",
+                        "color": MUTED,
+                        "linewidth": 0.7,
+                        "shrinkA": 1,
+                        "shrinkB": 5,
+                    }
+                    if max(abs(dx), abs(dy)) > 9
+                    else None,
                 )
         for y, text in ((100, "bayes"), (static_edge, "static (no model)")):
             ax.axhline(y, color=MUTED, linewidth=0.8, linestyle=":")
@@ -191,14 +271,70 @@ def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
             ticks = [1, 3, 10, 30, 100]
             ax.set_xticks(ticks, [f"${t}" for t in ticks])
             ax.minorticks_off()
+        if key == "sec":
+            ax.set_xlim(8.5, None)
         ax.set_ylim(-8, 106)
         ax.set_xlabel(xlabel)
         ax.set_ylabel("edge captured, % of Bayes")
     _title(
         fig,
         "What the edge costs",
-        "Hollow: low effort, filled: high effort. Dashed: Pareto frontier (bold labels). "
-        "Latency through claude -p.",
+        "Hollow: low effort, half-filled: medium, filled: high. "
+        "Dashed: Pareto frontier (bold labels). Latency through claude -p.",
+    )
+    save(fig, path)
+
+
+def plot_effort(report, path: Path) -> None:
+    """Edge captured against reasoning effort, one line per model, replicate runs as small dots."""
+    fig, (ax,) = _figure(7.5, 4.6)
+    pos = {e: i for i, e in enumerate(EFFORTS)}
+    rows = {r["agent"]: r for r in report.leaderboard}
+    reps = {s["setup"]: s["runs"] for s in (report.replicates or {}).get("setups", [])}
+    models = list(MODEL_COLORS)
+    for k, model in enumerate(models):
+        color = MODEL_COLORS[model]
+        pts = []
+        for name, row in rows.items():
+            m, _, effort = short(name).partition("@")
+            if is_baseline(name) or m.split()[0] != model or effort not in pos:
+                continue
+            pts.append((pos[effort], row, name))
+        pts.sort(key=lambda p: p[0])
+        if not pts:
+            continue
+        shift = (k - (len(models) - 1) / 2) * 0.05
+        xs = [p[0] + shift for p in pts]
+        ys = [p[1]["edge_captured"] for p in pts]
+        err = [
+            [p[1]["edge_captured"] - p[1]["edge_lo"] for p in pts],
+            [p[1]["edge_hi"] - p[1]["edge_captured"] for p in pts],
+        ]
+        ax.plot(xs, ys, color=color, alpha=0.5, lw=1.2, zorder=2)
+        ax.errorbar(
+            xs, ys, yerr=err, fmt="o", color=color, ms=7, capsize=3, lw=1.3, zorder=3,
+            label=model,
+        )  # fmt: skip
+        for x, (_, _, name) in zip(xs, pts, strict=True):
+            side = -1 if k < len(models) / 2 else 1
+            extra = [r for r in reps.get(name, []) if r["run"] >= 2]
+            for j, r in enumerate(extra):
+                ax.scatter(
+                    x + side * (0.10 + 0.04 * j), r["edge_captured"], s=28, color=color, alpha=0.85,
+                    edgecolor="white", linewidth=0.6, zorder=4,
+                )  # fmt: skip
+    ax.axhline(0, color=INK_2, linewidth=0.8)
+    ax.set_xticks(range(len(EFFORTS)), EFFORTS)
+    ax.set_xlim(-0.4, len(EFFORTS) - 0.6)
+    ax.set_xlabel("reasoning effort")
+    ax.set_ylabel("edge captured, % of Bayes")
+    ax.legend(frameon=False, fontsize=8.5, loc="best", title="line: primary run, bars: 95% CI")
+    ax.legend_.get_title().set_fontsize(7.5)
+    _title(
+        fig,
+        "Edge rises with reasoning effort",
+        "Primary runs with 95% bootstrap intervals; "
+        "small dots: replicate runs (haiku high r2, opus high r2)",
     )
     save(fig, path)
 
@@ -209,18 +345,26 @@ def main(run_dir: str, out_dir: str) -> None:
     report = build_report(run_dir, write=False)
     save(plot_leaderboard(report), out / "leaderboard")
     plot_spread(report, out / "spread")
+    plot_effort(report, out / "effort")
     traces = load_run(run_dir)
     costs = llm_costs(report, traces)
     if costs:
         static = next((r["edge_captured"] for r in report.leaderboard if r["agent"] == "static"), 0)
         plot_cost(costs, static, out / "cost")
+        print(
+            "Cost and latency pool all runs of a setup; edge is pooled where runs > 1 (marked *), "
+            "else the primary run's."
+        )
+        head = f"{'setup':18s} {'runs':>4s} {'edge':>7s}  {'USD/1k':>8s}"
+        print(f"{head} {'USD/1k (5-min writes)':>22s}  {'s/quote':>7s}")
         for r in sorted(costs, key=lambda r: r["usd_1k"]):
+            edge = f"{r['edge']:6.1f}" + ("*" if r["pooled_edge"] else " ")
             print(
-                f"{short(r['name']):18s} edge {r['edge']:6.1f}  ${r['usd_1k']:7.2f}/1k quotes  "
-                f"{r['sec']:5.1f} s/quote"
+                f"{short(r['name']):18s} {r['runs']:4d} {edge}  ${r['usd_1k']:7.2f} "
+                f"{'$' + format(r['usd_1k_5m'], '.2f'):>22s}  {r['sec']:7.1f}"
             )
     agents = load_episodes(traces)
-    llms = [r["agent"] for r in report.leaderboard if r["agent"] not in BASELINES]
+    llms = [r["agent"] for r in report.leaderboard if not is_baseline(r["agent"])]
     if len(llms) >= 2:
         # The two best LLM runs: close in skill, so the estimator choice matters most.
         a, b = llms[0], llms[1]
@@ -231,8 +375,9 @@ def main(run_dir: str, out_dir: str) -> None:
         # The episode where the agent's expected P&L falls furthest below Bayes on its own path.
         eps = [t for t in traces[name] if t["status"] == "ok" and t["game"]["variant"] == "classic"]
         worst = min(eps, key=lambda t: (t["xpnl"] - t["bayes_xpnl_local"]) / t["game"]["prior_std"])
-        tag = short(name).replace(" 5.5", "").replace(" 5.1", "").replace("@", "-")
-        save(plot_episode(worst), out / f"episode-{tag}")
+        tag = file_tag(name)
+        # PNG only: the README embeds the PNGs, and the SVGs would be untracked clutter.
+        plot_episode(worst).savefig(out / f"episode-{tag}.png", dpi=DPI, facecolor=SURFACE)
     print(f"wrote figures to {out}")
 
 

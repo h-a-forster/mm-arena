@@ -164,3 +164,31 @@ def test_fill_response_direction():
         b = episode_metrics(run_episode(game, ScriptedAgent(contrarian), s))
         assert a.dir_right == a.dir_n
         assert b.dir_right == 0
+
+
+def test_structure_label_groups_classic_games_only():
+    from mmarena.metrics import structure_label
+
+    c = [make_game("dice", s, "classic").to_dict() for s in (1000, 1001, 1002)]
+    assert len({structure_label(g) for g in c}) == 1
+    p = [make_game("dice", s, "perturbed").to_dict() for s in (5000, 5001, 5002)]
+    assert len({structure_label(g) for g in p}) == 3
+    assert structure_label({"id": "x-1", "family": "x", "params": {}}) == "x-1"
+
+
+def test_structure_is_ignored_by_aggregate(runs):
+    ep = episode_metrics(runs["bayes"][0])
+    assert ep.structure.startswith(ep.family + "-")
+    assert aggregate([ep])["episodes"] == 1
+
+
+def test_latency_prefers_provider_latency(runs):
+    t = {**runs["bayes"][0], "steps": [dict(s) for s in runs["bayes"][0]["steps"]]}
+    for i, s in enumerate(t["steps"]):
+        s["latency_s"] = 0.0
+        s["info"] = {"provider_latency_s": 2.0} if i % 2 == 0 else {"provider_latency_s": None}
+        if i % 2:
+            s["latency_s"] = 1.0
+    n = len(t["steps"])
+    expected = 2.0 * math.ceil(n / 2) + 1.0 * (n // 2)
+    assert episode_metrics(t).latency_s == pytest.approx(expected)

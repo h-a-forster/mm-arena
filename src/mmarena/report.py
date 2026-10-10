@@ -5,12 +5,14 @@ from __future__ import annotations
 import csv
 import json
 import math
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from itertools import combinations
 from pathlib import Path
 from typing import Any
 
+from mmarena.decompose import decompose_runs
 from mmarena.metrics import (
     AgentEpisodes,
     EpisodeMetrics,
@@ -26,7 +28,7 @@ from mmarena.stats import (
     N_BOOT,
     bootstrap_mean,
     bootstrap_ratio,
-    bootstrap_ratio_gap,
+    bootstrap_ratio_gap_test,
     holm,
     paired_difference,
     rank_probabilities,
@@ -35,6 +37,18 @@ from mmarena.stats import (
 
 REF_AGENT = "bayes"
 REPORT_FILES = ("summary.json", "leaderboard.csv", "REPORT.md")
+_REPLICATE = re.compile(r"^(.*)#r(\d+)$")
+
+
+def split_replicate(name: str) -> tuple[str, int]:
+    """``"agent#r2"`` -> ``("agent", 2)``; a name without a ``#rN`` suffix is run 1."""
+    m = _REPLICATE.match(name)
+    return (m.group(1), max(int(m.group(2)), 1)) if m else (name, 1)
+
+
+def is_llm(name: str) -> bool:
+    """LLM setups are named ``provider:model...``; baselines have no colon."""
+    return ":" in name
 
 
 @dataclass
@@ -46,11 +60,14 @@ class Report:
     pairwise: list[dict[str, Any]]
     variance: dict[str, Any]
     reference_generated: int
+    decomposition: dict[str, dict[str, Any]] = field(default_factory=dict)
+    replicates: dict[str, Any] = field(default_factory=dict)
     settings: dict[str, Any] = field(default_factory=dict)
 
     @property
     def best(self) -> str | None:
-        return self.leaderboard[0]["agent"] if self.leaderboard else None
+        """The agent other agents are compared with: the reference if present, else the top."""
+        return _anchor(self.leaderboard)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -62,6 +79,8 @@ class Report:
             "variants": self.variants,
             "pairwise": self.pairwise,
             "variance": self.variance,
+            "decomposition": self.decomposition,
+            "replicates": self.replicates,
         }
 
 
@@ -125,7 +144,8 @@ def build_report(
     run_dir = Path(run_dir)
     traces = load_run(run_dir)
     ref, generated = bayes_reference(traces, REF_AGENT, generate_reference)
-    agents = load_episodes(traces)
+    every_run = load_episodes(traces)
+    agents = {n: a for n, a in every_run.items() if split_replicate(n)[1] < 2}
 
     board = []
     for name, ae in agents.items():
@@ -163,8 +183,12 @@ def build_report(
 
     variants = _variant_table(agents, ref, n_boot, seed)
     pairwise = _pairwise(agents, ref, n_boot, seed)
-    best = board[0]["agent"] if board else None
+    best = _anchor(board)
     variance = _variance(agents, best, delta)
+    decomposition = decompose_runs(
+        {n: traces[n] for n in agents}, {row["agent"]: row for row in board}
+    )
+    replicates = _replicates(every_run, ref, [r["agent"] for r in board], n_boot, seed)
 
     report = Report(
         run_dir=run_dir,
@@ -174,11 +198,19 @@ def build_report(
         pairwise=pairwise,
         variance=variance,
         reference_generated=generated,
+        decomposition=decomposition,
+        replicates=replicates,
         settings={"n_boot": n_boot, "seed": seed, "delta": delta, "reference": REF_AGENT},
     )
     if write:
         write_report(report, Path(out_dir) if out_dir else run_dir)
     return report
+
+
+def _anchor(board: Sequence[Mapping[str, Any]]) -> str | None:
+    """``REF_AGENT`` if on the board (a non-myopic baseline can outscore it), else the top."""
+    names = [row["agent"] for row in board]
+    return REF_AGENT if REF_AGENT in names else (names[0] if names else None)
 
 
 def _per_game(eps: Sequence[EpisodeMetrics], fn) -> dict[str, float]:
@@ -191,6 +223,11 @@ def _per_game(eps: Sequence[EpisodeMetrics], fn) -> dict[str, float]:
 def _variant_table(
     agents: Mapping[str, AgentEpisodes], ref: Mapping[Key, float], n_boot: int, seed: int
 ) -> list[dict[str, Any]]:
+    """Edge by family and variant, and the classic-minus-perturbed gap.
+
+    The classic games of a family share one hidden structure, so the gap bootstrap resamples
+    structures, not games. p is a two-sided bootstrap p-value, Holm-adjusted across LLM setups.
+    """
     rows = []
     for name, ae in agents.items():
         row: dict[str, Any] = {"agent": name}
@@ -203,15 +240,23 @@ def _variant_table(
             parts[var] = (
                 [e.xpnl_sd for e in eps],
                 [ref[e.key] for e in eps],
-                [e.game_id for e in eps],
+                [e.structure or e.game_id for e in eps],
             )
             row[f"edge_{var}"] = aggregate(eps, ref)["edge_captured"] if eps else math.nan
+            row[f"clusters_{var}"] = len(set(parts[var][2]))
         if parts["classic"][0] and parts["perturbed"][0]:
-            gap = bootstrap_ratio_gap(parts["classic"], parts["perturbed"], 100.0, n_boot, seed)
-            row.update(gap=gap.value, gap_lo=gap.lo, gap_hi=gap.hi)
+            gap, p = bootstrap_ratio_gap_test(
+                parts["classic"], parts["perturbed"], 100.0, n_boot, seed
+            )
+            row.update(gap=gap.value, gap_lo=gap.lo, gap_hi=gap.hi, gap_p=p)
         else:
-            row.update(gap=math.nan, gap_lo=math.nan, gap_hi=math.nan)
+            row.update(gap=math.nan, gap_lo=math.nan, gap_hi=math.nan, gap_p=math.nan)
         rows.append(row)
+    llm = [r for r in rows if is_llm(r["agent"])]
+    for r, p in zip(llm, holm([r["gap_p"] for r in llm]), strict=True):
+        r["gap_p_holm"] = p
+    for r in rows:
+        r.setdefault("gap_p_holm", math.nan)
     return rows
 
 
@@ -260,6 +305,134 @@ def _variance(agents: Mapping[str, AgentEpisodes], best: str | None, delta: floa
                 delta,
             )
     return {"delta": delta, "best": best, "per_agent": per_agent, "paired_vs_best": paired}
+
+
+def _diff_row(
+    ea: Sequence[EpisodeMetrics],
+    eb: Sequence[EpisodeMetrics],
+    ref: Mapping[Key, float],
+    n_boot: int,
+    seed: int,
+) -> dict[str, Any] | None:
+    """Edge difference (a minus b, pp) on the episodes both runs played."""
+    xa, xb = _shared(ea, eb, ref)
+    if not xa:
+        return None
+    return paired_difference(
+        [e.xpnl_sd for e in xa],
+        [e.xpnl_sd for e in xb],
+        [ref[e.key] for e in xa],
+        [e.game_id for e in xa],
+        100.0,
+        n_boot,
+        seed=seed,
+    ).to_dict()
+
+
+def _pooled_scores(runs: Mapping[int, AgentEpisodes], ref: Mapping[Key, float]) -> dict[Key, float]:
+    """Per-episode xpnl_sd averaged over a setup's runs."""
+    acc: dict[Key, list[float]] = {}
+    for ae in runs.values():
+        for e in ae.episodes:
+            if e.key in ref:
+                acc.setdefault(e.key, []).append(e.xpnl_sd)
+    return {k: sum(v) / len(v) for k, v in acc.items()}
+
+
+def _replicates(
+    agents: Mapping[str, AgentEpisodes],
+    ref: Mapping[Key, float],
+    order: Sequence[str],
+    n_boot: int,
+    seed: int,
+) -> dict[str, Any]:
+    """Run-to-run variability for setups with at least two runs (``name``, ``name#r2``, ...)."""
+    setups: dict[str, dict[int, AgentEpisodes]] = {}
+    for name, ae in agents.items():
+        base, n = split_replicate(name)
+        setups.setdefault(base, {})[n] = ae
+    rank = {n: i for i, n in enumerate(order)}
+    multi = sorted(
+        (b for b, r in setups.items() if len(r) >= 2), key=lambda b: (rank.get(b, len(rank)), b)
+    )
+    if not multi:
+        return {}
+    out_setups = []
+    for base in multi:
+        runs = dict(sorted(setups[base].items()))
+        first = next(iter(runs.values()))
+        rows = []
+        for n, ae in runs.items():
+            agg = aggregate(ae.episodes, ref)
+            row = {
+                "run": n,
+                "agent": ae.agent,
+                "episodes": agg["edge_episodes"],
+                "games": agg["games"],
+                "edge_captured": agg["edge_captured"],
+            }
+            ci = _edge_ci(ae.episodes, ref, n_boot, seed)
+            row.update(edge_lo=ci["edge_lo"], edge_hi=ci["edge_hi"])
+            row["vs_first"] = (
+                None if ae is first else _diff_row(ae.episodes, first.episodes, ref, n_boot, seed)
+            )
+            rows.append(row)
+        eps = [e for ae in runs.values() for e in ae.episodes if e.key in ref]
+        est = bootstrap_ratio(
+            [e.xpnl_sd for e in eps],
+            [ref[e.key] for e in eps],
+            [e.game_id for e in eps],
+            100.0,
+            n_boot,
+            seed,
+        )
+        out_setups.append(
+            {
+                "setup": base,
+                "first_run": next(iter(runs)),
+                "runs": rows,
+                "pooled": {
+                    "edge_captured": est.value,
+                    "edge_lo": est.lo,
+                    "edge_hi": est.hi,
+                    "episodes": len(eps),
+                },
+            }
+        )
+    pairs = []
+    for a, b in combinations(multi, 2):
+        sa, sb = _pooled_scores(setups[a], ref), _pooled_scores(setups[b], ref)
+        keys = [k for k in sa if k in sb]
+        if not keys:
+            continue
+        res = paired_difference(
+            [sa[k] for k in keys],
+            [sb[k] for k in keys],
+            [ref[k] for k in keys],
+            [k[0] for k in keys],
+            100.0,
+            n_boot,
+            seed=seed,
+        )
+        combos = []
+        for ra, ea in sorted(setups[a].items()):
+            for rb, eb in sorted(setups[b].items()):
+                d = _diff_row(ea.episodes, eb.episodes, ref, n_boot, seed)
+                if d is not None:
+                    combos.append({"run_a": ra, "run_b": rb, **d})
+        pairs.append(
+            {
+                "a": a,
+                "b": b,
+                "runs_a": len(setups[a]),
+                "runs_b": len(setups[b]),
+                **res.to_dict(),
+                "combinations": combos,
+            }
+        )
+    for row, p in zip(pairs, holm([r["p_value"] for r in pairs]), strict=True):
+        row["p_holm"] = p
+    return {"setups": out_setups, "pairs": pairs}
 
 
 # --------------------------------------------------------------------------- writing
@@ -365,6 +538,13 @@ def render_markdown(r: Report) -> str:
         f"Intervals: 95% game-clustered bootstrap, {r.settings.get('n_boot')} draws.",
         "",
     ]
+    if r.replicates:
+        n_rep = sum(len(s["runs"]) - 1 for s in r.replicates["setups"])
+        lines += [
+            f"Leaderboard and the sections below it use primary runs only; {n_rep} replicate "
+            "run(s) (`#rN`, N >= 2) appear in Run-to-run variability.",
+            "",
+        ]
     if r.reference_generated:
         lines += [f"Reference episodes generated on the fly: {r.reference_generated}.", ""]
     errs = [f"`{row['agent']}` {row['n_error']}" for row in r.leaderboard if row["n_error"]]
@@ -377,7 +557,6 @@ def render_markdown(r: Report) -> str:
         "#",
         "agent",
         "edge captured % [95% CI]",
-        "P(best)",
         "xpnl/sd",
         "pnl/sd",
         "mid abs z",
@@ -394,7 +573,6 @@ def render_markdown(r: Report) -> str:
             str(row["rank"]),
             f"`{row['agent']}`",
             _ci(row["edge_captured"], row["edge_lo"], row["edge_hi"]),
-            _f(row["p_rank1"]),
             _f(row["xpnl_sd"], 3),
             _f(row["pnl_sd"], 3),
             _f(row["mid_abs_z"]),
@@ -410,12 +588,21 @@ def render_markdown(r: Report) -> str:
 
     lines += ["## By family and variant", ""]
     fams = sorted({g["family"] for g in r.groups})
-    header = ["agent", *fams, "classic", "perturbed", "classic - perturbed [95% CI]"]
+    header = [
+        "agent",
+        *fams,
+        "classic",
+        "perturbed",
+        "classic - perturbed [95% CI]",
+        "p",
+        "p (Holm)",
+    ]
     order = [row["agent"] for row in r.leaderboard]
     vt = {v["agent"]: v for v in r.variants}
     rows = []
     for a in order:
         v = vt[a]
+        llm = is_llm(a)
         rows.append(
             [
                 f"`{a}`",
@@ -423,13 +610,69 @@ def render_markdown(r: Report) -> str:
                 _f(v["edge_classic"], 1),
                 _f(v["edge_perturbed"], 1),
                 _ci(v["gap"], v["gap_lo"], v["gap_hi"]),
+                _p(v["gap_p"]) if llm else "-",
+                _p(v["gap_p_holm"]) if llm else "-",
             ]
         )
+    n_llm = sum(is_llm(a) for a in order)
     lines += _table(header, rows) + [""]
     lines += [
-        "Edge captured %, per family and per variant. Classic games are textbook questions; "
+        "Edge captured %, per family and variant. Classic games are textbook questions; "
         "perturbed games are drawn fresh per seed. A positive gap that excludes zero suggests "
-        "recall of known answers.",
+        "recall of known answers. The interval resamples hidden structures: the classic games "
+        "of a family share one, so they count once, and each perturbed game is its own "
+        f"structure. p is a two-sided bootstrap p-value for a gap of zero, Holm-adjusted "
+        f"across the {n_llm} LLM setups (baselines: -).",
+        "",
+    ]
+
+    lines += ["## Centring vs width", ""]
+    dec = r.decomposition
+    rows = []
+    for a in order:
+        d = dec.get(a)
+        if not d:
+            continue
+        rows.append(
+            [
+                f"`{a}`",
+                _f(d["as_played"], 1),
+                _f(d["agent_mid_bayes_width"], 1),
+                _f(d["bayes_mid_agent_width"], 1),
+                _f(d["mu_agent_width"], 1),
+                _f(d["covered_share"], 1),
+                _f(d["mid_bias_z"], 2),
+                _f(d["mid_abs_z"], 2),
+                _f(d["width_ratio"], 2),
+            ]
+        )
+    lines += _table(
+        [
+            "agent",
+            "as played",
+            "agent mid + Bayes width",
+            "Bayes mid + agent width",
+            "mean + agent width",
+            "covered %",
+            "mid bias z",
+            "mid abs z",
+            "width / Bayes",
+        ],
+        rows,
+    )
+    mism = sum(d["mismatches"] for d in dec.values())
+    lines += [
+        "",
+        "Expected P&L of each agent's own quotes (as played) and of three counterfactual quotes "
+        "priced on the same posteriors, as % of the Bayes quoter's expected P&L on the same "
+        "steps (as played = 100 x local efficiency). A setup whose score jumps when given the "
+        "Bayes width but not when given the Bayes mid loses mainly on width; the reverse means "
+        "it loses on centring. Steps without a two-sided agent quote and a Bayes quote "
+        "(one-sided quotes, inventory-limit steps, invalid replies) keep their as-played value "
+        "in every column, so the share of steps covered is shown. Mid bias and mid abs are the "
+        "signed and absolute mid error in posterior sd; width / Bayes is the mean quoted spread "
+        f"over the Bayes spread. Replay check: {mism} step(s) where the recomputed value of "
+        "the as-played quote differs from the trace.",
         "",
     ]
 
@@ -503,10 +746,102 @@ def render_markdown(r: Report) -> str:
         "",
     ]
 
+    lines += _render_replicates(r.replicates)
+
     lines += ["## How to read the metrics", ""]
     lines += [f"- **{k}**: {v}" for k, v in METRIC_NOTES if k != "USD/episode" or has_cost]
     lines += [""]
     return "\n".join(lines)
+
+
+def _diff_cell(d: Mapping[str, Any] | None) -> list[str]:
+    if not d:
+        return ["-", "-"]
+    return [_ci(d["diff_value"], d["diff_lo"], d["diff_hi"]), _p(d["p_value"])]
+
+
+def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
+    if not rep:
+        return []
+    lines = ["## Run-to-run variability", ""]
+    rows = []
+    for st in rep["setups"]:
+        for run in st["runs"]:
+            first = run["run"] == st["first_run"]
+            rows.append(
+                [
+                    f"`{st['setup']}`" if first else "",
+                    f"r{run['run']}",
+                    str(run["episodes"]),
+                    _ci(run["edge_captured"], run["edge_lo"], run["edge_hi"]),
+                    *(["-", "-"] if first else _diff_cell(run["vs_first"])),
+                ]
+            )
+        pl = st["pooled"]
+        rows.append(
+            [
+                "",
+                "pooled",
+                str(pl["episodes"]),
+                _ci(pl["edge_captured"], pl["edge_lo"], pl["edge_hi"]),
+                "-",
+                "-",
+            ]
+        )
+    lines += _table(
+        [
+            "setup",
+            "run",
+            "episodes",
+            "edge captured % [95% CI]",
+            "minus first run, pp [95% CI]",
+            "p",
+        ],
+        rows,
+        "llrrrr",
+    )
+    lines += [""]
+    if rep["pairs"]:
+        rows = [
+            [
+                f"`{p['a']}` - `{p['b']}`",
+                f"{p['runs_a']} / {p['runs_b']}",
+                _ci(p["diff_value"], p["diff_lo"], p["diff_hi"]),
+                str(p["n_games"]),
+                _p(p["p_value"]),
+                _p(p["p_holm"]),
+            ]
+            for p in rep["pairs"]
+        ]
+        lines += ["Pooled comparison of setups with several runs (mean score over runs):", ""]
+        lines += _table(
+            ["pair", "runs", "difference, pp [95% CI]", "games", "p", "p (Holm)"], rows, "lrrrrr"
+        )
+        lines += [""]
+        rows = [
+            [
+                f"`{p['a']}` - `{p['b']}`",
+                f"r{c['run_a']} vs r{c['run_b']}",
+                _ci(c["diff_value"], c["diff_lo"], c["diff_hi"]),
+                _p(c["p_value"]),
+            ]
+            for p in rep["pairs"]
+            for c in p["combinations"]
+        ]
+        lines += ["The same pairs, run against run (p not adjusted):", ""]
+        lines += _table(["pair", "runs", "difference, pp [95% CI]", "p"], rows, "llrr")
+        lines += [""]
+    lines += [
+        "Repeated runs of one setup are scored on the same games and seeds. Intervals here still "
+        "resample games; the spread between runs shows drift between them (date, sampling, "
+        "server changes) that a single run cannot. Differences are in edge captured, percentage "
+        "points, on episodes both runs played; p is a game-level sign-flip test. The pooled "
+        "edge is 100 x total expected P&L over all runs / total Bayes expected P&L, with all "
+        "runs' episodes of a game resampled together. Pooled pairs score each episode by the "
+        "mean over a setup's runs; Holm correction within the pooled table.",
+        "",
+    ]
+    return lines
 
 
 METRIC_NOTES = (
@@ -516,7 +851,6 @@ METRIC_NOTES = (
         "units. 100 = myopic Bayes-optimal, 0 = never quoting, below 0 = loses money in "
         "expectation. Above 100 is possible: the reference is myopic.",
     ),
-    ("P(best)", "share of bootstrap draws in which the agent has the highest edge captured."),
     (
         "xpnl/sd",
         "mean expected P&L per episode in prior standard deviations: the sum of the exact "
@@ -555,6 +889,8 @@ METRIC_NOTES = (
         "also holds local efficiency, capture and adverse selection, realized P&L by taker type, "
         "mid bias and RMSE, width vs Bayes width, fill response, one-sided and no-quote rates, "
         "inventory-limit steps, final position, tokens, cost and latency, per agent and per "
-        "(family, variant).",
+        "(family, variant), plus the rank distribution (`p_rank1`, `rank_probs`). Latency is the "
+        "provider-reported time of the model calls when recorded (the engine's wall clock "
+        "otherwise, which reads about zero on cached replays).",
     ),
 )

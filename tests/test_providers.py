@@ -395,3 +395,32 @@ def test_cli_records_one_hour_cache_writes():
     comp = parse_cli_output(out, "", 0)
     assert comp.usage["cache_write_1h_tokens"] == 1000
     assert comp.cost_usd == pytest.approx((2 * 4 + 100 * 20 + 500 * 0.2 + 1000 * 8) / 1e6)
+
+
+def test_cli_attributes_reply_to_requested_model_not_auxiliary_call():
+    # Claude Code 2.1.296 adds a small Haiku call; modelUsage lists it first.
+    usage = {"input_tokens": 2, "output_tokens": 300, "cache_read_input_tokens": 1220}
+    model_usage = {
+        "claude-haiku-5-5": {"inputTokens": 1171, "outputTokens": 21},
+        "claude-opus-5-5": {"inputTokens": 2, "outputTokens": 300, "cacheReadInputTokens": 1220},
+    }
+    comp = parse_cli_output(
+        _cli_json(usage=usage, modelUsage=model_usage), "", 0, "claude-opus-5-5"
+    )
+    assert comp.model == "claude-opus-5-5"
+    assert comp.usage["aux_input_tokens"] == 1171
+    assert comp.usage["aux_output_tokens"] == 21
+    main = (2 * 4 + 300 * 20 + 1220 * 0.2) / 1e6
+    aux = (1171 * 0.1 + 21 * 0.5) / 1e6
+    assert comp.cost_usd == pytest.approx(main + aux)
+
+
+def test_cli_auxiliary_call_on_the_same_model_is_split_out():
+    usage = {"input_tokens": 2, "output_tokens": 300}
+    model_usage = {"claude-haiku-5-5": {"inputTokens": 1173, "outputTokens": 321}}
+    comp = parse_cli_output(
+        _cli_json(usage=usage, modelUsage=model_usage), "", 0, "claude-haiku-5-5"
+    )
+    assert comp.model == "claude-haiku-5-5"
+    assert comp.usage["output_tokens"] == 300
+    assert (comp.usage["aux_input_tokens"], comp.usage["aux_output_tokens"]) == (1171, 21)

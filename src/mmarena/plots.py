@@ -88,6 +88,8 @@ def _panel_title(ax, text: str) -> None:
 
 def save(fig: Figure, path: str | Path) -> list[Path]:
     """Write ``path.png`` (dpi 160) and ``path.svg``. Returns the written paths."""
+    import matplotlib
+
     path = Path(path)
     if path.suffix in (".png", ".svg"):
         path = path.with_suffix("")
@@ -95,7 +97,11 @@ def save(fig: Figure, path: str | Path) -> list[Path]:
     out = []
     for ext in ("png", "svg"):
         p = path.with_suffix(f".{ext}")
-        fig.savefig(p, dpi=DPI, facecolor=SURFACE)
+        # No creation date and fixed element ids in the SVG, so regenerated figures are
+        # byte-identical.
+        meta = {"Date": None} if ext == "svg" else None
+        with matplotlib.rc_context({"svg.hashsalt": "mm-arena"}):
+            fig.savefig(p, dpi=DPI, facecolor=SURFACE, metadata=meta)
         out.append(p)
     return out
 
