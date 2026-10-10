@@ -140,8 +140,11 @@ Each family has a **classic** variant (the textbook interview question: three st
 three cards from a 52-card deck, the product of two dice, a fair-or-double-headed coin, a
 uniform urn) and a **perturbed** variant generated from a seed. Market parameters are drawn
 from the same distribution for both. A model that scores better on classic than on perturbed
-games of the same family is likely recalling, not reasoning; the report shows that gap with a
-confidence interval.
+games of the same family may be recalling known answers; the report shows that gap with a
+confidence interval. Scores are relative to the Bayes quoter on the same game, which removes
+differences in how much edge a game offers, but not differences in how hard it is to compute:
+textbook setups (standard dice, uniform priors) may simply be easier arithmetic. A gap is
+evidence of recall, not proof.
 
 Suites are versioned (`core-v1`). A change to a generator that alters any game creates a new
 suite version.

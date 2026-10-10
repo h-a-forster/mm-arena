@@ -34,14 +34,18 @@ BASELINES = {"bayes", "bayes-noflow", "glosten-milgrom", "static", "random"}
 # Label placement for the spread chart: (dx, dy in points, horizontal alignment).
 LABEL_OFFSETS = {
     "opus 5.5@high": (-8, 4, "right"),
-    "bayes-noflow": (7, -12, "left"),
+    "opus 5.5@low": (-8, 4, "right"),
+    "fable 5.1@low": (8, -12, "left"),
+    "haiku 5.5@high": (8, -16, "left"),
+    "sonnet 5.5@high": (-8, 4, "right"),
+    "bayes-noflow": (7, 2, "left"),
     "glosten-milgrom": (0, -14, "center"),
     "haiku 5.5@low": (8, -12, "left"),
 }
 
 
 def short(name: str) -> str:
-    return name.replace("claude-cli:claude-", "").replace("-5-5", " 5.5")
+    return name.replace("claude-cli:claude-", "").replace("-5-5", " 5.5").replace("-5-1", " 5.1")
 
 
 def plot_spread(report, path: Path) -> None:
@@ -104,7 +108,7 @@ def main(run_dir: str, out_dir: str) -> None:
         # The episode where the agent's expected P&L falls furthest below Bayes on its own path.
         eps = [t for t in traces[name] if t["status"] == "ok" and t["game"]["variant"] == "classic"]
         worst = min(eps, key=lambda t: (t["xpnl"] - t["bayes_xpnl_local"]) / t["game"]["prior_std"])
-        tag = short(name).replace(" 5.5", "").replace("@", "-")
+        tag = short(name).replace(" 5.5", "").replace(" 5.1", "").replace("@", "-")
         save(plot_episode(worst), out / f"episode-{tag}")
     print(f"wrote figures to {out}")
 

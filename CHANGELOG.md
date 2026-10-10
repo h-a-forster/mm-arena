@@ -21,4 +21,5 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Scoring and reports: edge captured, xPnL, belief and updating metrics, game-clustered
   bootstrap, paired permutation tests with Holm correction, variance analysis, figures.
 - `mm-arena play`: practice mode with a step-by-step debrief against the Bayes quoter.
-- Results for Claude 5.5 models on `core-v1` in `results/core-v1/`.
+- Results for Claude 5.5 and Fable 5.1 models on `core-v1` (120 episodes each) in
+  `results/core-v1/`.

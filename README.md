@@ -18,25 +18,28 @@ same counterparties.
 
 ## Results
 
-`core-v1`: 60 games (5 families, classic and perturbed), one episode each, same episodes for
-every agent. Claude 5.5 models via Claude Code headless mode (`claude -p`, no tools), October
-2026. 95% intervals from a bootstrap over games. 0 invalid replies and 0 provider errors in
-2,150 LLM quotes.
+`core-v1`: 60 games (5 families, classic and perturbed), 2 episodes each, the same 120 episodes
+for every agent. Claude 5.5 and Fable 5.1 models via Claude Code headless mode (`claude -p`, no
+tools), October 2026. 95% intervals from a bootstrap over games. 0 invalid replies and 0 provider
+errors in 6,880 LLM quotes.
 
 ![Leaderboard](docs/figures/leaderboard.png)
 
 | agent | edge captured % [95% CI] | width / Bayes | adverse / episode | β flow | β reveal | classic − perturbed | output tokens / quote |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `bayes` | 100 | 1.00 | 0.40 | 1.00 | 1.00 | 0 | - |
-| **opus 5.5 @high** | 87.8 [83.2, 91.7] | 0.91 | 0.54 | 0.88 | 1.05 | +0.1 [-8.0, +8.4] | 1,751 |
-| `bayes-noflow` | 87.5 [82.3, 91.8] | 1.03 | 0.44 | 0.00 | 0.88 | -2.4 [-12.4, +7.0] | - |
-| **sonnet 5.5 @high** | 67.4 [59.8, 74.9] | 0.81 | 0.65 | 0.66 | 0.87 | +7.7 [-7.1, +21.5] | 1,611 |
-| **opus 5.5 @low** | 61.9 [57.0, 66.4] | 0.63 | 0.80 | 0.79 | 0.87 | +5.8 [-3.3, +15.2] | 677 |
-| `static` | 48.7 [34.4, 60.8] | 1.08 | 0.53 | 0.00 | 0.00 | +0.5 [-29.1, +27.6] | - |
-| **sonnet 5.5 @low** | 12.3 [0.3, 22.4] | 0.42 | 0.91 | 0.21 | 0.79 | +21.9 [-0.1, +42.6] | 750 |
-| `glosten-milgrom` | 4.1 [3.5, 4.8] | 0.27 | 1.06 | 0.91 | 0.98 | +1.1 [-0.2, +2.4] | - |
-| **haiku 5.5 @low** | -0.8 [-14.7, 11.1] | 0.38 | 0.93 | 0.10 | 0.86 | +15.5 [-11.4, +39.7] | 1,744 |
-| `random` | -83.2 [-113.7, -57.9] | 0.56 | 0.76 | -0.23 | 0.09 | +21.0 [-36.4, +78.1] | - |
+| `bayes` | 100 | 1.00 | 0.41 | 1.00 | 1.00 | 0 | - |
+| **fable 5.1 @high** | 90.7 [87.5, 93.3] | 0.92 | 0.54 | 1.03 | 0.99 | +1.4 [-3.9, +6.8] | 2,101 |
+| `bayes-noflow` | 88.5 [83.9, 92.1] | 1.03 | 0.44 | 0.00 | 0.93 | -0.1 [-8.1, +7.9] | - |
+| **opus 5.5 @high** | 87.7 [83.7, 91.2] | 0.90 | 0.55 | 0.98 | 1.03 | +2.3 [-4.7, +9.5] | 1,750 |
+| **haiku 5.5 @high** | 79.9 [72.9, 85.2] | 0.94 | 0.53 | 0.30 | 0.91 | +4.8 [-8.6, +16.8] | 6,516 |
+| **sonnet 5.5 @high** | 69.2 [63.8, 74.8] | 0.80 | 0.67 | 0.66 | 0.90 | +12.5 [+1.9, +22.5] | 1,620 |
+| **opus 5.5 @low** | 60.0 [56.4, 63.7] | 0.61 | 0.83 | 0.84 | 0.94 | +9.6 [+2.8, +16.9] | 664 |
+| **fable 5.1 @low** | 59.8 [55.7, 64.0] | 0.61 | 0.81 | 0.98 | 0.94 | -1.3 [-9.4, +6.5] | 752 |
+| `static` | 47.4 [36.2, 56.3] | 1.07 | 0.56 | 0.00 | 0.00 | +4.9 [-15.5, +24.9] | - |
+| **sonnet 5.5 @low** | 14.8 [5.8, 22.1] | 0.43 | 0.93 | 0.33 | 0.83 | +21.5 [+7.4, +35.6] | 757 |
+| `glosten-milgrom` | 4.3 [3.7, 5.0] | 0.27 | 1.09 | 0.96 | 1.00 | +0.8 [-0.5, +2.2] | - |
+| **haiku 5.5 @low** | -0.4 [-13.7, 10.7] | 0.38 | 0.93 | 0.17 | 0.87 | +17.0 [-9.4, +39.3] | 1,706 |
+| `random` | -80.3 [-107.7, -58.1] | 0.56 | 0.77 | -0.02 | 0.15 | +20.5 [-31.4, +70.6] | - |
 
 Edge captured: expected P&L as a share of the Bayes quoter's on the same episodes (100 = Bayes,
 0 = never quoting). Width, adverse selection and β are defined under [Metrics](#metrics).
@@ -44,27 +47,34 @@ Edge captured: expected P&L as a share of the Bayes quoter's on the same episode
 
 **What the numbers say**
 
-1. **Reasoning effort matters most.** Opus 5.5 goes from 62% to 88% of the Bayes edge
-   between low and high effort, Sonnet 5.5 from 12% to 67%. Both jumps are significant (paired
-   test over games, Holm-adjusted p < 0.01). Opus at high effort matches `bayes-noflow`, which
-   knows the exact posterior from reveals but ignores order flow.
-2. **The shortfall is spread width, not fair value.** Every model's mid is unbiased (mean
-   signed error within ±0.03 posterior sd) and about as close to the posterior mean as
-   `bayes-noflow`. But quotes are 0.38-0.91 times as wide as the Bayes quote. Haiku and Sonnet at
-   low effort sit near the zero-profit Glosten-Milgrom width and lose more than twice as much to
-   informed traders as Bayes (0.9 vs 0.4 prior sd per episode). Across agents, edge tracks width.
-3. **Two models fall below a static quoter.** Sonnet at low effort (12%) and Haiku (-1%) do
-   worse than `static`, which quotes the prior mean ± one sd and never updates (49%).
-4. **Order flow is under-used.** After a trade, models move their quotes 10-88% as far as the
-   Bayes quoter does (β flow). Public reveals are handled better (β reveal 0.79-1.05).
-5. **Thinking more is not sufficient.** Haiku writes as many output tokens per quote as Opus at
-   high effort (about 1,750) and captures no edge.
-6. **No significant recall advantage.** The classic-minus-perturbed gap includes zero for every
-   model. Sonnet at low effort is the borderline case (+21.9 points, CI -0.1 to +42.6).
-7. **Realized P&L would not rank these models.** Separating Opus and Sonnet at high effort by
-   0.1 prior sd per episode needs about 127 episodes with xPnL and about 1,125 with realized P&L
-   (8.9 times as many). A leaderboard built on realized P&L from a few dozen episodes mostly
-   measures luck.
+1. **Reasoning effort matters most.** From low to high effort, Haiku 5.5 goes from 0% to 80% of
+   the Bayes edge, Sonnet 5.5 from 15% to 69%, Opus 5.5 from 60% to 88% and Fable 5.1 from 60%
+   to 91%. All four jumps are significant (paired test over games, Holm-adjusted p < 0.01). At
+   high effort, Fable and Opus match `bayes-noflow`, which knows the exact posterior from
+   reveals but ignores order flow. Fable leads Opus by 3.0 points [1.1, 5.2] (Holm p = 0.02).
+2. **The shortfall is spread width, not fair value.** Every model's mid is close to unbiased
+   (mean signed error at most +0.09 posterior sd). But quotes are 0.38-0.94 times as wide as the
+   Bayes quote. At low effort, Haiku and Sonnet quote at under half the Bayes width, closer to
+   the zero-profit Glosten-Milgrom quote (0.27), and lose more than twice as much to informed
+   traders as Bayes (0.93 vs 0.41 prior sd per episode). Across agents, edge tracks width.
+3. **Two setups fall below a static quoter.** Sonnet (15%) and Haiku (0%) at low effort do
+   worse than `static`, which quotes the prior mean ± one sd and never updates (47%).
+4. **Order flow separates the top models.** After a trade, Fable and Opus move their quotes
+   about as far as the Bayes quoter does (β flow 0.84-1.03). Haiku at high effort reaches 80%
+   with β flow 0.30: it quotes wide enough to survive informed traders but barely learns from
+   them, like `bayes-noflow`. Every model handles public reveals well (β reveal 0.83-1.03).
+5. **Token count does not explain it.** Haiku at low effort writes as many output tokens per
+   quote as Opus at high effort (about 1,700) and captures no edge. At high effort Haiku writes
+   about 6,500 per quote, 3.7 times as many as Opus, to reach 80%.
+6. **Some setups do better on textbook games.** Sonnet at both efforts and Opus at low effort
+   score 10-22 points higher on classic games than on perturbed ones (95% intervals exclude
+   zero; not corrected for multiple comparisons). Fable at both efforts and Opus at high effort
+   show no gap. This fits recall, but textbook setups (standard dice, uniform priors) may also be
+   easier to compute. The design does not separate the two.
+7. **Realized P&L would not rank these models.** Detecting a difference of 0.1 prior sd per
+   episode between Fable and Opus at high effort needs about 25 episodes with xPnL and about 444
+   with realized P&L (18 times as many). For single LLM agents the ratio is 4-12. A leaderboard
+   built on realized P&L from a few dozen episodes mostly measures luck.
 
 Full report: [results/core-v1/REPORT.md](results/core-v1/REPORT.md). Traces for every episode
 are in [results/core-v1/](results/core-v1/); `mm-arena report results/core-v1` rescores them.
@@ -73,9 +83,10 @@ are in [results/core-v1/](results/core-v1/); `mm-arena report results/core-v1` r
 
 ![Realized vs expected P&L](docs/figures/variance.png)
 
-One episode, Sonnet 5.5 at low effort on three standard dice. Its quotes (blue) hug the posterior
-mean while the Bayes quotes (orange, dashed) stay wide. It made money on this episode by luck;
-the expected value of its quotes was negative.
+One episode, Sonnet 5.5 at low effort on the classic urn game. After the first draw its quotes
+(blue) hug the posterior mean; the Bayes quotes (orange, dashed) are almost three times as wide
+overall. Expected profit
+of its quotes: 6.5. The Bayes quoter, from the same states: 15.2.
 
 ![Example episode](docs/figures/episode-sonnet-low.png)
 
@@ -100,7 +111,8 @@ each quote: one counterparty arrives
   `(game, seed)`. All agents face identical episodes; comparisons are paired.
 - **Contamination probe.** Each family has a *classic* variant (three standard dice, a 52-card
   deck) and *perturbed* variants generated per seed (odd dice, custom decks, unusual contracts).
-  A model that does better on classic than perturbed games is recalling, not reasoning.
+  A model that does better on classic than perturbed games may be recalling rather than
+  reasoning.
 
 Details, formulas and limitations: [docs/methodology.md](docs/methodology.md).
 
@@ -210,7 +222,7 @@ of scoring it.
 | suite | games | episodes | use |
 | --- | --- | --- | --- |
 | `smoke` | 5 | 5 | CI, quick checks |
-| `core-v1` | 60 | 120 (`--limit 1`: 60) | the leaderboard |
+| `core-v1` | 60 | 120 | the leaderboard |
 | `full-v1` | 160 | 480 | tighter intervals |
 
 Suites are versioned. A generator change that alters any game ships as a new suite version.
@@ -221,9 +233,11 @@ Suites are versioned. A generator change that alters any game ships as a new sui
 git clone https://github.com/h-a-forster/mm-arena && cd mm-arena
 uv sync --all-extras --dev
 uv run pytest
-uv run mm-arena run --suite core-v1 --limit 1 --out runs/core-v1   --agent bayes --agent bayes-noflow --agent glosten-milgrom --agent static --agent random
-for spec in claude-haiku-5-5@low claude-sonnet-5-5@low claude-opus-5-5@low             claude-sonnet-5-5@high claude-opus-5-5@high; do
-  uv run mm-arena run --agent claude-cli:$spec --suite core-v1 --limit 1 --out runs/core-v1
+uv run mm-arena run --suite core-v1 --out runs/core-v1   --agent bayes --agent bayes-noflow --agent glosten-milgrom --agent static --agent random
+for model in claude-haiku-5-5 claude-sonnet-5-5 claude-opus-5-5 claude-fable-5-1; do
+  for effort in low high; do
+    uv run mm-arena run --agent claude-cli:$model@$effort --suite core-v1 --out runs/core-v1
+  done
 done
 uv run mm-arena report runs/core-v1
 uv run python scripts/figures.py runs/core-v1 docs/figures
