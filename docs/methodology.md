@@ -58,6 +58,17 @@ adverse    = E[(V − μ_t)·1{buy} | H_t] + E[(μ_t − V)·1{sell} | H_t]   (a
 `capture` is the spread earned against the current fair value. `adverse` is the expected loss
 to counterparties who know more. Both are computed exactly for every quote any agent posts.
 
+### 3.1 What the benchmark rewards
+
+Most of the Bayes edge is monopoly spread. The market maker is the only dealer, and the noise
+traders' price sensitivity `s` is disclosed, so a wide quote still trades with them. Per
+episode, the Bayes quoter's capture is 1.92 prior sd against 0.41 of adverse selection.
+
+The benchmark therefore rewards a monopolist's wide quote. Models trained on competitive-market
+intuition ("make tight markets") may quote too tight partly from that habit. The
+`glosten-milgrom` quoter is the competitive, zero-profit quote and serves as the comparison: it
+shows what tight pricing earns here.
+
 ## 4. Reference quoters
 
 - **bayes**: exact posterior; each side maximises `EV_t` over the tick grid. It is *myopic*:
@@ -65,11 +76,32 @@ to counterparties who know more. Both are computed exactly for every quote any a
   reference, not a proven upper bound; a policy that values information could beat it.
 - **bayes-noflow**: same quote rule, but its belief ignores trades. The gap to `bayes` measures
   the value of learning from order flow.
+- **bayes-mean**: exact posterior; quotes the posterior mean ± `k` posterior sd with
+  `k = 1.40`. It isolates belief from spread-setting: the centre is exact, the width is a
+  single fixed rule. `k` was tuned on a separate seed set (game seeds offset by 100000, episode
+  seeds 1000–1001, games that collide with `core-v1` or `full-v1` skipped); see
+  `scripts/tune_k.py`.
+- **bayes-lookahead**: exact posterior; one-step lookahead. It maximises the immediate expected
+  profit plus the expected myopic-optimal profit at the next step, taken over buy, sell and
+  no-trade and, at stage boundaries, over the possible reveals. All probabilities are exact.
+  Candidates form a grid of ±8 steps of `max(tick, sd/16)` around the myopic quote. See
+  `src/mmarena/agents/baselines.py` and `scripts/headroom.py`.
 - **glosten-milgrom**: exact posterior; the tightest prices with `EV_t >= 0`, i.e.
   `a = E[V | buy at a]`, `b = E[V | sell at b]`. This is the competitive-dealer quote of
   Glosten and Milgrom (1985). Its expected P&L is close to zero by construction; it checks the
   simulator and shows that a tight market is not a profitable one.
 - **static** (prior mean ± one prior sd, never updated) and **random** are floors.
+
+### 4.1 Reading the scale
+
+100 is the myopic Bayes quoter and 0 is never quoting. The scale is not anchored at a naive
+quoter: `static` already reaches about 47, and `bayes-noflow` about 88.5. `bayes-mean` reaches
+about 86, so a fixed-width rule around the exact mean recovers most of the edge.
+`glosten-milgrom` reaches about 4, because the zero-profit quote earns nothing by construction.
+
+`bayes-lookahead` reaches 100.8 [100.2, 101.5]. The myopic reference therefore leaves under
+about 1% at a one-step horizon. A deeper horizon could add more, so this is a lower bound on
+the headroom, not an estimate of it.
 
 ## 5. Expected P&L as the score
 
@@ -110,13 +142,16 @@ averaging, so wide-range games do not dominate.
 | xPnL/sd, PnL/sd | expected and realized P&L per episode | high |
 | Local efficiency | `Σ EV_t(agent) / Σ EV_t(bayes)` at the states the agent actually visited | 1 |
 | Capture, adverse | the two terms of `EV_t`, summed per episode | high, low |
-| Width / Bayes width | quote width relative to the Bayes quote at the same state | ~1 |
-| Mid error | `(mid − μ_t) / max(σ_t, tick)` on two-sided quotes, skipping steps where `V` is already known; mean absolute value, bias, RMSE | ~0 |
-| β flow | slope (through the origin) of the agent's mid change on the Bayes quote's mid change, between consecutive steps in the same stage, where only trades move the posterior | 1 |
+| Width / Bayes width | quote width relative to the Bayes quote at the same state, two-sided steps only | ~1 |
+| Mid error | `(mid − μ_t) / max(σ_t, tick)` on two-sided quotes, skipping steps where `V` is already known (two-sided steps only); mean absolute value, bias, RMSE | ~0 |
+| β flow | slope (through the origin) of the agent's mid change on the Bayes quote's mid change, between consecutive steps in the same stage; includes no-trade steps | 1 |
 | β reveal | the same slope across stage boundaries, where reveals arrive | 1 |
 | Fill response | share of fills after which the mid moves the right way (up after a buy at the ask) | high |
 | Dominated quotes | bid above the highest still-possible value, or ask below the lowest: a sure loss if hit | 0 |
 | Invalid | unparseable, crossed or non-finite quotes (both sides pulled for that step) | 0 |
+
+β flow covers every pair of consecutive steps within a stage, not only steps after a trade. The
+posterior also moves on a no-trade step, because no trade is informative.
 
 β uses the Bayes quote's mid rather than `μ_t` because the optimal mid is not `μ_t` when the
 posterior is skewed; regressed on `μ_t`, the Bayes quoter itself scores about 0.7. The
@@ -125,6 +160,37 @@ under-reacting to information; above 1 means over-reacting.
 
 Fill response has a selection effect: a buy tends to arrive when the ask is low, so even a
 random mid moves up afterwards more often than not. Compare it with the `bayes` row, not 0.5.
+
+### 6.1 Centring versus width
+
+`src/mmarena/decompose.py` splits an agent's shortfall into centring and width. It replays each
+trace along the agent's own path, so the public posterior is the one the engine used. On
+"covered" steps, where the agent and the Bayes quoter both quote two sides, it prices three
+counterfactuals with the exact one-step value:
+
+- the agent's mid with the Bayes width;
+- the Bayes mid with the agent's width;
+- the posterior mean with the agent's width.
+
+Uncovered steps (one-sided quotes, inventory-limit steps, invalid replies) keep their as-played
+value in every column, and the report gives the covered share. Totals are a percentage of the
+Bayes quote's value on the same states, so the "as played" column equals 100 × local efficiency.
+
+### 6.2 Other report items
+
+- **P(best).** The report no longer prints it. It is always 1.00 for `bayes` and carries no
+  information. It remains in `summary.json`.
+- **Classic minus perturbed.** The 4 classic games of a family share one hidden structure, so
+  they are not independent. The bootstrap resamples hidden structures (5 classic clusters),
+  not games. The two-sided p-value comes from the same bootstrap draws and is Holm-adjusted
+  across the LLM setups.
+- **Run-to-run variability.** Replicate runs are stored as `agent#rN`. The main tables use the
+  first run. A separate section compares runs, paired over episodes, and pools them. The game
+  bootstrap already covers sampling noise within a run. Replicates measure run-level drift
+  (date, server changes) that one run cannot.
+- **Latency.** Seconds per quote is the provider-reported latency (`provider_latency_s`),
+  measured through `claude -p`. It includes CLI start-up, and several calls run in parallel. It
+  is not engine wall-clock time, which drops to about 0 on a cache replay.
 
 ## 7. Game families and contamination
 
@@ -165,6 +231,23 @@ suite version.
   provider's own figure, so runs through different providers are costed the same way. Models
   without a listed price fall back to the provider's figure.
 
+### 8.1 Cost notes
+
+- **Cache writes.** Claude Code writes the prompt cache with a 1-hour TTL. Traces from this
+  version on record `cache_write_1h_tokens`, and Claude Code reported all writes as 1-hour.
+  Older traces did not record it and are priced as 1-hour writes. Through the API with the
+  default 5-minute caching, the same tokens cost less: up to about 15% less at low effort (opus
+  5.5 @low: 22.59 → 19.14 USD per 1,000 quotes). The cost frontier does not change.
+- **Auxiliary call.** Claude Code 2.1.296 (used for the replicate and medium-effort runs) adds
+  a small auxiliary Haiku 5.5 call per request, about 1.2k input tokens and about 20 output
+  tokens. Traces record its tokens as `aux_input_tokens` and `aux_output_tokens` and its price
+  in each step's `cost_usd`. Reported costs cover the answering model only, for comparability
+  with earlier runs.
+- **Output limit.** The `anthropic:` provider's default `max_tokens` is 8192. In the haiku 5.5
+  @high `claude-cli` run, 198 of 860 replies used more than 8192 output tokens (95th percentile about 14,200;
+  max 43,375). Reproducing that setup through the API needs `--max-tokens 64000` or similar;
+  with 8192 those replies would be cut off.
+
 ## 9. Trust model
 
 Python agents receive the `Game` object (the outcome table and market parameters, which are
@@ -175,8 +258,17 @@ draws from the game id and seed. LLM agents see only the rendered prompt.
 
 - The counterparty model is stylised: one arrival per step, unit size, informed traders see
   `V` exactly by default, noise traders value around the exact public mean.
-- The reference is myopic Bayes-optimal, not the dynamic optimum.
+- The reference is myopic Bayes-optimal, not the dynamic optimum. One-step lookahead gains
+  under about 1% (section 4.1), but a deeper horizon could gain more, so the headroom is only
+  bounded from below.
 - The model is fully disclosed. Real desks estimate `α` and `s`; the benchmark isolates
   reasoning given them.
 - Small state spaces only (exact enumeration). This is deliberate: every score is exact.
 - LLM results depend on prompt wording and provider settings; both are recorded with each run.
+- Intervals cover game sampling, including sampling noise within a run. What one run misses is
+  run-level drift (date, server changes). Replicate runs exist for some setups; see the README.
+- Classic and perturbed games differ in two ways: recall of known answers and ease of
+  computation. A classic advantage may reflect either, and the design does not separate them
+  (section 7).
+- Most of the Bayes edge is monopoly spread (section 3.1). A model that quotes tight from
+  competitive-market habit is penalised here, which a competitive setting would not do.
