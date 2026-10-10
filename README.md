@@ -20,20 +20,24 @@ same counterparties.
 
 - **Reasoning effort matters most.** Raising effort from low to high lifts Haiku 5.5 from 0% to
   80% of the Bayes edge, Sonnet 5.5 from 15% to 69%, Opus 5.5 from 60% to 88% and Fable 5.1 from
-  60% to 91%. Opus rises steadily through medium (73%). See [Effort curve](#effort-curve).
-- **Low effort loses on width; high effort loses on width and centring about equally.** At low
+  60% to 91%. Opus rises through medium (73%; that run used a newer Claude Code, and within
+  that version high is still +11.1 points above medium). See [Effort curve](#effort-curve).
+- **Low effort loses on width; at high effort width and centring both matter.** At low
   effort Sonnet's quotes are centred well enough: giving it the Bayes width alone lifts it from
   16% to 89%. At high effort Fable gains 4.8 points from the Bayes width and 3.3 from the Bayes
-  centre. See [Centring vs width](results/core-v1/REPORT.md#centring-vs-width).
+  centre; Opus 6.7 and 3.1. See [Centring vs width](results/core-v1/REPORT.md#centring-vs-width).
 - **The best models at high effort match simple posterior-based quoters, and the myopic reference
   is near-optimal.** Fable and Opus at high effort are statistically indistinguishable from
   `bayes-noflow` (88.5) and from `bayes-mean` (86.3, exact mean with a fixed spread multiple).
   One-step lookahead scores 100.8 [100.2, 101.5], so the reference leaves under about 1% at that
   horizon (a lower bound on headroom). See [Reference quoters](#reference-quoters) and
   [What the numbers say](#results).
-- **Run-to-run drift is as large as the gaps between the top setups.** A second Opus 5.5 @high
-  run moved by 3.9 points; a second Haiku 5.5 @high run moved by 10.5. Fable 5.1 @high was not
-  replicated, so its 3-point lead over Opus rests on one run. See
+- **Scores moved between runs by as much as the gaps between the top setups.** A second Opus
+  5.5 @high run scored 3.9 points lower and a second Haiku 5.5 @high run 10.5 points higher. The
+  second runs also used a newer Claude Code that sends the model about 600 more prompt tokens per
+  quote, so the shift mixes run-to-run noise with a change of setup and the design cannot
+  separate them. Either way, gaps of a few points between top setups are not settled by one run.
+  Fable 5.1 @high was not replicated, so its 3-point lead over Opus rests on one run. See
   [Run-to-run variability](#run-to-run-variability).
 - **Realized P&L would not rank these models.** Separating Fable from Opus at high effort takes
   about 18 times as many episodes with realized P&L as with expected P&L. See
@@ -45,7 +49,11 @@ same counterparties.
 for every agent. Claude 5.5 and Fable 5.1 models via Claude Code headless mode (`claude -p`, no
 tools), October 2026. 95% intervals from a bootstrap over games. 0 invalid replies and 0 provider
 errors in 9,460 LLM quotes (11 runs of 860). The Opus 5.5 @medium run and the two replicates
-used Claude Code 2.1.296; the original eight runs used an earlier version (not recorded).
+used Claude Code 2.1.296; the original eight runs used an earlier version (not recorded in the
+traces). The newer version changes the answering model's input: about 600 more prompt tokens per
+quote (median +594 for Opus @high, +629 for Haiku @high, same step of the same episode), on top
+of a separately recorded auxiliary Haiku call. Treat comparisons across the two versions as
+comparisons of slightly different setups.
 
 ![Leaderboard](docs/figures/leaderboard.png)
 
@@ -141,7 +149,10 @@ Opus 5.5 is the only model run at three effort levels: low 60.0 [56.4, 63.7], me
 77.1], high 87.7 [83.7, 91.2]. Medium − low is +12.6 [8.8, 16.6] and high − medium +15.0 [12.5,
 17.6], both Holm p = 0.012. Output grows with effort: 664, 1,228 and 1,750 tokens per quote. At
 medium effort Opus's width is 0.77 of the Bayes width, its adverse selection is 0.68 and its β
-flow is 1.03, so it already reads order flow and still quotes too tight. Medium costs $37.70
+flow is 1.03, so it already reads order flow and still quotes too tight. Medium ran on the
+newer Claude Code and high (run 1) on the older one. Within the newer version, high (run 2)
+minus medium is +11.1 [7.6, 14.7], so the curve rises either way, but the +15.0 step mixes in the
+version change. Medium costs $37.70
 per 1,000 quotes at 16.3 s per quote ([Cost](#cost)).
 
 ### Run-to-run variability
@@ -171,7 +182,10 @@ seeds as the first.
   5.7] (p 0.83). Run against run their order flips: run 1 against run 1 is +7.8 [1.8, 15.1], run
   2 against run 2 is -6.6 [-11.0, -2.2].
 - **Confound.** The replicates differ from the originals in date, server state and Claude Code
-  version, so the drift here includes the CLI change; the design cannot separate them. The game
+  version, and the newer version sends the answering model about 600 more prompt tokens per
+  quote (see [Results](#results)). The shifts are systematic rather than scattered: Haiku run 2
+  beat run 1 on 45 of 60 games, and Opus run 2 trailed run 1 on 42 of 60. That points at least
+  partly to the setup change, but the design cannot separate it from drift. The game
   bootstrap covers sampling across games within a run, not this drift.
 
 Haiku @high against Sonnet @high in run 1 is +10.7 [3.1, 17.5], p 0.009, Holm 0.13: not
@@ -224,7 +238,11 @@ Costs are the list prices of the tokens each call used (`mmarena.pricing`, price
   writes the same tokens cost up to about 15% less at low effort (Opus @low $22.59 to $19.14 per
   1,000 quotes). The frontier does not change.
 - Claude Code 2.1.296 adds a small auxiliary Haiku call per request (about 1.6k input tokens). It
-  is recorded in traces but excluded from these costs (about $0.18 per core-v1 run).
+  is recorded in traces but excluded from these costs (about $0.18 per core-v1 run). The same
+  version also sends the answering model about 600 more prompt tokens per quote, which adds
+  cache writes worth about $4.8 per 1,000 Opus quotes, so costs for runs on 2.1.296 (Opus
+  @medium, the replicates) are not exactly like-for-like with the original runs. The frontier
+  does not change.
 - The `anthropic:` provider's default `max_tokens` is 8192, but 198 of 860 Haiku @high replies
   (run 1) used more output tokens (maximum 43,375). To reproduce through the API, pass
   `--max-tokens 64000`.
@@ -438,10 +456,12 @@ otherwise it replays the first run's replies.
   not estimating one.
 - Most of the Bayes edge is monopoly spread, so a model that quotes tight from competitive-market
   habit is penalised here.
-- LLM scores depend on the prompt and provider settings. Both are recorded in every trace; the
-  prompt is fixed for a suite version.
-- Sampling noise across games is in the bootstrap. Run-level drift is not, and replicates show it
-  can reach 4-10 points. Only Opus @high and Haiku @high were replicated; Fable was not.
+- LLM scores depend on the prompt and provider settings. The prompt is fixed for a suite
+  version, and the provider spec is in each run's file name, but traces do not record the
+  Claude Code version or what it adds to the prompt (see [Results](#results)).
+- Sampling noise across games is in the bootstrap. Run-level drift is not. Second runs moved by
+  4 and 10 points, but they also changed Claude Code version and with it the model's input, so
+  pure drift may be smaller. Only Opus @high and Haiku @high were replicated; Fable was not.
 
 ## Related work
 

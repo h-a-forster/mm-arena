@@ -242,7 +242,10 @@ suite version.
   a small auxiliary Haiku 5.5 call per request, about 1.6k input tokens and about 20 output
   tokens. Traces record its tokens as `aux_input_tokens` and `aux_output_tokens` and its price
   in each step's `cost_usd`. Reported costs cover the answering model only, for comparability
-  with earlier runs.
+  with earlier runs. The same version also sends the answering model itself about 600 more
+  prompt tokens per quote than the earlier version (median +594 for Opus @high, +629 for Haiku
+  @high, same step of the same episode), so runs on the two versions are slightly different
+  setups. Their scores and costs are not strictly comparable.
 - **Output limit.** The `anthropic:` provider's default `max_tokens` is 8192. In the haiku 5.5
   @high `claude-cli` run, 198 of 860 replies used more than 8192 output tokens (95th percentile about 14,200;
   max 43,375). Reproducing that setup through the API needs `--max-tokens 64000` or similar;
@@ -264,7 +267,8 @@ draws from the game id and seed. LLM agents see only the rendered prompt.
 - The model is fully disclosed. Real desks estimate `α` and `s`; the benchmark isolates
   reasoning given them.
 - Small state spaces only (exact enumeration). This is deliberate: every score is exact.
-- LLM results depend on prompt wording and provider settings; both are recorded with each run.
+- LLM results depend on prompt wording and provider settings. The prompt is fixed per suite
+  version; the Claude Code version, and what it adds to the prompt, is not recorded in traces.
 - Intervals cover game sampling, including sampling noise within a run. What one run misses is
   run-level drift (date, server changes). Replicate runs exist for some setups; see the README.
 - Classic and perturbed games differ in two ways: recall of known answers and ease of
