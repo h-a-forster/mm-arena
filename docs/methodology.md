@@ -239,7 +239,7 @@ suite version.
   default 5-minute caching, the same tokens cost less: up to about 15% less at low effort (opus
   5.5 @low: 22.59 → 19.14 USD per 1,000 quotes). The cost frontier does not change.
 - **Auxiliary call.** Claude Code 2.1.296 (used for the replicate and medium-effort runs) adds
-  a small auxiliary Haiku 5.5 call per request, about 1.2k input tokens and about 20 output
+  a small auxiliary Haiku 5.5 call per request, about 1.6k input tokens and about 20 output
   tokens. Traces record its tokens as `aux_input_tokens` and `aux_output_tokens` and its price
   in each step's `cost_usd`. Reported costs cover the answering model only, for comparability
   with earlier runs.
