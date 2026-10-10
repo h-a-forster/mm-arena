@@ -17,6 +17,8 @@ USAGE_KEYS = (
     "cache_read_tokens",
     "cache_write_tokens",
     "reasoning_tokens",
+    "aux_input_tokens",
+    "aux_output_tokens",
 )
 
 
