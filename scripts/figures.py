@@ -15,6 +15,7 @@ import numpy as np
 
 from mmarena.metrics import load_episodes
 from mmarena.plots import (
+    DPI,
     GRID,
     INK,
     INK_2,
@@ -232,7 +233,8 @@ def main(run_dir: str, out_dir: str) -> None:
         eps = [t for t in traces[name] if t["status"] == "ok" and t["game"]["variant"] == "classic"]
         worst = min(eps, key=lambda t: (t["xpnl"] - t["bayes_xpnl_local"]) / t["game"]["prior_std"])
         tag = short(name).replace(" 5.5", "").replace(" 5.1", "").replace("@", "-")
-        save(plot_episode(worst), out / f"episode-{tag}")
+        # PNG only: the README embeds the PNGs, and the SVGs would be untracked clutter.
+        plot_episode(worst).savefig(out / f"episode-{tag}.png", dpi=DPI, facecolor=SURFACE)
     print(f"wrote figures to {out}")
 
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mm-arena"
-version = "0.1.0"
+version = "0.2.0"
 description = "Market-making games as a benchmark for LLM agents, scored exactly against a Bayes-optimal quoter."
 readme = "README.md"
 license = "MIT"
@@ -53,7 +53,7 @@ dev = ["pytest>=8", "ruff>=0.6", "matplotlib>=3.8"]
 packages = ["src/mmarena"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/mmarena", "tests", "docs", "suites", "README.md", "LICENSE", "CHANGELOG.md"]
+include = ["src/mmarena", "tests", "docs", "README.md", "LICENSE", "CHANGELOG.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

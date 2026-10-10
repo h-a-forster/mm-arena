@@ -5,16 +5,27 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-10
+
 ### Added
 
 - `mmarena.pricing`: API list prices. Reports cost runs from recorded token counts instead of the
   provider's own figure (Claude Code priced Haiku 5.5 at Opus rates).
 - Cost figure and README section: edge captured against list price and latency per setup, with
   the Pareto frontier.
+- Results for Claude 5.5 and Fable 5.1 models on `core-v1` (120 episodes each) in
+  `results/core-v1/` (committed on 2026-10-10; previously listed under 0.1.0).
+
+### Changed
+
+- CI: `actions/checkout` v7 and `astral-sh/setup-uv` v10.3.0.
+- LLM traces now record `cache_write_1h_tokens`, so cache writes are priced by their actual TTL.
+- `scripts/figures.py` writes the example episode charts as PNG only.
 
 ### Fixed
 
 - Sonnet 5.5 cache-read price (0.10, not 0.20 USD per million tokens).
+- sdist no longer lists a non-existent top-level `suites` directory.
 
 ## [0.1.0] - 2026-10-09
 
@@ -34,5 +45,3 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Scoring and reports: edge captured, xPnL, belief and updating metrics, game-clustered
   bootstrap, paired permutation tests with Holm correction, variance analysis, figures.
 - `mm-arena play`: practice mode with a step-by-step debrief against the Bayes quoter.
-- Results for Claude 5.5 and Fable 5.1 models on `core-v1` (120 episodes each) in
-  `results/core-v1/`.
