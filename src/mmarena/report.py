@@ -66,7 +66,8 @@ class Report:
 
     @property
     def best(self) -> str | None:
-        return self.leaderboard[0]["agent"] if self.leaderboard else None
+        """The agent other agents are compared with: the reference if present, else the top."""
+        return _anchor(self.leaderboard)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -182,7 +183,7 @@ def build_report(
 
     variants = _variant_table(agents, ref, n_boot, seed)
     pairwise = _pairwise(agents, ref, n_boot, seed)
-    best = board[0]["agent"] if board else None
+    best = _anchor(board)
     variance = _variance(agents, best, delta)
     decomposition = decompose_runs(
         {n: traces[n] for n in agents}, {row["agent"]: row for row in board}
@@ -204,6 +205,12 @@ def build_report(
     if write:
         write_report(report, Path(out_dir) if out_dir else run_dir)
     return report
+
+
+def _anchor(board: Sequence[Mapping[str, Any]]) -> str | None:
+    """``REF_AGENT`` if on the board (a non-myopic baseline can outscore it), else the top."""
+    names = [row["agent"] for row in board]
+    return REF_AGENT if REF_AGENT in names else (names[0] if names else None)
 
 
 def _per_game(eps: Sequence[EpisodeMetrics], fn) -> dict[str, float]:
