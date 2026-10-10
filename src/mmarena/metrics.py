@@ -13,6 +13,8 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, fields
 from typing import Any
 
+from mmarena.pricing import list_cost
+
 INVALID_KINDS = ("format", "exception", "nonfinite", "crossed")
 
 Key = tuple[str, int]
@@ -103,8 +105,15 @@ def _mid(bid: float | None, ask: float | None) -> float | None:
     return 0.5 * (bid + ask)
 
 
-def _step_usage(info: Mapping[str, Any]) -> tuple[float | None, float | None]:
-    """Tokens and USD cost reported by an agent for one step, if any."""
+def _step_usage(
+    info: Mapping[str, Any], write_ttl: str = "5m"
+) -> tuple[float | None, float | None]:
+    """Tokens and USD cost of one step, if any.
+
+    Cost is the list price of the recorded tokens (``mmarena.pricing``) when the model has one,
+    else the cost the provider reported. ``write_ttl`` prices cache writes whose TTL the trace
+    does not record.
+    """
     tokens = info.get("tokens")
     usage = info.get("usage")
     if tokens is None and isinstance(usage, Mapping):
@@ -118,6 +127,10 @@ def _step_usage(info: Mapping[str, Any]) -> tuple[float | None, float | None]:
             parts = [p for p in parts if isinstance(p, (int, float))]
             tokens = sum(parts) if parts else None
     cost = info.get("cost_usd", info.get("cost"))
+    if isinstance(usage, Mapping):
+        listed = list_cost(info.get("model"), usage, default_write_ttl=write_ttl)
+        if listed is not None:
+            cost = listed
     tokens = float(tokens) if isinstance(tokens, (int, float)) else None
     cost = float(cost) if isinstance(cost, (int, float)) else None
     return tokens, cost
@@ -126,6 +139,8 @@ def _step_usage(info: Mapping[str, Any]) -> tuple[float | None, float | None]:
 def episode_metrics(trace: Mapping[str, Any]) -> EpisodeMetrics:
     """Compute the additive metrics of one ``ok`` trace."""
     g = trace["game"]
+    # Claude Code writes the prompt cache with a 1-hour TTL; older traces do not record it.
+    write_ttl = "1h" if str(trace["agent"]).startswith("claude-cli:") else "5m"
     s0 = float(g["prior_std"]) or 1.0
     tick = float(g["market"].get("tick", 0.0)) or 0.0
     v = float(trace["value"])
@@ -192,7 +207,7 @@ def episode_metrics(trace: Mapping[str, Any]) -> EpisodeMetrics:
         if not (s["bid_allowed"] and s["ask_allowed"]):
             m.limit_steps += 1
         m.latency_s += float(s.get("latency_s") or 0.0)
-        tokens, cost = _step_usage(s.get("info") or {})
+        tokens, cost = _step_usage(s.get("info") or {}, write_ttl)
         if tokens is not None or cost is not None:
             m.cost_steps += 1
             m.tokens += tokens or 0.0

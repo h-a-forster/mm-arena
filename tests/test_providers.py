@@ -135,7 +135,7 @@ def test_anthropic_request_shape(monkeypatch):
         "cache_read_tokens": 1000,
         "cache_write_tokens": 0,
     }
-    assert comp.cost_usd == pytest.approx((100 * 2 + 50 * 10 + 1000 * 0.2) / 1e6)
+    assert comp.cost_usd == pytest.approx((100 * 2 + 50 * 10 + 1000 * 0.1) / 1e6)
 
 
 def test_anthropic_no_effort_omits_output_config():
@@ -263,7 +263,8 @@ def _cli_json(**over) -> str:
 def test_cli_parse_success():
     comp = parse_cli_output("log line\n" + _cli_json(), "", 0)
     assert comp.text == 'ok {"bid": 1, "ask": 2}'
-    assert comp.cost_usd == 0.0011
+    # List price of the tokens, not Claude Code's own figure.
+    assert comp.cost_usd == pytest.approx((597 * 1.0 + 108 * 5.0) / 1e6)
     assert comp.model == "claude-haiku-4-5-20251001"
     assert comp.usage["input_tokens"] == 597
     assert comp.usage["reasoning_tokens"] == 79
@@ -375,3 +376,22 @@ def test_cache_does_not_store_failures(tmp_path):
     with pytest.raises(InfraError):
         prov.complete("S", "U", max_tokens=5)
     assert not list(tmp_path.rglob("*.json"))
+
+
+def test_cli_cost_falls_back_to_reported_for_unknown_model():
+    out = _cli_json(modelUsage={"some-new-model": {"costUSD": 0.0011}})
+    assert parse_cli_output(out, "", 0).cost_usd == 0.0011
+
+
+def test_cli_records_one_hour_cache_writes():
+    usage = {
+        "input_tokens": 2,
+        "output_tokens": 100,
+        "cache_read_input_tokens": 500,
+        "cache_creation_input_tokens": 1000,
+        "cache_creation": {"ephemeral_1h_input_tokens": 1000, "ephemeral_5m_input_tokens": 0},
+    }
+    out = _cli_json(usage=usage, modelUsage={"claude-opus-5-5": {}})
+    comp = parse_cli_output(out, "", 0)
+    assert comp.usage["cache_write_1h_tokens"] == 1000
+    assert comp.cost_usd == pytest.approx((2 * 4 + 100 * 20 + 500 * 0.2 + 1000 * 8) / 1e6)

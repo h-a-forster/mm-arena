@@ -161,6 +161,9 @@ suite version.
 - Provider failures (auth, rate limits, outages) exclude the episode instead of scoring it.
 - Responses can be cached on disk keyed by the full request, so reruns and rescoring are free
   and reproducible.
+- Cost is the API list price of the tokens each call used (`mmarena.pricing`), not the
+  provider's own figure, so runs through different providers are costed the same way. Models
+  without a listed price fall back to the provider's figure.
 
 ## 9. Trust model
 

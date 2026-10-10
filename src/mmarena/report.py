@@ -20,6 +20,7 @@ from mmarena.metrics import (
     group_aggregates,
     load_episodes,
 )
+from mmarena.pricing import PRICES_AS_OF
 from mmarena.runner import read_traces
 from mmarena.stats import (
     N_BOOT,
@@ -503,7 +504,7 @@ def render_markdown(r: Report) -> str:
     ]
 
     lines += ["## How to read the metrics", ""]
-    lines += [f"- **{k}**: {v}" for k, v in METRIC_NOTES]
+    lines += [f"- **{k}**: {v}" for k, v in METRIC_NOTES if k != "USD/episode" or has_cost]
     lines += [""]
     return "\n".join(lines)
 
@@ -543,6 +544,11 @@ METRIC_NOTES = (
         "dominated %",
         "steps with a bid above the highest possible value or an ask below the lowest: a "
         "certain loss if filled.",
+    ),
+    (
+        "USD/episode",
+        f"API list price of the tokens used (`mmarena.pricing`, prices as of {PRICES_AS_OF}); "
+        "the provider's reported cost for models without a listed price.",
     ),
     (
         "summary.json",

@@ -10,14 +10,14 @@
 | 2 | `claude-cli:claude-fable-5-1@high` | 90.7 [87.5, 93.3] | 0.00 | 1.370 | 1.257 | 0.23 | 1.03 | 0.99 | 0.0 | 0.0 | 0.8970 |
 | 3 | `bayes-noflow` | 88.5 [83.9, 92.1] | 0.00 | 1.337 | 1.150 | 0.34 | 0.00 | 0.93 | 0.0 | 0.0 | - |
 | 4 | `claude-cli:claude-opus-5-5@high` | 87.7 [83.7, 91.2] | 0.00 | 1.325 | 1.107 | 0.23 | 0.98 | 1.03 | 0.0 | 0.0 | 0.3102 |
-| 5 | `claude-cli:claude-haiku-5-5@high` | 79.9 [72.9, 85.2] | 0.00 | 1.207 | 0.971 | 0.29 | 0.30 | 0.91 | 0.0 | 0.0 | 0.9933 |
-| 6 | `claude-cli:claude-sonnet-5-5@high` | 69.2 [63.8, 74.8] | 0.00 | 1.045 | 0.906 | 0.34 | 0.66 | 0.90 | 0.0 | 0.0 | 0.1464 |
+| 5 | `claude-cli:claude-haiku-5-5@high` | 79.9 [72.9, 85.2] | 0.00 | 1.207 | 0.971 | 0.29 | 0.30 | 0.91 | 0.0 | 0.0 | 0.0249 |
+| 6 | `claude-cli:claude-sonnet-5-5@high` | 69.2 [63.8, 74.8] | 0.00 | 1.045 | 0.906 | 0.34 | 0.66 | 0.90 | 0.0 | 0.0 | 0.1459 |
 | 7 | `claude-cli:claude-opus-5-5@low` | 60.0 [56.4, 63.7] | 0.00 | 0.907 | 0.710 | 0.37 | 0.84 | 0.94 | 0.0 | 0.0 | 0.1619 |
 | 8 | `claude-cli:claude-fable-5-1@low` | 59.8 [55.7, 64.0] | 0.00 | 0.904 | 0.820 | 0.29 | 0.98 | 0.94 | 0.0 | 0.0 | 0.4253 |
 | 9 | `static` | 47.4 [36.2, 56.3] | 0.00 | 0.716 | 0.438 | 0.92 | 0.00 | 0.00 | 0.0 | 1.2 | - |
-| 10 | `claude-cli:claude-sonnet-5-5@low` | 14.8 [5.8, 22.1] | 0.00 | 0.223 | 0.072 | 0.46 | 0.33 | 0.83 | 0.0 | 0.0 | 0.0884 |
+| 10 | `claude-cli:claude-sonnet-5-5@low` | 14.8 [5.8, 22.1] | 0.00 | 0.223 | 0.072 | 0.46 | 0.33 | 0.83 | 0.0 | 0.0 | 0.0879 |
 | 11 | `glosten-milgrom` | 4.3 [3.7, 5.0] | 0.00 | 0.065 | 0.046 | 0.05 | 0.96 | 1.00 | 0.0 | 0.0 | - |
-| 12 | `claude-cli:claude-haiku-5-5@low` | -0.4 [-13.7, 10.7] | 0.00 | -0.007 | -0.239 | 0.40 | 0.17 | 0.87 | 0.0 | 0.0 | 0.3064 |
+| 12 | `claude-cli:claude-haiku-5-5@low` | -0.4 [-13.7, 10.7] | 0.00 | -0.007 | -0.239 | 0.40 | 0.17 | 0.87 | 0.0 | 0.0 | 0.0077 |
 | 13 | `random` | -80.3 [-107.7, -58.1] | 0.00 | -1.213 | -1.502 | 1.28 | -0.02 | 0.15 | 0.0 | 4.1 | - |
 
 ## By family and variant
@@ -105,4 +105,5 @@ SE: game-clustered standard error of the mean per-episode score. n: episodes nee
 - **beta reveal**: the same slope across stage boundaries, where public reveals arrive.
 - **invalid %**: steps whose output could not be used (format, exception, non-finite, crossed).
 - **dominated %**: steps with a bid above the highest possible value or an ask below the lowest: a certain loss if filled.
+- **USD/episode**: API list price of the tokens used (`mmarena.pricing`, prices as of 2026-10-10); the provider's reported cost for models without a listed price.
 - **summary.json**: also holds local efficiency, capture and adverse selection, realized P&L by taker type, mid bias and RMSE, width vs Bayes width, fill response, one-sided and no-quote rates, inventory-limit steps, final position, tokens, cost and latency, per agent and per (family, variant).

@@ -8,8 +8,10 @@ No API key is needed. Each call runs, in a fresh empty temporary directory::
 
 with the user prompt on stdin. The system prompt replaces Claude Code's own; no tools, MCP
 servers, settings files, hooks, plugins, skills or CLAUDE.md files are loaded. ``max_tokens``
-is not supported by the CLI and is ignored. Cost is Claude Code's ``total_cost_usd`` (the API
-list price of the call, whether or not a subscription pays for it).
+is not supported by the CLI and is ignored. Cost is the API list price of the call's tokens
+(``mmarena.pricing``), whether or not a subscription pays for it. Claude Code's own
+``total_cost_usd`` is used only for models without a listed price: it has been seen to price
+some new models at another model's rates.
 """
 
 from __future__ import annotations
@@ -25,6 +27,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from mmarena.agents.base import InfraError
+from mmarena.pricing import list_cost
 from mmarena.providers.base import Completion, TransientError, UserInput, join_user, with_retries
 
 EFFORTS = ("low", "medium", "high", "xhigh", "max")
@@ -102,16 +105,21 @@ def parse_cli_output(stdout: str, stderr: str, exit_code: int | None) -> Complet
         "cache_read_tokens": _int(tokens.get("cache_read_input_tokens")),
         "cache_write_tokens": _int(tokens.get("cache_creation_input_tokens")),
     }
+    creation = tokens.get("cache_creation")
+    if isinstance(creation, Mapping) and "ephemeral_1h_input_tokens" in creation:
+        usage["cache_write_1h_tokens"] = _int(creation.get("ephemeral_1h_input_tokens"))
     details = tokens.get("output_tokens_details")
     if isinstance(details, Mapping) and _int(details.get("thinking_tokens")):
         usage["reasoning_tokens"] = _int(details.get("thinking_tokens"))
     cost = obj.get("total_cost_usd")
     model_usage = obj.get("modelUsage")
     model = next(iter(model_usage), "") if isinstance(model_usage, Mapping) and model_usage else ""
+    reported = float(cost) if isinstance(cost, (int, float)) and cost >= 0 else None
+    listed = list_cost(model, usage, default_write_ttl="1h")
     return Completion(
         text=text,
         usage=usage,
-        cost_usd=float(cost) if isinstance(cost, (int, float)) and cost >= 0 else None,
+        cost_usd=listed if listed is not None else reported,
         model=model,
         stop_reason=obj.get("stop_reason"),
     )

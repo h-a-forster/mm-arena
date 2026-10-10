@@ -2,8 +2,8 @@
 
     uv run python scripts/figures.py results/core-v1 docs/figures
 
-Writes leaderboard, spread (edge vs quote width), variance (realized vs expected P&L) and one
-example episode per LLM agent.
+Writes leaderboard, spread (edge vs quote width), cost (edge vs list price and latency, with the
+Pareto frontier), variance (realized vs expected P&L) and one example episode per LLM agent.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from mmarena.plots import (
     MUTED,
     SERIES_1,
     SERIES_2,
+    SURFACE,
     _figure,
     _title,
     plot_episode,
@@ -89,6 +90,119 @@ def plot_spread(report, path: Path) -> None:
     save(fig, path)
 
 
+MODEL_COLORS = {"haiku": "#3a9e6f", "sonnet": "#7a5cc7", "opus": SERIES_1, "fable": SERIES_2}
+# Label placement for the cost chart, per panel: (dx, dy in points, horizontal alignment).
+COST_OFFSETS = {
+    "usd_1k": {},
+    "sec": {"opus low": (6, 7, "left"), "fable low": (7, -14, "left")},
+}
+
+
+def llm_costs(report, traces) -> list[dict]:
+    """Per LLM setup: edge captured, list-price USD per 1,000 quotes, mean seconds per quote."""
+    rows = []
+    for row in report.leaderboard:
+        name = row["agent"]
+        if name in BASELINES:
+            continue
+        steps = [s for t in traces[name] if t["status"] == "ok" for s in t["steps"]]
+        lat = [(s.get("info") or {}).get("provider_latency_s") for s in steps]
+        lat = [x for x in lat if isinstance(x, (int, float))]
+        model, _, effort = short(name).partition("@")
+        rows.append(
+            {
+                "name": name,
+                "model": model.split()[0],
+                "effort": effort,
+                "edge": row["edge_captured"],
+                "usd_1k": 1000 * row["cost_usd"] / len(steps),
+                "sec": float(np.mean(lat)) if lat else float("nan"),
+            }
+        )
+    return rows
+
+
+def pareto(rows: list[dict], key: str) -> list[dict]:
+    """Setups that no other setup beats on both edge and ``key`` (lower is better)."""
+    out, best = [], -np.inf
+    for r in sorted(rows, key=lambda r: (r[key], -r["edge"])):
+        if r["edge"] > best:
+            out.append(r)
+            best = r["edge"]
+    return out
+
+
+def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
+    """Edge captured against list price and against latency, with the Pareto frontier."""
+    fig, axes = _figure(11, 4.8, ncols=2)
+    panels = (
+        ("usd_1k", "USD per 1,000 quotes at API list prices (log)"),
+        ("sec", "seconds per quote (mean model latency)"),
+    )
+    for ax, (key, xlabel) in zip(axes, panels, strict=True):
+        front = pareto(rows, key)
+        xs = [r[key] for r in front]
+        ys = [r["edge"] for r in front]
+        ax.plot(xs, ys, drawstyle="steps-post", color=INK_2, linewidth=1, linestyle="--", zorder=2)
+        for model, color in MODEL_COLORS.items():
+            pts = sorted(
+                (r for r in rows if r["model"] == model), key=lambda r: r["effort"] != "low"
+            )
+            if not pts:
+                continue
+            ax.plot([r[key] for r in pts], [r["edge"] for r in pts], color=color, alpha=0.5, lw=1.2)
+            for r in pts:
+                high = r["effort"] == "high"
+                ax.scatter(
+                    r[key],
+                    r["edge"],
+                    s=70,
+                    color=color if high else SURFACE,
+                    edgecolor=color,
+                    linewidth=1.6,
+                    zorder=3,
+                )
+                label = f"{model} {r['effort']}"
+                dx, dy, ha = COST_OFFSETS[key].get(label, (7, 4, "left"))
+                ax.annotate(
+                    label,
+                    (r[key], r["edge"]),
+                    xytext=(dx, dy),
+                    textcoords="offset points",
+                    fontsize=8.5,
+                    color=INK,
+                    ha=ha,
+                    weight="bold" if r in front else "normal",
+                )
+        for y, text in ((100, "bayes"), (static_edge, "static (no model)")):
+            ax.axhline(y, color=MUTED, linewidth=0.8, linestyle=":")
+            ax.text(
+                0.01,
+                y,
+                text,
+                transform=ax.get_yaxis_transform(),
+                color=MUTED,
+                fontsize=8,
+                va="bottom",
+            )
+        ax.axhline(0, color=INK_2, linewidth=0.8)
+        if key == "usd_1k":
+            ax.set_xscale("log")
+            ticks = [1, 3, 10, 30, 100]
+            ax.set_xticks(ticks, [f"${t}" for t in ticks])
+            ax.minorticks_off()
+        ax.set_ylim(-8, 106)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel("edge captured, % of Bayes")
+    _title(
+        fig,
+        "What the edge costs",
+        "Hollow: low effort, filled: high effort. Dashed: Pareto frontier (bold labels). "
+        "Latency through claude -p.",
+    )
+    save(fig, path)
+
+
 def main(run_dir: str, out_dir: str) -> None:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -96,6 +210,15 @@ def main(run_dir: str, out_dir: str) -> None:
     save(plot_leaderboard(report), out / "leaderboard")
     plot_spread(report, out / "spread")
     traces = load_run(run_dir)
+    costs = llm_costs(report, traces)
+    if costs:
+        static = next((r["edge_captured"] for r in report.leaderboard if r["agent"] == "static"), 0)
+        plot_cost(costs, static, out / "cost")
+        for r in sorted(costs, key=lambda r: r["usd_1k"]):
+            print(
+                f"{short(r['name']):18s} edge {r['edge']:6.1f}  ${r['usd_1k']:7.2f}/1k quotes  "
+                f"{r['sec']:5.1f} s/quote"
+            )
     agents = load_episodes(traces)
     llms = [r["agent"] for r in report.leaderboard if r["agent"] not in BASELINES]
     if len(llms) >= 2:

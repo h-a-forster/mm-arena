@@ -76,6 +76,42 @@ Edge captured: expected P&L as a share of the Bayes quoter's on the same episode
    with realized P&L (18 times as many). For single LLM agents the ratio is 4-12. A leaderboard
    built on realized P&L from a few dozen episodes mostly measures luck.
 
+### Cost
+
+What each setup costs per quote at API list prices, against the edge it captures. The dashed
+line is the Pareto frontier: no other setup is both cheaper (or faster) and better.
+
+![Cost and latency vs edge](docs/figures/cost.png)
+
+| setup | edge captured % | USD / 1,000 quotes | USD / core-v1 run | seconds / quote | cost frontier |
+| --- | ---: | ---: | ---: | ---: | :---: |
+| haiku 5.5 @low | -0.4 | 1.07 | 0.92 | 13.5 | yes |
+| haiku 5.5 @high | 79.9 | 3.47 | 2.98 | 32.7 | yes |
+| sonnet 5.5 @low | 14.8 | 12.27 | 10.55 | 12.6 | |
+| sonnet 5.5 @high | 69.2 | 20.36 | 17.51 | 17.4 | |
+| opus 5.5 @low | 60.0 | 22.59 | 19.43 | 12.7 | |
+| opus 5.5 @high | 87.7 | 43.28 | 37.22 | 21.2 | yes |
+| fable 5.1 @low | 59.8 | 59.34 | 51.03 | 15.3 | |
+| fable 5.1 @high | 90.7 | 125.16 | 107.64 | 30.9 | yes |
+
+- **Haiku at high effort is the value pick.** It captures 80% of the Bayes edge for $3.47 per
+  1,000 quotes. Every Sonnet setup and both low-effort Opus and Fable setups cost 3.5-17 times as
+  much and score lower.
+- **Each step up the frontier costs more per point.** Haiku high to Opus high: +7.8 points for
+  12.5 times the price, about $5 per point per 1,000 quotes. Opus high to Fable high: +3.0 points
+  for 2.9 times the price, about $27 per point. Fable's lead is real (Holm p = 0.02) but small;
+  it pays only where the last few points matter more than cost.
+- **Latency ranks the setups differently.** Haiku at high effort is the slowest setup (33 s per
+  quote; it writes about 6,500 tokens per answer). Where speed matters, Opus at high effort
+  reaches 88% at 21 s per quote, and Opus at low effort 60% at 13 s.
+
+Costs are the list prices of the tokens each call used (`mmarena.pricing`, prices as of
+2026-10-10), including Claude Code's prompt-cache writes; the same tokens through the API cost
+about the same. On a subscription the cost is usage limits, not dollars. Latency is measured through
+`claude -p` with several calls in parallel and includes CLI start-up. Claude Code's own cost
+field priced Haiku 5.5 at Opus rates, 40 times too high; mm-arena costs runs from token counts
+instead.
+
 Full report: [results/core-v1/REPORT.md](results/core-v1/REPORT.md). Traces for every episode
 are in [results/core-v1/](results/core-v1/); `mm-arena report results/core-v1` rescores them.
 
