@@ -111,6 +111,30 @@ def bootstrap_mean(
     return bootstrap_ratio(x, np.ones(len(x)), clusters, 1.0, n_boot, seed, level)
 
 
+def bootstrap_pvalue(draws: Sequence[float] | np.ndarray) -> float:
+    """Two-sided bootstrap p-value for "the statistic is 0": ``2 * min(P(d <= 0), P(d >= 0))``."""
+    d = np.asarray(draws, dtype=float)
+    d = d[np.isfinite(d)]
+    if len(d) == 0:
+        return math.nan
+    return float(min(1.0, 2.0 * min(np.mean(d <= 0), np.mean(d >= 0))))
+
+
+def _gap_draws(
+    a: tuple[Sequence[float], Sequence[float], Sequence[Hashable]],
+    b: tuple[Sequence[float], Sequence[float], Sequence[Hashable]],
+    scale: float,
+    n_boot: int,
+    seed: int,
+) -> tuple[float, np.ndarray]:
+    _, (na, da) = cluster_sums(a[2], a[0], a[1])
+    _, (nb, db) = cluster_sums(b[2], b[0], b[1])
+    value = float(scale * (_ratio(na.sum(), da.sum()) - _ratio(nb.sum(), db.sum())))
+    ca = bootstrap_counts(len(na), n_boot, seed)
+    cb = bootstrap_counts(len(nb), n_boot, seed + 1)
+    return value, scale * (_ratio(ca @ na, ca @ da) - _ratio(cb @ nb, cb @ db))
+
+
 def bootstrap_ratio_gap(
     a: tuple[Sequence[float], Sequence[float], Sequence[Hashable]],
     b: tuple[Sequence[float], Sequence[float], Sequence[Hashable]],
@@ -119,14 +143,22 @@ def bootstrap_ratio_gap(
     seed: int = 0,
     level: float = 0.95,
 ) -> Estimate:
-    """Difference of two ratios on disjoint game sets; each set is resampled on its own."""
-    _, (na, da) = cluster_sums(a[2], a[0], a[1])
-    _, (nb, db) = cluster_sums(b[2], b[0], b[1])
-    value = float(scale * (_ratio(na.sum(), da.sum()) - _ratio(nb.sum(), db.sum())))
-    ca = bootstrap_counts(len(na), n_boot, seed)
-    cb = bootstrap_counts(len(nb), n_boot, seed + 1)
-    draws = scale * (_ratio(ca @ na, ca @ da) - _ratio(cb @ nb, cb @ db))
+    """Difference of two ratios on disjoint cluster sets; each set is resampled on its own."""
+    value, draws = _gap_draws(a, b, scale, n_boot, seed)
     return _interval(value, draws, level)
+
+
+def bootstrap_ratio_gap_test(
+    a: tuple[Sequence[float], Sequence[float], Sequence[Hashable]],
+    b: tuple[Sequence[float], Sequence[float], Sequence[Hashable]],
+    scale: float = 1.0,
+    n_boot: int = N_BOOT,
+    seed: int = 0,
+    level: float = 0.95,
+) -> tuple[Estimate, float]:
+    """:func:`bootstrap_ratio_gap` plus its two-sided bootstrap p-value (same draws)."""
+    value, draws = _gap_draws(a, b, scale, n_boot, seed)
+    return _interval(value, draws, level), bootstrap_pvalue(draws)
 
 
 def sign_flip_pvalue(d: Sequence[float], n_perm: int = N_PERM, seed: int = 0) -> float:
