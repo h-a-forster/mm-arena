@@ -16,11 +16,29 @@ from typing import Any
 
 import numpy as np
 
+from mmarena import __version__
 from mmarena.agents.base import Agent, AgentError, InfraError, Observation
 from mmarena.games.base import Game
 from mmarena.market import BUY, SELL, Posterior, optimal_quote, quote_value
 
-TRACE_VERSION = 1
+# 2: adds ``provenance`` (package version, plus the agent's own record: provider, model,
+#    options, harness version, step-0 prompt hash for LLM agents) and per-step
+#    ``info.prompt_sha256`` for LLM agents.
+TRACE_VERSION = 2
+
+
+def provenance(agent: Agent) -> dict[str, Any]:
+    """``{"mmarena": version, **agent.provenance()}``; the agent part is optional, best effort."""
+    out: dict[str, Any] = {"mmarena": __version__}
+    fn = getattr(agent, "provenance", None)
+    if callable(fn):
+        try:
+            extra = fn()
+        except Exception:  # noqa: BLE001 - provenance must never fail an episode
+            extra = None
+        if isinstance(extra, dict):
+            out.update({k: v for k, v in extra.items() if k != "mmarena"})
+    return out
 
 
 def episode_rng(game: Game, seed: int) -> np.random.Generator:
@@ -211,6 +229,7 @@ def run_episode(game: Game, agent: Agent, seed: int) -> dict[str, Any]:
         {
             "trace_version": TRACE_VERSION,
             "agent": getattr(agent, "name", type(agent).__name__),
+            "provenance": provenance(agent),
             "game": game.to_dict(),
             "seed": int(seed),
             "status": status,

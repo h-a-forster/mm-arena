@@ -458,8 +458,11 @@ otherwise it replays the first run's replies.
 - Most of the Bayes edge is monopoly spread, so a model that quotes tight from competitive-market
   habit is penalised here.
 - LLM scores depend on the prompt and provider settings. The prompt is fixed for a suite
-  version, and the provider spec is in each run's file name, but traces do not record the
-  Claude Code version or what it adds to the prompt (see [Results](#results)).
+  version, and the provider spec is in each run's file name. The committed `core-v1` traces
+  (trace version 1) do not record the Claude Code version or what it adds to the prompt (see
+  [Results](#results)). From trace version 2, each trace's `provenance` records the package
+  version, provider options, the Claude Code CLI or SDK version, and a SHA-256 of the step-0
+  prompt; what Claude Code adds to the prompt is still not visible.
 - Sampling noise across games is in the bootstrap. Run-level drift is not. Second runs moved by
   4 and 10 points, but they also changed Claude Code version and with it the model's input, so
   pure drift may be smaller. Only Opus @high and Haiku @high were replicated; Fable was not.

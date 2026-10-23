@@ -72,6 +72,36 @@ class TransientError(Exception):
     """A failure worth retrying (rate limit, overload, timeout, connection drop)."""
 
 
+def harness_version(provider: object) -> str | None:
+    """Version of the software between the benchmark and the model, if the provider reports one.
+
+    Providers may define ``harness_version() -> str | None`` (CLI or SDK version). Wrappers that
+    expose ``inner`` are looked through. Errors are swallowed: provenance must never fail a run.
+    """
+    seen = 0
+    while provider is not None and seen < 8:
+        fn = getattr(provider, "harness_version", None)
+        if callable(fn):
+            try:
+                v = fn()
+            except Exception:  # noqa: BLE001 - provenance is best effort
+                return None
+            return str(v) if v else None
+        provider = getattr(provider, "inner", None)
+        seen += 1
+    return None
+
+
+def package_version(dist: str) -> str | None:
+    """``"<dist> <version>"`` for an installed distribution, else ``None``."""
+    from importlib.metadata import PackageNotFoundError, version
+
+    try:
+        return f"{dist} {version(dist)}"
+    except PackageNotFoundError:
+        return None
+
+
 def join_user(user: UserInput) -> str:
     return user if isinstance(user, str) else "\n\n".join(user)
 

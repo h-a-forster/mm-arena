@@ -11,6 +11,11 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`summary.json` key `variance.top_llm_pair`). The README's episodes-needed figures for Fable vs
   Opus at high effort (25 with xPnL, 444 with realized P&L) now come from `REPORT.md`; the
   numbers are unchanged.
+- Trace version 2: each trace has a `provenance` object with the package version and, for LLM
+  agents, provider, model, options, the harness version (`claude --version` for `claude-cli`,
+  the SDK version for `anthropic` and `openai`) and a SHA-256 of the step-0 prompt. Each LLM
+  step's `info` carries `prompt_sha256` for the prompt sent at that step. Version 1 traces still
+  load and score unchanged.
 
 ### Changed
 

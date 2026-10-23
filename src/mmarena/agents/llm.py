@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import hashlib
 from typing import Any
 
 from mmarena.agents.base import AgentError, InfraError, Observation, Quote
 from mmarena.agents.prompt import parse_quote, render_prompt_parts, render_repair
 from mmarena.cache import CachedProvider
 from mmarena.games.base import Game
-from mmarena.providers.base import Completion, Provider
+from mmarena.providers.base import Completion, Provider, harness_version
 
 RAW_LIMIT = 2000
 USAGE_KEYS = (
@@ -20,6 +21,11 @@ USAGE_KEYS = (
     "aux_input_tokens",
     "aux_output_tokens",
 )
+
+
+def prompt_hash(system: str, user: list[str] | tuple[str, ...]) -> str:
+    """SHA-256 of a prompt: the system prompt and each user segment, NUL-separated."""
+    return hashlib.sha256("\0".join([system, *user]).encode("utf-8")).hexdigest()
 
 
 def _truncate(text: str, limit: int = RAW_LIMIT) -> str:
@@ -48,13 +54,32 @@ class LLMAgent:
         self.name = name or f"{provider.name}:{provider.model}"
         self.max_tokens = max_tokens
         self.repair_attempts = max(0, repair_attempts)
+        self._first_prompt: str | None = None
 
     def reset(self, game: Game) -> None:
-        pass
+        self._first_prompt = None
+
+    def provenance(self) -> dict[str, Any]:
+        """What produced this episode's quotes, beyond the model name (stored in the trace).
+
+        ``prompt_sha256`` hashes the step-0 prompt (system prompt, game description and the
+        initial state), so a change to any prompt template shows up as a different hash for the
+        same game. ``harness`` is the CLI or SDK version reported by the provider.
+        """
+        return {
+            "provider": self.provider.name,
+            "model": self.provider.model,
+            "options": dict(self.provider.options),
+            "harness": harness_version(self.provider),
+            "prompt_sha256": self._first_prompt,
+        }
 
     def act(self, obs: Observation) -> Quote:
         system, parts = render_prompt_parts(obs)
         user = list(parts)
+        digest = prompt_hash(system, parts)
+        if self._first_prompt is None:
+            self._first_prompt = digest
         calls: list[Completion] = []
         raws: list[str] = []
         problem = ""
@@ -83,12 +108,12 @@ class LLMAgent:
                     # Keep the static segment first so the prompt cache still applies.
                     user = [*parts[:-1], render_repair(parts[-1], comp.text, problem)]
                 continue
-            return Quote(bid, ask, self._info(calls, raws))
+            return Quote(bid, ask, self._info(calls, raws, digest))
         err = AgentError(problem)
-        err.info = {**self._info(calls, raws), "parse_error": problem}  # type: ignore[attr-defined]
+        err.info = {**self._info(calls, raws, digest), "parse_error": problem}  # type: ignore[attr-defined]
         raise err
 
-    def _info(self, calls: list[Completion], raws: list[str]) -> dict[str, Any]:
+    def _info(self, calls: list[Completion], raws: list[str], digest: str) -> dict[str, Any]:
         usage = {k: sum(c.usage.get(k, 0) for c in calls) for k in USAGE_KEYS}
         usage = {k: v for k, v in usage.items() if v or k in ("input_tokens", "output_tokens")}
         if any("cache_write_1h_tokens" in c.usage for c in calls):
@@ -106,6 +131,7 @@ class LLMAgent:
             "provider_latency_s": round(sum(c.latency_s for c in calls), 3),
             "repairs": len(calls) - 1,
             "cached": all(c.cached for c in calls),
+            "prompt_sha256": digest,
         }
         if len(raws) > 1:
             info["raw_rejected"] = [_truncate(r, RAW_LIMIT // 2) for r in raws[:-1]]

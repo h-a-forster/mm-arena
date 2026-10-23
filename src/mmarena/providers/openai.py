@@ -22,6 +22,7 @@ from mmarena.providers.base import (
     classify_sdk_error,
     is_sdk_error,
     join_user,
+    package_version,
     with_retries,
 )
 
@@ -79,6 +80,10 @@ class OpenAIProvider:
                     api_key=key, base_url=self.base_url, timeout=self.timeout, max_retries=0
                 )
             return self._client
+
+    def harness_version(self) -> str | None:
+        """Installed ``openai`` SDK version, recorded in each trace's provenance."""
+        return package_version("openai")
 
     def complete(self, system: str, user: UserInput, *, max_tokens: int) -> Completion:
         client = self._get_client()

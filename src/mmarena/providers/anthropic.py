@@ -22,6 +22,7 @@ from mmarena.providers.base import (
     UserInput,
     classify_sdk_error,
     is_sdk_error,
+    package_version,
     with_retries,
 )
 
@@ -94,6 +95,10 @@ class AnthropicProvider:
         if self.effort is not None:
             req["output_config"] = {"effort": self.effort}
         return req
+
+    def harness_version(self) -> str | None:
+        """Installed ``anthropic`` SDK version, recorded in each trace's provenance."""
+        return package_version("anthropic")
 
     def complete(self, system: str, user: UserInput, *, max_tokens: int) -> Completion:
         client = self._get_client()

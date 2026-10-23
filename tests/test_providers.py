@@ -424,3 +424,81 @@ def test_cli_auxiliary_call_on_the_same_model_is_split_out():
     assert comp.model == "claude-haiku-5-5"
     assert comp.usage["output_tokens"] == 300
     assert (comp.usage["aux_input_tokens"], comp.usage["aux_output_tokens"]) == (1171, 21)
+
+
+# ----------------------------------------------------------------------------- harness version
+
+
+def test_cli_version_parsed_and_cached(monkeypatch):
+    from mmarena.providers import claude_cli
+
+    calls = []
+
+    def fake_run(argv, **kw):
+        calls.append(argv)
+        return SimpleNamespace(returncode=0, stdout="2.3.1 (Claude Code)\n", stderr="")
+
+    claude_cli.cli_version.cache_clear()
+    monkeypatch.setattr(claude_cli.subprocess, "run", fake_run)
+    monkeypatch.setattr(claude_cli.shutil, "which", lambda exe: "/opt/bin/claude")
+    prov = ClaudeCLIProvider("haiku")
+    assert prov.harness_version() == "2.3.1 (Claude Code)"
+    assert prov.harness_version() == "2.3.1 (Claude Code)"
+    assert calls == [["/opt/bin/claude", "--version"]]
+    claude_cli.cli_version.cache_clear()
+
+
+@pytest.mark.parametrize(
+    "outcome",
+    [
+        SimpleNamespace(returncode=1, stdout="2.3.1\n", stderr="boom"),
+        SimpleNamespace(returncode=0, stdout="", stderr=""),
+        OSError("cannot start"),
+    ],
+)
+def test_cli_version_failure_is_none(monkeypatch, outcome):
+    from mmarena.providers import claude_cli
+
+    def fake_run(argv, **kw):
+        if isinstance(outcome, Exception):
+            raise outcome
+        return outcome
+
+    claude_cli.cli_version.cache_clear()
+    monkeypatch.setattr(claude_cli.subprocess, "run", fake_run)
+    monkeypatch.setattr(claude_cli.shutil, "which", lambda exe: "/opt/bin/claude")
+    assert ClaudeCLIProvider("haiku").harness_version() is None
+    claude_cli.cli_version.cache_clear()
+
+
+def test_cli_version_missing_executable():
+    prov = ClaudeCLIProvider("haiku", executable="definitely-not-a-real-claude-binary")
+    assert prov.harness_version() is None
+
+
+def test_harness_version_looks_through_wrappers(tmp_path):
+    from mmarena.providers.base import harness_version
+
+    class Versioned(ScriptedProvider):
+        def harness_version(self):
+            return "tool 1.0"
+
+    class Broken(ScriptedProvider):
+        def harness_version(self):
+            raise RuntimeError("no")
+
+    cache = ResponseCache(tmp_path)
+    assert harness_version(CachedProvider(Versioned("x"), cache)) == "tool 1.0"
+    assert harness_version(CachedProvider(Broken("x"), cache)) is None
+    assert harness_version(ScriptedProvider("x")) is None
+
+
+def test_sdk_providers_report_package_version(monkeypatch):
+    from mmarena.providers import base
+
+    assert base.package_version("definitely-not-an-installed-dist") is None
+    fake = lambda dist: f"{dist} 9.9"  # noqa: E731
+    monkeypatch.setattr("mmarena.providers.anthropic.package_version", fake)
+    monkeypatch.setattr("mmarena.providers.openai.package_version", fake)
+    assert AnthropicProvider.harness_version(object.__new__(AnthropicProvider)) == "anthropic 9.9"
+    assert OpenAIProvider.harness_version(object.__new__(OpenAIProvider)) == "openai 9.9"

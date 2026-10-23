@@ -268,7 +268,10 @@ draws from the game id and seed. LLM agents see only the rendered prompt.
   reasoning given them.
 - Small state spaces only (exact enumeration). This is deliberate: every score is exact.
 - LLM results depend on prompt wording and provider settings. The prompt is fixed per suite
-  version; the Claude Code version, and what it adds to the prompt, is not recorded in traces.
+  version. Trace version 1 (all committed `core-v1` runs) does not record the Claude Code
+  version. Trace version 2 records it in `provenance.harness`, with a SHA-256 of the step-0
+  prompt (`provenance.prompt_sha256`) and of every step's prompt (`info.prompt_sha256`). What
+  Claude Code adds to the prompt is not recorded in either.
 - Intervals cover game sampling, including sampling noise within a run. What one run misses is
   run-level drift (date, server changes). Replicate runs exist for some setups; see the README.
 - Classic and perturbed games differ in two ways: recall of known answers and ease of
