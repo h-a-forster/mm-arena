@@ -134,7 +134,8 @@ structures), which widens them. Sonnet @high went from [+1.9, +22.5] to [-2.3, +
    design does not separate the two.
 7. **Realized P&L would not rank these models.** Detecting a difference of 0.1 prior sd per
    episode between Fable and Opus at high effort needs about 25 episodes with xPnL and about 444
-   with realized P&L (18 times as many). For single LLM agents the ratio is 4-12. A leaderboard
+   with realized P&L (18 times as many; REPORT.md, variance section, top two LLM setups). For
+   single LLM agents the ratio is 4-12. A leaderboard
    built on realized P&L from a few dozen episodes mostly measures luck.
 8. **Top LLMs at high effort match a fixed-width quoter around the exact mean.** `bayes-mean`
    (exact posterior mean ± 1.40 posterior sd) scores 86.3 [83.0, 89.0]. Fable @high is +4.4

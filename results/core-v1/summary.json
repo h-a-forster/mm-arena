@@ -11127,12 +11127,28 @@
         "episodes_needed_xpnl": 447.0,
         "episodes_ratio": 3.5677788415814797
       }
+    },
+    "top_llm_pair": {
+      "a": "claude-cli:claude-fable-5-1@high",
+      "b": "claude-cli:claude-opus-5-5@high",
+      "n": 120,
+      "mean_pnl": 0.14956755866929985,
+      "mean_xpnl": 0.04482279415773167,
+      "sd_pnl": 0.7513797228455268,
+      "sd_xpnl": 0.1771203753490137,
+      "se_pnl": 0.06692324451283463,
+      "se_xpnl": 0.015922427887629338,
+      "se_ratio": 4.203080396101496,
+      "delta": 0.1,
+      "episodes_needed_pnl": 444.0,
+      "episodes_needed_xpnl": 25.0,
+      "episodes_ratio": 17.99624486663786
     }
   },
   "decomposition": {
     "bayes-lookahead": {
       "as_played": 99.91349184304681,
-      "agent_mid_bayes_width": 99.9245945740107,
+      "agent_mid_bayes_width": 99.92459457401071,
       "bayes_mid_agent_width": 99.90927354389477,
       "mu_agent_width": 99.17430263433774,
       "covered_share": 99.53488372093024,
@@ -11145,7 +11161,7 @@
       "unreplayed_episodes": 0
     },
     "bayes-mean": {
-      "as_played": 86.18372829151109,
+      "as_played": 86.1837282915111,
       "agent_mid_bayes_width": 99.23964839559605,
       "bayes_mid_agent_width": 86.32901177907048,
       "mu_agent_width": 86.32396370267989,
@@ -11159,10 +11175,10 @@
       "unreplayed_episodes": 0
     },
     "bayes-noflow": {
-      "as_played": 89.9729840179162,
+      "as_played": 89.97298401791623,
       "agent_mid_bayes_width": 88.51903241183207,
       "bayes_mid_agent_width": 97.9578577995529,
-      "mu_agent_width": 97.8501836890716,
+      "mu_agent_width": 97.85018368907157,
       "covered_share": 96.04651162790698,
       "mid_bias_z": 0.05548990661523464,
       "mid_abs_z": 0.33601545439145636,
@@ -11174,8 +11190,8 @@
     },
     "bayes": {
       "as_played": 100.0,
-      "agent_mid_bayes_width": 100.00000000000004,
-      "bayes_mid_agent_width": 100.00000000000004,
+      "agent_mid_bayes_width": 100.0,
+      "bayes_mid_agent_width": 100.0,
       "mu_agent_width": 98.90941858166522,
       "covered_share": 99.06976744186046,
       "mid_bias_z": 0.0065519885649417626,
@@ -11190,7 +11206,7 @@
       "as_played": 90.98171615808182,
       "agent_mid_bayes_width": 95.81725582019094,
       "bayes_mid_agent_width": 94.25367162777425,
-      "mu_agent_width": 94.42301547165357,
+      "mu_agent_width": 94.42301547165358,
       "covered_share": 98.6046511627907,
       "mid_bias_z": 0.0333607505726415,
       "mid_abs_z": 0.22940360996143908,
@@ -11202,7 +11218,7 @@
     },
     "claude-cli:claude-fable-5-1@low": {
       "as_played": 60.782913129515364,
-      "agent_mid_bayes_width": 94.96486176514438,
+      "agent_mid_bayes_width": 94.96486176514435,
       "bayes_mid_agent_width": 66.04754849845213,
       "mu_agent_width": 68.72804245782469,
       "covered_share": 95.93023255813954,
@@ -11216,7 +11232,7 @@
     },
     "claude-cli:claude-haiku-5-5@high": {
       "as_played": 80.6687185616918,
-      "agent_mid_bayes_width": 91.83965325412868,
+      "agent_mid_bayes_width": 91.83965325412872,
       "bayes_mid_agent_width": 88.4848214047498,
       "mu_agent_width": 89.29805469198197,
       "covered_share": 96.62790697674419,
@@ -11229,9 +11245,9 @@
       "unreplayed_episodes": 0
     },
     "claude-cli:claude-haiku-5-5@low": {
-      "as_played": -0.47366676627854615,
+      "as_played": -0.4736667662785464,
       "agent_mid_bayes_width": 90.34343565927179,
-      "bayes_mid_agent_width": 14.393709472367966,
+      "bayes_mid_agent_width": 14.393709472367965,
       "mu_agent_width": 19.664687932052146,
       "covered_share": 83.95348837209302,
       "mid_bias_z": 0.04576006554779063,
@@ -11258,9 +11274,9 @@
     },
     "claude-cli:claude-opus-5-5@low": {
       "as_played": 61.614928548384356,
-      "agent_mid_bayes_width": 93.17031146530518,
+      "agent_mid_bayes_width": 93.17031146530516,
       "bayes_mid_agent_width": 68.58548519226078,
-      "mu_agent_width": 71.25807357359302,
+      "mu_agent_width": 71.25807357359304,
       "covered_share": 93.13953488372093,
       "mid_bias_z": 0.03382743305943612,
       "mid_abs_z": 0.36856859184133406,
@@ -11272,9 +11288,9 @@
     },
     "claude-cli:claude-opus-5-5@medium": {
       "as_played": 73.9768086332884,
-      "agent_mid_bayes_width": 92.82874783739726,
+      "agent_mid_bayes_width": 92.82874783739723,
       "bayes_mid_agent_width": 80.87872216939508,
-      "mu_agent_width": 82.23299197598443,
+      "mu_agent_width": 82.23299197598445,
       "covered_share": 95.46511627906976,
       "mid_bias_z": 0.02710985823499834,
       "mid_abs_z": 0.3219696756858421,
@@ -11299,10 +11315,10 @@
       "unreplayed_episodes": 0
     },
     "claude-cli:claude-sonnet-5-5@low": {
-      "as_played": 15.777155721642966,
-      "agent_mid_bayes_width": 88.86974054615871,
+      "as_played": 15.777155721642968,
+      "agent_mid_bayes_width": 88.86974054615872,
       "bayes_mid_agent_width": 34.8675626710452,
-      "mu_agent_width": 39.450554656377264,
+      "mu_agent_width": 39.45055465637726,
       "covered_share": 87.20930232558139,
       "mid_bias_z": 0.07404723108942274,
       "mid_abs_z": 0.4606518751081794,
@@ -11315,8 +11331,8 @@
     "glosten-milgrom": {
       "as_played": 4.52613444096774,
       "agent_mid_bayes_width": 94.88973349292165,
-      "bayes_mid_agent_width": 5.1005586916469685,
-      "mu_agent_width": 8.987328611622457,
+      "bayes_mid_agent_width": 5.100558691646969,
+      "mu_agent_width": 8.987328611622456,
       "covered_share": 92.09302325581395,
       "mid_bias_z": 0.005086826883037692,
       "mid_abs_z": 0.049830849146787086,
@@ -11328,8 +11344,8 @@
     },
     "random": {
       "as_played": -86.63584674111564,
-      "agent_mid_bayes_width": -2.2620240019864153,
-      "bayes_mid_agent_width": 49.181533946181645,
+      "agent_mid_bayes_width": -2.26202400198642,
+      "bayes_mid_agent_width": 49.18153394618165,
       "mu_agent_width": 53.224686059687095,
       "covered_share": 85.23255813953489,
       "mid_bias_z": -0.20419373482208952,
@@ -11343,8 +11359,8 @@
     "static": {
       "as_played": 48.69691137360253,
       "agent_mid_bayes_width": 39.80930886160308,
-      "bayes_mid_agent_width": 90.02806399784268,
-      "mu_agent_width": 90.47565262102944,
+      "bayes_mid_agent_width": 90.02806399784271,
+      "mu_agent_width": 90.47565262102945,
       "covered_share": 92.20930232558139,
       "mid_bias_z": -0.13405928574542988,
       "mid_abs_z": 0.9242420341547591,

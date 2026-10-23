@@ -46,6 +46,7 @@ def test_build_report_writes_files(run_dir):
     assert r.reference_generated == 0
     assert len(r.pairwise) == 6
     assert all(p["p_holm"] >= p["p_value"] for p in r.pairwise)
+    assert r.variance["top_llm_pair"] is None  # baselines only
 
     summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
     assert summary["leaderboard"][0]["agent"] == "bayes"

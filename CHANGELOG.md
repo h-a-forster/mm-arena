@@ -5,6 +5,13 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Report variance table: paired realized vs expected P&L for the two highest-ranked LLM setups
+  (`summary.json` key `variance.top_llm_pair`). The README's episodes-needed figures for Fable vs
+  Opus at high effort (25 with xPnL, 444 with realized P&L) now come from `REPORT.md`; the
+  numbers are unchanged.
+
 ## [0.2.0] - 2026-10-10
 
 ### Added
