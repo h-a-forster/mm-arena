@@ -12,6 +12,11 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Opus at high effort (25 with xPnL, 444 with realized P&L) now come from `REPORT.md`; the
   numbers are unchanged.
 
+### Changed
+
+- Effort figure: a line that skips an effort level with no run (Haiku and Sonnet at medium,
+  Fable at medium) is dashed, so it no longer reads as a measurement at that level.
+
 ## [0.2.0] - 2026-10-10
 
 ### Added

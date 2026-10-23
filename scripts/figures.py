@@ -310,7 +310,11 @@ def plot_effort(report, path: Path) -> None:
             [p[1]["edge_captured"] - p[1]["edge_lo"] for p in pts],
             [p[1]["edge_hi"] - p[1]["edge_captured"] for p in pts],
         ]
-        ax.plot(xs, ys, color=color, alpha=0.5, lw=1.2, zorder=2)
+        # Solid between adjacent measured levels; dashed across a level with no run, which is
+        # a gap in the data, not an interpolated measurement.
+        for i in range(len(pts) - 1):
+            ls = "-" if pts[i + 1][0] - pts[i][0] == 1 else (0, (3, 3))
+            ax.plot(xs[i : i + 2], ys[i : i + 2], color=color, alpha=0.5, lw=1.2, ls=ls, zorder=2)
         ax.errorbar(
             xs, ys, yerr=err, fmt="o", color=color, ms=7, capsize=3, lw=1.3, zorder=3,
             label=model,
@@ -328,7 +332,10 @@ def plot_effort(report, path: Path) -> None:
     ax.set_xlim(-0.4, len(EFFORTS) - 0.6)
     ax.set_xlabel("reasoning effort")
     ax.set_ylabel("edge captured, % of Bayes")
-    ax.legend(frameon=False, fontsize=8.5, loc="best", title="line: primary run, bars: 95% CI")
+    ax.legend(
+        frameon=False, fontsize=8.5, loc="best",
+        title="line: primary run, bars: 95% CI\ndashed: no run at the skipped level",
+    )  # fmt: skip
     ax.legend_.get_title().set_fontsize(7.5)
     _title(
         fig,
