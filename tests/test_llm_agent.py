@@ -143,3 +143,39 @@ def test_cache_keys_on_episode(tmp_path, game):
     assert inner.n == 3
     # A new episode is a new sample.
     assert LLMAgent(prov2).act(replace(obs[0], episode_seed=7)).bid == 4.0
+
+
+def test_prompt_hash_recorded_per_step_and_in_provenance(game):
+    from mmarena import __version__
+    from mmarena.agents.llm import prompt_hash
+    from mmarena.agents.prompt import render_prompt_parts
+    from mmarena.engine import TRACE_VERSION
+
+    agent = LLMAgent(ScriptedProvider('{"bid": 10, "ask": 12}'), name="t")
+    tr = run_episode(game, agent, 3)
+    assert tr["trace_version"] == TRACE_VERSION == 2
+    hashes = [s["info"]["prompt_sha256"] for s in tr["steps"]]
+    assert all(re.fullmatch(r"[0-9a-f]{64}", h) for h in hashes)
+    assert len(set(hashes)) == len(hashes)  # the state differs every step
+    system, parts = render_prompt_parts(_obs(game))
+    assert hashes[0] == prompt_hash(system, parts)
+    prov = tr["provenance"]
+    assert prov == {
+        "mmarena": __version__,
+        "provider": "scripted",
+        "model": "scripted",
+        "options": {"script": '{"bid": 10, "ask": 12}'},
+        "harness": None,
+        "prompt_sha256": hashes[0],
+    }
+    # same game, same seed, fresh agent: same step-0 hash; a reused agent is reset per episode
+    assert run_episode(game, agent, 4)["provenance"]["prompt_sha256"] == hashes[0]
+    json.dumps(tr, allow_nan=False)
+
+
+def test_prompt_hash_on_parse_failure(game):
+    agent = LLMAgent(ScriptedProvider("no quote here"), name="t", repair_attempts=0)
+    with pytest.raises(AgentError) as ei:
+        agent.act(_obs(game))
+    assert len(ei.value.info["prompt_sha256"]) == 64
+    assert agent.provenance()["prompt_sha256"] == ei.value.info["prompt_sha256"]

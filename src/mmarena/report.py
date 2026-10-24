@@ -184,7 +184,7 @@ def build_report(
     variants = _variant_table(agents, ref, n_boot, seed)
     pairwise = _pairwise(agents, ref, n_boot, seed)
     best = _anchor(board)
-    variance = _variance(agents, best, delta)
+    variance = _variance(agents, best, delta, [r["agent"] for r in board])
     decomposition = decompose_runs(
         {n: traces[n] for n in agents}, {row["agent"]: row for row in board}
     )
@@ -283,7 +283,42 @@ def _pairwise(
     return rows
 
 
-def _variance(agents: Mapping[str, AgentEpisodes], best: str | None, delta: float) -> dict:
+def _paired_cells(v: Mapping[str, float]) -> list[str]:
+    return [
+        _f(v["sd_pnl"], 3),
+        _f(v["sd_xpnl"], 3),
+        _f(v["episodes_needed_pnl"], 0),
+        _f(v["episodes_needed_xpnl"], 0),
+        _f(v["episodes_ratio"], 1),
+    ]
+
+
+def _paired_variance(
+    a: Sequence[EpisodeMetrics], b: Sequence[EpisodeMetrics], delta: float
+) -> dict[str, float] | None:
+    """Realized vs expected P&L as the score for the per-episode difference ``a - b``."""
+    ea, eb = _shared(a, b)
+    if len(ea) < 2:
+        return None
+    return variance_reduction(
+        [x.pnl_sd - y.pnl_sd for x, y in zip(ea, eb, strict=True)],
+        [x.xpnl_sd - y.xpnl_sd for x, y in zip(ea, eb, strict=True)],
+        [x.game_id for x in ea],
+        delta,
+    )
+
+
+def _variance(
+    agents: Mapping[str, AgentEpisodes],
+    best: str | None,
+    delta: float,
+    order: Sequence[str] = (),
+) -> dict:
+    """Per-agent and paired variance tables.
+
+    ``order`` is the leaderboard order; the two highest-ranked LLM setups in it are also
+    compared head to head (``top_llm_pair``), the comparison a model leaderboard has to resolve.
+    """
     per_agent = {}
     for name, ae in agents.items():
         eps = ae.episodes
@@ -295,16 +330,23 @@ def _variance(agents: Mapping[str, AgentEpisodes], best: str | None, delta: floa
         for name, ae in agents.items():
             if name == best:
                 continue
-            ea, eb = _shared(agents[best].episodes, ae.episodes)
-            if len(ea) < 2:
-                continue
-            paired[name] = variance_reduction(
-                [x.pnl_sd - y.pnl_sd for x, y in zip(ea, eb, strict=True)],
-                [x.xpnl_sd - y.xpnl_sd for x, y in zip(ea, eb, strict=True)],
-                [x.game_id for x in ea],
-                delta,
-            )
-    return {"delta": delta, "best": best, "per_agent": per_agent, "paired_vs_best": paired}
+            v = _paired_variance(agents[best].episodes, ae.episodes, delta)
+            if v is not None:
+                paired[name] = v
+    top_pair = None
+    llms = [n for n in order if is_llm(n) and n in agents]
+    if len(llms) >= 2:
+        a, b = llms[:2]
+        v = _paired_variance(agents[a].episodes, agents[b].episodes, delta)
+        if v is not None:
+            top_pair = {"a": a, "b": b, **v}
+    return {
+        "delta": delta,
+        "best": best,
+        "per_agent": per_agent,
+        "paired_vs_best": paired,
+        "top_llm_pair": top_pair,
+    }
 
 
 def _diff_row(
@@ -720,18 +762,11 @@ def render_markdown(r: Report) -> str:
     )
     lines += [""]
     paired = var["paired_vs_best"]
-    if paired:
-        rows = [
-            [
-                f"`{best}` - `{a}`",
-                _f(v["sd_pnl"], 3),
-                _f(v["sd_xpnl"], 3),
-                _f(v["episodes_needed_pnl"], 0),
-                _f(v["episodes_needed_xpnl"], 0),
-                _f(v["episodes_ratio"], 1),
-            ]
-            for a, v in paired.items()
-        ]
+    rows = [[f"`{best}` - `{a}`", *_paired_cells(v)] for a, v in paired.items()]
+    top = var.get("top_llm_pair")
+    if top:
+        rows.append([f"`{top['a']}` - `{top['b']}` (top two LLM setups)", *_paired_cells(top)])
+    if rows:
         lines += _table(
             ["paired difference", "SD pnl/sd", "SD xpnl/sd", "n (pnl)", "n (xpnl)", "n ratio"],
             rows,

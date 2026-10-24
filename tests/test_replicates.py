@@ -132,3 +132,14 @@ def test_gap_uses_structure_clusters_and_holm_over_llms(run_dir):
     assert math.isnan(v["bayes"]["gap_p_holm"])
     llm = [x for a, x in v.items() if ":" in a]
     assert all(x["gap_p_holm"] >= x["gap_p"] for x in llm if math.isfinite(x["gap_p"]))
+
+
+def test_top_llm_pair_variance(run_dir):
+    r = build_report(run_dir, n_boot=100, write=False)
+    llms = [row["agent"] for row in r.leaderboard if ":" in row["agent"]]
+    top = r.variance["top_llm_pair"]
+    assert (top["a"], top["b"]) == tuple(llms[:2])
+    assert "#r" not in top["a"] + top["b"]
+    assert top["n"] == r.variance["per_agent"][top["a"]]["n"]
+    md = (run_dir / "REPORT.md").read_text(encoding="utf-8")
+    assert f"`{top['a']}` - `{top['b']}` (top two LLM setups)" in md

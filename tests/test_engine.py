@@ -114,6 +114,7 @@ def test_trace_consistency_and_json(coin_game) -> None:
         s = json.dumps(tr, allow_nan=False)
         assert json.loads(s) == tr
         assert tr["trace_version"] == TRACE_VERSION and tr["status"] == "ok"
+        assert set(tr["provenance"]) == {"mmarena"}  # baselines add nothing of their own
         assert len(tr["steps"]) == coin_game.n_steps
         pos, cash = 0, 0.0
         for st in tr["steps"]:

@@ -5,6 +5,23 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Report variance table: paired realized vs expected P&L for the two highest-ranked LLM setups
+  (`summary.json` key `variance.top_llm_pair`). The README's episodes-needed figures for Fable vs
+  Opus at high effort (25 with xPnL, 444 with realized P&L) now come from `REPORT.md`; the
+  numbers are unchanged.
+- Trace version 2: each trace has a `provenance` object with the package version and, for LLM
+  agents, provider, model, options, the harness version (`claude --version` for `claude-cli`,
+  the SDK version for `anthropic` and `openai`) and a SHA-256 of the step-0 prompt. Each LLM
+  step's `info` carries `prompt_sha256` for the prompt sent at that step. Version 1 traces still
+  load and score unchanged.
+
+### Changed
+
+- Effort figure: a line that skips an effort level with no run (Haiku and Sonnet at medium,
+  Fable at medium) is dashed, so it no longer reads as a measurement at that level.
+
 ## [0.2.0] - 2026-10-10
 
 ### Added

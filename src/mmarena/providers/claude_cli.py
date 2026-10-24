@@ -24,6 +24,7 @@ import subprocess
 import tempfile
 import time
 from collections.abc import Mapping
+from functools import lru_cache
 from typing import Any
 
 from mmarena.agents.base import InfraError
@@ -39,6 +40,27 @@ _AUTH = re.compile(
     re.IGNORECASE,
 )
 _TAIL = 400
+
+
+@lru_cache(maxsize=8)
+def cli_version(exe: str, timeout: float = 30.0) -> str | None:
+    """``claude --version`` output (for example ``"2.3.1 (Claude Code)"``); ``None`` on failure.
+
+    Makes no model call. Cached per executable path for the life of the process.
+    """
+    try:
+        proc = subprocess.run(
+            [exe, "--version"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    out = (proc.stdout or "").strip().splitlines()
+    return out[0].strip()[:200] if proc.returncode == 0 and out else None
 
 
 def _tail(text: str, n: int = _TAIL) -> str:
@@ -267,6 +289,11 @@ class ClaudeCLIProvider:
         comp.latency_s = round(latency, 3)
         comp.model = comp.model or self.model
         return comp
+
+    def harness_version(self) -> str | None:
+        """Claude Code CLI version, recorded in each trace's provenance."""
+        exe = shutil.which(self.executable)
+        return cli_version(exe) if exe else None
 
     def complete(self, system: str, user: UserInput, *, max_tokens: int) -> Completion:
         exe = shutil.which(self.executable)

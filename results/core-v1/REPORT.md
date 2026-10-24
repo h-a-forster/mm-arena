@@ -131,6 +131,7 @@ Difference in edge captured on shared episodes. p: game-level sign-flip permutat
 | `bayes` - `glosten-milgrom` | 1.652 | 0.881 | 2143 | 610 | 3.5 |
 | `bayes` - `random` | 2.152 | 1.307 | 3635 | 1342 | 2.7 |
 | `bayes` - `static` | 1.425 | 0.754 | 1594 | 447 | 3.6 |
+| `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-opus-5-5@high` (top two LLM setups) | 0.751 | 0.177 | 444 | 25 | 18.0 |
 
 SE: game-clustered standard error of the mean per-episode score. n: episodes needed to detect a mean difference of 0.1 prior sd per episode at 80% power (two-sided, alpha 0.05). Both scores have the same expectation; xpnl removes the settlement and fill noise. A leaderboard on realized P&L needs n ratio times as many episodes for the same power.
 
