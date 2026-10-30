@@ -5,6 +5,8 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-30
+
 ### Added
 
 - Report variance table: paired realized vs expected P&L for the two highest-ranked LLM setups
@@ -16,11 +18,15 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   the SDK version for `anthropic` and `openai`) and a SHA-256 of the step-0 prompt. Each LLM
   step's `info` carries `prompt_sha256` for the prompt sent at that step. Version 1 traces still
   load and score unchanged.
+- Run-to-run section: the sample SD (n - 1) of each setup's run edges, for any number of runs
+  (`summary.json` key `replicates.setups[].pooled.run_sd`).
 
 ### Changed
 
 - Effort figure: a line that skips an effort level with no run (Haiku and Sonnet at medium,
   Fable at medium) is dashed, so it no longer reads as a measurement at that level.
+- Effort figure: the subtitle lists the replicate runs found in the report instead of a fixed
+  list, so third and later runs are named.
 
 ## [0.2.0] - 2026-10-10
 

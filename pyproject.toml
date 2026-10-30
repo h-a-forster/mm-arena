@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mm-arena"
-version = "0.2.0"
+version = "0.2.1"
 description = "Market-making games as a benchmark for LLM agents, scored exactly against a Bayes-optimal quoter."
 readme = "README.md"
 license = "MIT"
