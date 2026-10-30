@@ -239,14 +239,16 @@ suite version.
   Older traces did not record it and are priced as 1-hour writes. Through the API with the
   default 5-minute caching, the same tokens cost less: up to about 15% less at low effort (opus
   5.5 @low: 22.59 → 19.14 USD per 1,000 quotes). The cost frontier does not change.
-- **Auxiliary call.** Claude Code 2.1.296 (used for the replicate and medium-effort runs) adds
-  a small auxiliary Haiku 5.5 call per request, about 1.6k input tokens and about 20 output
+- **Auxiliary call.** Claude Code 2.1.296 (used for Opus @medium and the first two replicates)
+  adds a small auxiliary Haiku 5.5 call per request, about 1.6k input tokens and about 20 output
   tokens. Traces record its tokens as `aux_input_tokens` and `aux_output_tokens` and its price
   in each step's `cost_usd`. Reported costs cover the answering model only, for comparability
   with earlier runs. The same version also sends the answering model itself about 600 more
   prompt tokens per quote than the earlier version (median +594 for Opus @high, +629 for Haiku
   @high, same step of the same episode), so runs on the two versions are slightly different
-  setups. Their scores and costs are not strictly comparable.
+  setups. Their scores and costs are not strictly comparable. Claude Code 2.1.308 (the
+  2026-10-30 replicates) sends about 200-260 more prompt tokens than the earlier version and
+  made an auxiliary call on 1 of 3,440 quotes.
 - **Output limit.** The `anthropic:` provider's default `max_tokens` is 8192. In the haiku 5.5
   @high `claude-cli` run, 198 of 860 replies used more than 8192 output tokens (95th percentile about 14,200;
   max 43,375). Reproducing that setup through the API needs `--max-tokens 64000` or similar;
@@ -269,12 +271,13 @@ draws from the game id and seed. LLM agents see only the rendered prompt.
   reasoning given them.
 - Small state spaces only (exact enumeration). This is deliberate: every score is exact.
 - LLM results depend on prompt wording and provider settings. The prompt is fixed per suite
-  version. Trace version 1 (all committed `core-v1` runs) does not record the Claude Code
-  version. Trace version 2 records it in `provenance.harness`, with a SHA-256 of the step-0
-  prompt (`provenance.prompt_sha256`) and of every step's prompt (`info.prompt_sha256`). What
-  Claude Code adds to the prompt is not recorded in either.
+  version. Trace version 1 (the committed `core-v1` runs before 2026-10-30) does not record
+  the Claude Code version. Trace version 2 records it in `provenance.harness`, with a SHA-256
+  of the step-0 prompt (`provenance.prompt_sha256`) and of every step's prompt
+  (`info.prompt_sha256`). What Claude Code adds to the prompt is not recorded in either.
 - Intervals cover game sampling, including sampling noise within a run. What one run misses is
-  run-level drift (date, server changes). Replicate runs exist for some setups; see the README.
+  run-level drift (date, server changes). The high-effort setups have two or three runs; see the
+  README.
 - Classic and perturbed games differ in two ways: recall of known answers and ease of
   computation. A classic advantage may reflect either, and the design does not separate them
   (section 7).
