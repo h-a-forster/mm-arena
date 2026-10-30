@@ -2,7 +2,7 @@
 
 16 agents, up to 120 episodes on 60 games. Reference: `bayes` (myopic Bayes-optimal quoter). Intervals: 95% game-clustered bootstrap, 2000 draws.
 
-Leaderboard and the sections below it use primary runs only; 6 replicate run(s) (`#rN`, N >= 2) appear in Run-to-run variability.
+Leaderboard and the sections below it use primary runs only; 7 replicate run(s) (`#rN`, N >= 2) appear in Run-to-run variability.
 
 ## Leaderboard
 
@@ -149,21 +149,31 @@ SE: game-clustered standard error of the mean per-episode score. n: episodes nee
 | `claude-cli:claude-haiku-5-5@high` | r1 | 120 | 79.9 [72.9, 85.2] | - | - |  |
 |  | r2 | 120 | 90.4 [87.8, 92.5] | 10.5 [6.2, 16.1] | <0.001 |  |
 |  | r3 | 120 | 83.2 [77.9, 87.3] | 3.3 [-1.4, 8.9] | 0.206 |  |
-|  | pooled | 360 | 84.5 [80.4, 87.9] | - | - | 5.4 |
+|  | r4 | 120 | 84.6 [78.7, 89.6] | 4.7 [-1.9, 11.1] | 0.170 |  |
+|  | pooled | 480 | 84.5 [80.5, 87.8] | - | - | 4.4 |
 | `claude-cli:claude-sonnet-5-5@high` | r1 | 120 | 69.2 [63.8, 74.8] | - | - |  |
 |  | r2 | 120 | 71.9 [66.3, 77.0] | 2.7 [-0.9, 6.3] | 0.158 |  |
 |  | pooled | 240 | 70.6 [65.2, 75.6] | - | - | 1.9 |
+
+Later runs of one setup against each other (p not adjusted):
+
+| setup | runs | difference, pp [95% CI] | p |
+| --- | --- | ---: | ---: |
+| `claude-cli:claude-opus-5-5@high` | r3 minus r2 | 1.5 [-1.1, 4.2] | 0.271 |
+| `claude-cli:claude-haiku-5-5@high` | r3 minus r2 | -7.2 [-11.7, -3.4] | <0.001 |
+| `claude-cli:claude-haiku-5-5@high` | r4 minus r2 | -5.8 [-11.9, -0.7] | 0.034 |
+| `claude-cli:claude-haiku-5-5@high` | r4 minus r3 | 1.4 [-4.5, 6.8] | 0.664 |
 
 Pooled comparison of setups with several runs (mean score over runs):
 
 | pair | runs | difference, pp [95% CI] | games | p | p (Holm) |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-opus-5-5@high` | 2 / 3 | 4.0 [2.0, 6.3] | 60 | <0.001 | <0.001 |
-| `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | 2 / 3 | 5.1 [0.8, 9.7] | 60 | 0.015 | 0.030 |
+| `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | 2 / 4 | 5.1 [1.6, 9.2] | 60 | 0.004 | 0.009 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-sonnet-5-5@high` | 2 / 2 | 19.1 [15.3, 22.8] | 60 | <0.001 | <0.001 |
-| `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | 3 / 3 | 1.1 [-3.5, 5.8] | 60 | 0.676 | 0.676 |
+| `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | 3 / 4 | 1.1 [-2.7, 5.4] | 60 | 0.604 | 0.604 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | 3 / 2 | 15.0 [11.7, 18.2] | 60 | <0.001 | <0.001 |
-| `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | 3 / 2 | 13.9 [8.8, 19.4] | 60 | <0.001 | <0.001 |
+| `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | 4 / 2 | 14.0 [9.3, 18.3] | 60 | <0.001 | <0.001 |
 
 The same pairs, run against run (p not adjusted):
 
@@ -178,9 +188,11 @@ The same pairs, run against run (p not adjusted):
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r1 | 10.8 [4.8, 17.9] | <0.001 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r2 | 0.3 [-3.6, 3.5] | 0.927 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r3 | 7.5 [2.9, 12.6] | 0.002 |
+| `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r4 | 6.1 [2.2, 10.7] | 0.002 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r1 | 8.7 [2.2, 16.3] | 0.007 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r2 | -1.8 [-5.9, 1.9] | 0.470 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r3 | 5.4 [0.6, 10.7] | 0.034 |
+| `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r4 | 4.0 [-0.6, 9.2] | 0.096 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-sonnet-5-5@high` | r1 vs r1 | 21.5 [17.3, 25.4] | <0.001 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-sonnet-5-5@high` | r1 vs r2 | 18.7 [15.2, 22.6] | <0.001 |
 | `claude-cli:claude-fable-5-1@high` - `claude-cli:claude-sonnet-5-5@high` | r2 vs r1 | 19.4 [14.9, 23.8] | <0.001 |
@@ -188,12 +200,15 @@ The same pairs, run against run (p not adjusted):
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r1 | 7.8 [1.8, 15.1] | 0.011 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r2 | -2.7 [-6.8, 1.1] | 0.239 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r3 | 4.5 [0.2, 9.3] | 0.055 |
+| `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r1 vs r4 | 3.1 [-1.5, 7.8] | 0.191 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r1 | 3.9 [-2.9, 11.8] | 0.296 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r2 | -6.6 [-11.0, -2.2] | 0.005 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r3 | 0.6 [-4.0, 5.8] | 0.835 |
+| `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r2 vs r4 | -0.8 [-5.5, 4.4] | 0.743 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r3 vs r1 | 5.4 [-1.6, 13.4] | 0.143 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r3 vs r2 | -5.1 [-10.1, -0.7] | 0.048 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r3 vs r3 | 2.1 [-3.2, 7.8] | 0.463 |
+| `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-haiku-5-5@high` | r3 vs r4 | 0.7 [-4.1, 5.7] | 0.780 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r1 vs r1 | 18.5 [14.6, 22.2] | <0.001 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r1 vs r2 | 15.8 [12.1, 19.4] | <0.001 |
 | `claude-cli:claude-opus-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r2 vs r1 | 14.6 [9.9, 18.6] | <0.001 |
@@ -206,6 +221,8 @@ The same pairs, run against run (p not adjusted):
 | `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r2 vs r2 | 18.5 [13.6, 24.1] | <0.001 |
 | `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r3 vs r1 | 14.0 [7.4, 20.2] | <0.001 |
 | `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r3 vs r2 | 11.3 [5.3, 17.1] | <0.001 |
+| `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r4 vs r1 | 15.4 [9.8, 20.4] | <0.001 |
+| `claude-cli:claude-haiku-5-5@high` - `claude-cli:claude-sonnet-5-5@high` | r4 vs r2 | 12.7 [8.4, 17.0] | <0.001 |
 
 Repeated runs of one setup are scored on the same games and seeds. Intervals here still resample games; the spread between runs shows drift between them (date, sampling, server changes) that a single run cannot. Differences are in edge captured, percentage points, on episodes both runs played; p is a game-level sign-flip test. The pooled edge is 100 x total expected P&L over all runs / total Bayes expected P&L, with all runs' episodes of a game resampled together. SD across runs is the sample standard deviation (n - 1) of the runs' edges. Pooled pairs score each episode by the mean over a setup's runs; Holm correction within the pooled table.
 
