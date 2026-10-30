@@ -24,7 +24,7 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   (`#r2`, its first replicate), Haiku 5.5 @high (`#r3`), Opus 5.5 @high (`#r3`) and Sonnet 5.5
   @high (`#r2`). SD across runs: Fable 1.5, Opus 2.0, Sonnet 1.9, Haiku 5.4 points (Haiku over
   three runs; 4.4 with run 4, below). Pooled over games, Fable leads Opus by 4.0 [2.0, 6.3] points
-  (not yet settled with runs as the unit, Welch p 0.085); Haiku's 10.5-point jump in run 2 did
+  (not yet settled with runs as the unit, Welch p 0.087); Haiku's 10.5-point jump in run 2 did
   not repeat (run 3: +3.3 over run 1). README findings, run-to-run, cost and open questions updated.
 - `core-v1` results: Haiku 5.5 @high `#r4` on the same Claude Code version (2.1.308) and day as
   `#r3`, the first within-version pair. Run 4 minus run 3 is +1.4 [-4.5, 6.8] points (p 0.66),

@@ -40,7 +40,7 @@ same counterparties.
   (p 0.66), a first, thin look at drift within one version. Fable leads Opus in every pairing of
   their runs: +4.0 [2.0, 6.3] pooled over games, +3.3 [0.6, 6.0] between two runs on the same day
   and Claude Code version. Taking runs rather than games as the unit (2 against 3 run means), the
-  lead is not yet settled (Welch p 0.085). See [Run-to-run variability](#run-to-run-variability).
+  lead is not yet settled (Welch p 0.087). See [Run-to-run variability](#run-to-run-variability).
 - **Realized P&L would not rank these models.** Separating Fable from Opus at high effort takes
   about 18 times as many episodes with realized P&L as with expected P&L. See
   [REPORT.md](results/core-v1/REPORT.md#variance-realized-vs-expected-pl).
@@ -105,8 +105,8 @@ structures), which widens them. Sonnet @high went from [+1.9, +22.5] to [-2.3, +
    ignores order flow: Fable − `bayes-noflow` is +2.1 [-2.1, 6.6] (Holm p = 1.0), Opus −0.8 [-4.8,
    3.3]. Fable leads Opus by 3.0 points [1.1, 5.2] in their first runs (Holm p = 0.04; it was
    0.02 before the Holm family grew from 13 to 16 agents). Pooled over Fable's two runs and
-   Opus's three the lead is +4.0 [2.0, 6.3]; see
-   [Run-to-run variability](#run-to-run-variability).
+   Opus's three the lead is +4.0 [2.0, 6.3] over games, not yet settled with runs as the unit;
+   see [Run-to-run variability](#run-to-run-variability).
 2. **At low effort the shortfall is spread width; at high effort width and centring both
    matter.** Mean signed mid error is at most 0.09 posterior sd for every model, so mids are
    unbiased on average. But mean absolute mid error is 0.23-0.46 sd (Bayes 0.07), and quotes are
@@ -214,7 +214,7 @@ Code versions: run 1 earlier (not recorded), Opus and Haiku run 2 on 2.1.296, an
   run 2 against Opus run 1 is +0.9 [-1.3, 3.4] (p 0.48). The pooled gap is two to three times
   either setup's SD across runs, but SDs from two and three runs are rough, and the pooled
   interval resamples games, not runs: a Welch t-test on the five run means (90.7, 88.6 against
-  87.7, 83.8, 85.3) gives p 0.085, so the lead is not established at the run level.
+  87.7, 83.8, 85.3) gives p 0.087, so the lead is not established at the run level.
 - **Pooled, Opus and Haiku at high effort are indistinguishable:** Opus − Haiku is +1.1 [-2.7,
   5.4] (p 0.60), and +2.1 [-3.2, 7.8] and +0.7 [-4.1, 5.7] between Opus run 3 and Haiku runs 3
   and 4 (same day and version). Run against run their order flips: run 1 against run 1 is +7.8
@@ -254,9 +254,9 @@ the API default.
   @low, Opus @medium and Fable @low cost 3.0-14.4 times as much and score lower; pooled, Haiku
   @high beats Sonnet @high by 14.0 [9.3, 18.3] points. Haiku @high is also the least stable
   setup (SD 4.4 points across four runs).
-- **The last steps up the frontier cost more per point.** Pooled, Fable @high is +4.0 [2.0, 6.3]
-  over Opus @high for 2.8 times the price, about $20 per point per 1,000 quotes. It pays only
-  where the last few points matter more than cost.
+- **The last steps up the frontier cost more per point.** Pooled over games, Fable @high is +4.0
+  [2.0, 6.3] over Opus @high (not settled at run level) for 2.8 times the price, about $20 per
+  point per 1,000 quotes. It pays only where the last few points matter more than cost.
 - **Latency ranks the setups differently.** Haiku at high effort is the slowest (39.5 s per quote
   pooled; it writes about 6,500-8,600 tokens per answer). The latency frontier is Sonnet @low,
   Opus @low, Opus @medium, Opus @high and Fable @high. Opus at high effort reaches 85.6% at 21.5

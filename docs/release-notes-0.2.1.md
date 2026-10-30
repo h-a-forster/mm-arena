@@ -30,7 +30,7 @@ from 0.2.0.
   not rule out several points of drift within a version.
 - Fable leads Opus at high effort in all six pairings of their runs (0.9 to 6.9 points): pooled
   over games +4.0 [2.0, 6.3], same day and version +3.3 [0.6, 6.0]. With runs as the unit (two
-  against three) the lead is not yet settled (Welch p 0.085).
+  against three) the lead is not yet settled (Welch p 0.087).
 - Haiku's 10.5-point jump in its second run did not repeat: runs 3 and 4 scored +3.3
   [-1.4, 8.9] and +4.7 [-1.9, 11.1] over run 1. Whether Claude Code 2.1.296 suited Haiku or run
   2 was a high draw is still open.
