@@ -294,7 +294,7 @@ def replicate_note(report) -> str:
             continue
         model, _, effort = short(st["setup"]).partition("@")
         parts.append(f"{model.split()[0]} {effort} " + "/".join(f"r{n}" for n in extra))
-    return f"; small dots: replicate runs ({', '.join(parts)})" if parts else ""
+    return f"small dots: replicate runs ({', '.join(parts)})" if parts else ""
 
 
 def plot_effort(report, path: Path) -> None:
@@ -349,11 +349,11 @@ def plot_effort(report, path: Path) -> None:
         title="line: primary run, bars: 95% CI\ndashed: no run at the skipped level",
     )  # fmt: skip
     ax.legend_.get_title().set_fontsize(7.5)
-    _title(
-        fig,
-        "Edge rises with reasoning effort",
-        "Primary runs with 95% bootstrap intervals" + replicate_note(report),
-    )
+    # The replicate list grows with every run, so it gets its own line instead of running off
+    # the right edge.
+    note = replicate_note(report)
+    sub = "Primary runs with 95% bootstrap intervals" + (f";\n{note}" if note else "")
+    _title(fig, "Edge rises with reasoning effort", sub)
     save(fig, path)
 
 

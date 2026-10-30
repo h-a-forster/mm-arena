@@ -155,8 +155,10 @@ def test_top_llm_pair_variance(run_dir):
     assert f"`{top['a']}` - `{top['b']}` (top two LLM setups)" in md
 
 
-def test_effort_figure_names_every_replicate_run():
+def test_effort_figure_names_every_replicate_run(tmp_path, monkeypatch):
     pytest.importorskip("matplotlib")
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+
     path = Path(__file__).parents[1] / "scripts" / "figures.py"
     if not path.exists():
         pytest.skip("scripts/ is not in the sdist")
@@ -171,3 +173,21 @@ def test_effort_figure_names_every_replicate_run():
     note = figures.replicate_note(SimpleNamespace(replicates={"setups": setups}))
     assert "opus high r2/r3" in note and "haiku high r2)" in note
     assert figures.replicate_note(SimpleNamespace(replicates={})) == ""
+
+    # Four replicated setups (the committed core-v1): the subtitle must stay inside the figure.
+    names = [f"claude-cli:claude-{m}@high" for m in ("haiku-5-5", "sonnet-5-5", "opus-5-5")]
+    names.append("claude-cli:claude-fable-5-1@high")
+    row = {"edge_captured": 80.0, "edge_lo": 75.0, "edge_hi": 85.0}
+    reps = [{"run": n, "edge_captured": 80.0} for n in (1, 2, 3)]
+    report = SimpleNamespace(
+        leaderboard=[{"agent": n, **row} for n in names],
+        replicates={"setups": [{"setup": n, "runs": reps} for n in names]},
+    )
+    figs = []
+    monkeypatch.setattr(figures, "save", lambda fig, path: figs.append(fig))
+    figures.plot_effort(report, tmp_path / "effort")
+    fig = figs[0]
+    FigureCanvasAgg(fig).draw()
+    sub = fig.axes[0]._left_title  # _title() sets the subtitle with loc="left"
+    assert "sonnet high r2/r3" in sub.get_text()
+    assert sub.get_window_extent().x1 <= fig.bbox.x1
