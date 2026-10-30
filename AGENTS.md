@@ -81,11 +81,12 @@ Done:
   per setup, effort-figure subtitle built from the report.
 - Same-day replicates on Claude Code 2.1.308 (2026-10-30) of the four high-effort setups
   (Fable `#r2`, Haiku `#r3`, Opus `#r3`, Sonnet `#r2`) committed in `results/core-v1/`, report
-  and README updated. Every high-effort setup now has two or three runs.
+  and README updated. Haiku `#r4` (same version and day as `#r3`) added: the first
+  within-version pair, +1.4 [-4.5, 6.8] points. Every high-effort setup has two to four runs.
 
 Open:
-1. Drift within one Claude Code version is unmeasured: every replicate also changed version or
-   day. Two same-day runs of one setup on one version would measure it (README Open question 1).
+1. Drift within one Claude Code version rests on one pair (Haiku @high r3/r4). More
+   same-version pairs, for other setups too, would make it an estimate (README Open question 1).
 2. Tag v0.2.1 after the branch is merged.
 3. Dependabot branches (checkout, setup-uv, anthropic, openai, ruff) are unmerged: diff each
    before merging. `origin/upgrades-2026-10-23` and `origin/claude/audit-fixes-2026-10-10`

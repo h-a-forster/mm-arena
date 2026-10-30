@@ -33,11 +33,13 @@ same counterparties.
   horizon (a lower bound on headroom). See [Reference quoters](#reference-quoters) and
   [What the numbers say](#results).
 - **Run-to-run spread is a few points, so one run does not settle close gaps.** Each
-  high-effort setup now has two or three runs. The SD of edge across runs is 1.5 points for
-  Fable 5.1, 2.0 for Opus 5.5, 1.9 for Sonnet 5.5 and 5.4 for Haiku 5.5. Haiku's 10.5-point jump
-  in run 2 did not repeat: a third run scored 3.3 points above run 1 (p 0.21). Fable's lead over
-  Opus holds: +4.0 [2.0, 6.3] pooled over all runs, +3.3 [0.6, 6.0] between two runs on the same
-  day and Claude Code version. See [Run-to-run variability](#run-to-run-variability).
+  high-effort setup now has two to four runs. The SD of edge across runs is 1.5 points for
+  Fable 5.1, 2.0 for Opus 5.5, 1.9 for Sonnet 5.5 and 4.4 for Haiku 5.5 (four runs). Haiku's
+  10.5-point jump in run 2 did not repeat: runs 3 and 4 scored 3.3 and 4.7 points above run 1.
+  Those two ran on the same day and Claude Code version and differ by 1.4 [-4.5, 6.8] points
+  (p 0.66), a first, thin look at drift within one version. Fable's lead over Opus holds: +4.0
+  [2.0, 6.3] pooled over all runs, +3.3 [0.6, 6.0] between two runs on the same day and Claude
+  Code version. See [Run-to-run variability](#run-to-run-variability).
 - **Realized P&L would not rank these models.** Separating Fable from Opus at high effort takes
   about 18 times as many episodes with realized P&L as with expected P&L. See
   [REPORT.md](results/core-v1/REPORT.md#variance-realized-vs-expected-pl).
@@ -47,14 +49,14 @@ same counterparties.
 `core-v1`: 60 games (5 families, classic and perturbed), 2 episodes each, the same 120 episodes
 for every agent. Claude 5.5 and Fable 5.1 models via Claude Code headless mode (`claude -p`, no
 tools), October 2026. 95% intervals from a bootstrap over games. 0 invalid replies and 0 provider
-errors in 12,900 LLM quotes (15 runs of 860). Three Claude Code versions are involved. The
+errors in 13,760 LLM quotes (16 runs of 860). Three Claude Code versions are involved. The
 original eight runs used an earlier version (not recorded in the traces). The Opus 5.5 @medium
 run and the first two replicates (Opus and Haiku @high run 2) used 2.1.296, which sends the
 answering model about 600 more prompt tokens per quote (median +594 for Opus @high, +629 for
 Haiku @high, same step of the same episode), on top of a separately recorded auxiliary Haiku
-call. The four replicates of 2026-10-30 used 2.1.308 (recorded in each trace), which sends
+call. The five replicates of 2026-10-30 used 2.1.308 (recorded in each trace), which sends
 about 200-260 more prompt tokens than the original version and made an auxiliary call on 1 of
-3,440 quotes. Treat comparisons across versions as comparisons of slightly different setups.
+4,300 quotes. Treat comparisons across versions as comparisons of slightly different setups.
 
 ![Leaderboard](docs/figures/leaderboard.png)
 
@@ -160,9 +162,9 @@ per 1,000 quotes at 16.3 s per quote ([Cost](#cost)).
 
 ### Run-to-run variability
 
-Each high-effort setup has two or three runs, all scored on the same games and seeds. Claude
+Each high-effort setup has two to four runs, all scored on the same games and seeds. Claude
 Code versions: run 1 earlier (not recorded), Opus and Haiku run 2 on 2.1.296, and the
-2026-10-30 runs (Fable and Sonnet run 2, Opus and Haiku run 3) on 2.1.308.
+2026-10-30 runs (Fable and Sonnet run 2, Opus and Haiku run 3, Haiku run 4) on 2.1.308.
 
 | setup | run | edge captured % [95% CI] | minus run 1, pp [95% CI] | SD across runs, pp |
 | --- | --- | ---: | ---: | ---: |
@@ -176,34 +178,46 @@ Code versions: run 1 earlier (not recorded), Opus and Haiku run 2 on 2.1.296, an
 | haiku 5.5 @high | run 1 | 79.9 [72.9, 85.2] | - | |
 |  | run 2 (2.1.296) | 90.4 [87.8, 92.5] | +10.5 [6.2, 16.1] (p < 0.001) | |
 |  | run 3 (2.1.308) | 83.2 [77.9, 87.3] | +3.3 [-1.4, 8.9] (p 0.21) | |
-|  | pooled | 84.5 [80.4, 87.9] | - | 5.4 |
+|  | run 4 (2.1.308) | 84.6 [78.7, 89.6] | +4.7 [-1.9, 11.1] (p 0.17) | |
+|  | pooled | 84.5 [80.5, 87.8] | - | 4.4 |
 | sonnet 5.5 @high | run 1 | 69.2 [63.8, 74.8] | - | |
 |  | run 2 (2.1.308) | 71.9 [66.3, 77.0] | +2.7 [-0.9, 6.3] (p 0.16) | |
 |  | pooled | 70.6 [65.2, 75.6] | - | 1.9 |
 
-- **What the same-day runs show.** The four 2026-10-30 runs share one day and one Claude Code
-  version, so they compare the four models on equal footing. Against run 1 they moved -2.1
-  (Fable), -2.4 (Opus), +3.3 (Haiku) and +2.7 (Sonnet) points: mixed signs, not one shift
-  for the version. They give one run per setup on that version, so they still cannot measure
-  drift between two runs of the same setup on the same version.
-- **Haiku's 10.5-point swing was not a lasting effect of a newer Claude Code.** Run 3, on a
-  newer version again, scored 83.2: 3.3 above run 1 (not significant) and below run 2 on 41 of
-  60 games. Either 2.1.296 suited Haiku or run 2 was a high draw; one run per version cannot
-  tell which. Cards drive most of it (43.8, 80.4 and 58.4 in runs 1-3; the other families stay
-  within about 12 points). Its score ranks with how much it wrote, 6,516, 7,695 and 8,634
-  output tokens per quote for 79.9, 83.2 and 90.4, which is suggestive at three runs. Haiku
-  @high is the least stable setup.
+- **What the same-day runs show.** The 2026-10-30 runs share one day and one Claude Code
+  version, so they compare the four models on equal footing. Against run 1 the first run of
+  each setup on that version moved -2.1 (Fable), -2.4 (Opus), +3.3 (Haiku) and +2.7 (Sonnet)
+  points: mixed signs, not one shift for the version.
+- **Within one version, Haiku's two runs nearly agree; the sample is two runs.** Haiku runs 3
+  and 4 used the same Claude Code version (2.1.308), day, games, seeds and prompts (the same
+  prompt hash on all 120 episodes; median prompt-token difference per step -1). Run 4 minus run
+  3 is +1.4 [-4.5, 6.8] (p 0.66), higher on 32 of 60 games: an SD of 1.0 point for the pair,
+  against 4.4 across all four Haiku runs and gaps of 5.8 to 10.5 points between run 2 (2.1.296)
+  and the other three. Within-version drift therefore looks smaller than the cross-version
+  spread for this setup, but one pair is one draw of it. The paired interval is about as wide as
+  between runs on different versions, so drift of several points within a version is not
+  ruled out, and family scores still moved up to 7.0 points between the two (cards +6.4, coin
+  -7.0, dice +6.0). Other setups have no same-version pair.
+- **Haiku's 10.5-point swing was not a lasting effect of a newer Claude Code.** Runs 3 and 4,
+  on a newer version again, scored 83.2 and 84.6: 3.3 and 4.7 above run 1 (neither
+  significant), and 7.2 and 5.8 below run 2 (p < 0.001 and 0.034). That run 2 sits well above
+  two agreeing runs on 2.1.308 fits "2.1.296 suited Haiku" a little better than "run 2 was a
+  high draw", but with one 2.1.296 run it cannot tell which. Cards drive most of it (43.8,
+  80.4, 58.4 and 64.8 in runs 1-4; the other families stay within about 13 points). Its score
+  ranks with how much it wrote, 6,516, 7,695, 7,899 and 8,634 output tokens per quote for 79.9,
+  83.2, 84.6 and 90.4, which is suggestive at four runs. Haiku @high is the least stable setup.
 - **Fable leads Opus at high effort in every pairing of runs, by 0.9 to 6.9 points.** Pooled:
   +4.0 [2.0, 6.3] (Holm p < 0.001 across the six pooled pairs). Same day and version (Fable
   run 2 against Opus run 3): +3.3 [0.6, 6.0] (p 0.029). Five of the six run pairings exclude
   zero; Fable run 2 against Opus run 1 is +0.9 [-1.3, 3.4] (p 0.48). The pooled gap is two to
   three times either setup's SD across runs, but SDs from two and three runs are rough, and the
   pooled interval resamples games, not runs.
-- **Pooled, Opus and Haiku at high effort are indistinguishable:** Opus − Haiku is +1.1 [-3.5,
-  5.8] (p 0.68), and +2.1 [-3.2, 7.8] between the same-day runs. Run against run their order
-  flips: run 1 against run 1 is +7.8 [1.8, 15.1], run 2 against run 2 is -6.6 [-11.0, -2.2].
-  Haiku @high beats Sonnet @high pooled, +13.9 [8.8, 19.4] (Holm p < 0.001); in run 1 alone
-  the gap was not significant after correction.
+- **Pooled, Opus and Haiku at high effort are indistinguishable:** Opus − Haiku is +1.1 [-2.7,
+  5.4] (p 0.60), and +2.1 [-3.2, 7.8] and +0.7 [-4.1, 5.7] between Opus run 3 and Haiku runs 3
+  and 4 (same day and version). Run against run their order flips: run 1 against run 1 is +7.8
+  [1.8, 15.1], run 2 against run 2 is -6.6 [-11.0, -2.2]. Haiku @high beats Sonnet @high
+  pooled, +14.0 [9.3, 18.3] (Holm p < 0.001); in run 1 alone the gap was not significant after
+  correction.
 - **The bootstrap does not cover drift.** The game bootstrap covers sampling across games
   within a run. The spread between runs (date, server state, Claude Code version) comes on
   top, so a gap of a few points between top setups needs several runs of each.
@@ -218,7 +232,7 @@ line is the Pareto frontier: no other setup is both cheaper (or faster) and bett
 | setup | runs | edge captured % | USD / 1,000 quotes | USD / 1,000 quotes, 5-min writes | USD / core-v1 run | seconds / quote | cost frontier | latency frontier |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | :---: | :---: |
 | haiku 5.5 @low | 1 | -0.4 | 1.07 | 0.99 | 0.92 | 13.5 | yes | |
-| haiku 5.5 @high | 3 | 84.5* | 4.07 | 3.98 | 3.50 | 38.8 | yes | |
+| haiku 5.5 @high | 4 | 84.5* | 4.11 | 4.01 | 3.53 | 39.5 | yes | |
 | sonnet 5.5 @low | 1 | 14.8 | 12.27 | 10.53 | 10.55 | 12.6 | | yes |
 | sonnet 5.5 @high | 2 | 70.6* | 21.37 | 19.65 | 18.38 | 18.8 | | |
 | opus 5.5 @low | 1 | 60.0 | 22.59 | 19.14 | 19.43 | 12.7 | | yes |
@@ -231,16 +245,16 @@ line is the Pareto frontier: no other setup is both cheaper (or faster) and bett
 run is 0.86 times USD per 1,000 quotes. "5-min writes" prices every cache write as a 5-minute write,
 the API default.
 
-- **Haiku at high effort is the value pick.** Pooled over three runs it captures 84.5% of the
-  Bayes edge, against 85.6% for pooled Opus @high, at about 1/11 of the price ($4.07 against
+- **Haiku at high effort is the value pick.** Pooled over four runs it captures 84.5% of the
+  Bayes edge, against 85.6% for pooled Opus @high, at about 1/11 of the price ($4.11 against
   $44.38 per 1,000 quotes). The difference is not significant. Sonnet @low, Sonnet @high, Opus
-  @low, Opus @medium and Fable @low cost 3.0-14.6 times as much and score lower; pooled, Haiku
-  @high beats Sonnet @high by 13.9 [8.8, 19.4] points. Haiku @high is also the least stable
-  setup (SD 5.4 points across three runs).
+  @low, Opus @medium and Fable @low cost 3.0-14.4 times as much and score lower; pooled, Haiku
+  @high beats Sonnet @high by 14.0 [9.3, 18.3] points. Haiku @high is also the least stable
+  setup (SD 4.4 points across four runs).
 - **The last steps up the frontier cost more per point.** Pooled, Fable @high is +4.0 [2.0, 6.3]
   over Opus @high for 2.8 times the price, about $20 per point per 1,000 quotes. It pays only
   where the last few points matter more than cost.
-- **Latency ranks the setups differently.** Haiku at high effort is the slowest (38.8 s per quote
+- **Latency ranks the setups differently.** Haiku at high effort is the slowest (39.5 s per quote
   pooled; it writes about 6,500-8,600 tokens per answer). The latency frontier is Sonnet @low,
   Opus @low, Opus @medium, Opus @high and Fable @high. Opus at high effort reaches 85.6% at 21.5
   s per quote, and Opus at low effort 60% at 12.7 s. Opus @high run 2 partly overlapped
@@ -447,12 +461,13 @@ otherwise it replays the first run's replies.
 
 ## Open questions
 
-1. **How large is drift within one Claude Code version?** Every replicate so far also changed
-   version or day. Two runs of one setup on the same version and day (`--name '...#rN'`,
-   `--no-cache`) would measure it directly, and a second 2.1.296 run would show whether that
-   version suited Haiku or its run 2 was a high draw.
-2. **Why does Haiku @high swing on cards?** Cards scored 43.8, 80.4 and 58.4 in its three runs,
-   and its score ranks with its output length. Read the traces in
+1. **How large is drift within one Claude Code version?** One pair measures it so far: Haiku
+   @high runs 3 and 4 on 2.1.308 differ by 1.4 [-4.5, 6.8] points. More same-version pairs,
+   for other setups too (`--name '...#rN'`, `--no-cache`), would turn that single draw into an
+   estimate, and a second 2.1.296 run would show whether that version suited Haiku or its run 2
+   was a high draw.
+2. **Why does Haiku @high swing on cards?** Cards scored 43.8, 80.4, 58.4 and 64.8 in its four
+   runs, and its score ranks with its output length. Read the traces in
    `results/core-v1/claude-cli_claude-haiku-5-5@high*.jsonl` and inspect single games with
    `mm-arena show ... --game ID`.
 3. **Do LLMs quote tight from a competitive-market prior?** Try a prompt that names the monopoly
@@ -483,10 +498,10 @@ otherwise it replays the first run's replies.
   version, provider options, the Claude Code CLI or SDK version, and a SHA-256 of the step-0
   prompt; what Claude Code adds to the prompt is still not visible.
 - Sampling noise across games is in the bootstrap. Run-level drift is not. Replicates of the
-  high-effort setups moved 2.1-3.9 points from run 1, except Haiku run 2 (+10.5), and SDs
-  across runs are 1.5-5.4 points from two or three runs each. Every replicate also changed
-  Claude Code version or day, so drift within one version is not measured. Low- and
-  medium-effort setups have one run.
+  high-effort setups moved 2.1-4.7 points from run 1, except Haiku run 2 (+10.5), and SDs
+  across runs are 1.5-4.4 points from two to four runs each. Drift within one Claude Code
+  version rests on a single pair (Haiku @high runs 3 and 4, 1.4 points apart); every other
+  replicate also changed version or day. Low- and medium-effort setups have one run.
 
 ## Related work
 

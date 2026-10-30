@@ -188,7 +188,9 @@ Bayes quote's value on the same states, so the "as played" column equals 100 × 
   first run. A separate section compares runs, paired over episodes, and pools them. The game
   bootstrap already covers sampling noise within a run. Replicates measure run-level drift
   (date, server changes) that one run cannot. With several runs the section also gives the
-  sample SD (n - 1) of a setup's run edges.
+  sample SD (n - 1) of a setup's run edges, and with three or more it compares the later runs
+  with each other, so two runs on one Claude Code version (see `provenance.harness` in the traces)
+  show drift within that version.
 - **Latency.** Seconds per quote is the provider-reported latency (`provider_latency_s`),
   measured through `claude -p`. It includes CLI start-up, and several calls run in parallel. It
   is not engine wall-clock time, which drops to about 0 on a cache replay.
@@ -248,7 +250,7 @@ suite version.
   @high, same step of the same episode), so runs on the two versions are slightly different
   setups. Their scores and costs are not strictly comparable. Claude Code 2.1.308 (the
   2026-10-30 replicates) sends about 200-260 more prompt tokens than the earlier version and
-  made an auxiliary call on 1 of 3,440 quotes.
+  made an auxiliary call on 1 of 4,300 quotes.
 - **Output limit.** The `anthropic:` provider's default `max_tokens` is 8192. In the haiku 5.5
   @high `claude-cli` run, 198 of 860 replies used more than 8192 output tokens (95th percentile about 14,200;
   max 43,375). Reproducing that setup through the API needs `--max-tokens 64000` or similar;
@@ -276,8 +278,8 @@ draws from the game id and seed. LLM agents see only the rendered prompt.
   of the step-0 prompt (`provenance.prompt_sha256`) and of every step's prompt
   (`info.prompt_sha256`). What Claude Code adds to the prompt is not recorded in either.
 - Intervals cover game sampling, including sampling noise within a run. What one run misses is
-  run-level drift (date, server changes). The high-effort setups have two or three runs; see the
-  README.
+  run-level drift (date, server changes). The high-effort setups have two to four runs, and
+  only one pair (Haiku @high runs 3 and 4) shares a Claude Code version; see the README.
 - Classic and perturbed games differ in two ways: recall of known answers and ease of
   computation. A classic advantage may reflect either, and the design does not separate them
   (section 7).
