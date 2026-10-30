@@ -37,9 +37,10 @@ same counterparties.
   Fable 5.1, 2.0 for Opus 5.5, 1.9 for Sonnet 5.5 and 4.4 for Haiku 5.5 (four runs). Haiku's
   10.5-point jump in run 2 did not repeat: runs 3 and 4 scored 3.3 and 4.7 points above run 1.
   Those two ran on the same day and Claude Code version and differ by 1.4 [-4.5, 6.8] points
-  (p 0.66), a first, thin look at drift within one version. Fable's lead over Opus holds: +4.0
-  [2.0, 6.3] pooled over all runs, +3.3 [0.6, 6.0] between two runs on the same day and Claude
-  Code version. See [Run-to-run variability](#run-to-run-variability).
+  (p 0.66), a first, thin look at drift within one version. Fable leads Opus in every pairing of
+  their runs: +4.0 [2.0, 6.3] pooled over games, +3.3 [0.6, 6.0] between two runs on the same day
+  and Claude Code version. Taking runs rather than games as the unit (2 against 3 run means), the
+  lead is not yet settled (Welch p 0.085). See [Run-to-run variability](#run-to-run-variability).
 - **Realized P&L would not rank these models.** Separating Fable from Opus at high effort takes
   about 18 times as many episodes with realized P&L as with expected P&L. See
   [REPORT.md](results/core-v1/REPORT.md#variance-realized-vs-expected-pl).
@@ -208,10 +209,12 @@ Code versions: run 1 earlier (not recorded), Opus and Haiku run 2 on 2.1.296, an
   83.2, 84.6 and 90.4, which is suggestive at four runs. Haiku @high is the least stable setup.
 - **Fable leads Opus at high effort in every pairing of runs, by 0.9 to 6.9 points.** Pooled:
   +4.0 [2.0, 6.3] (Holm p < 0.001 across the six pooled pairs). Same day and version (Fable
-  run 2 against Opus run 3): +3.3 [0.6, 6.0] (p 0.029). Five of the six run pairings exclude
-  zero; Fable run 2 against Opus run 1 is +0.9 [-1.3, 3.4] (p 0.48). The pooled gap is two to
-  three times either setup's SD across runs, but SDs from two and three runs are rough, and the
-  pooled interval resamples games, not runs.
+  run 2 against Opus run 3): +3.3 [0.6, 6.0] (p 0.029, unadjusted; about 0.06 after Holm across
+  the six run pairings). Five of the six run pairings exclude zero (unadjusted intervals); Fable
+  run 2 against Opus run 1 is +0.9 [-1.3, 3.4] (p 0.48). The pooled gap is two to three times
+  either setup's SD across runs, but SDs from two and three runs are rough, and the pooled
+  interval resamples games, not runs: a Welch t-test on the five run means (90.7, 88.6 against
+  87.7, 83.8, 85.3) gives p 0.085, so the lead is not established at the run level.
 - **Pooled, Opus and Haiku at high effort are indistinguishable:** Opus − Haiku is +1.1 [-2.7,
   5.4] (p 0.60), and +2.1 [-3.2, 7.8] and +0.7 [-4.1, 5.7] between Opus run 3 and Haiku runs 3
   and 4 (same day and version). Run against run their order flips: run 1 against run 1 is +7.8
