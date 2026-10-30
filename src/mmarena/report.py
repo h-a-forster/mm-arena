@@ -420,6 +420,13 @@ def _replicates(
                 None if ae is first else _diff_row(ae.episodes, first.episodes, ref, n_boot, seed)
             )
             rows.append(row)
+        # later runs against each other (pairs with the first run are in vs_first)
+        later = [(n, ae) for n, ae in runs.items() if ae is not first]
+        later_pairs = []
+        for (na, ea), (nb, eb) in combinations(later, 2):
+            d = _diff_row(eb.episodes, ea.episodes, ref, n_boot, seed)
+            if d is not None:
+                later_pairs.append({"run_a": nb, "run_b": na, **d})
         eps = [e for ae in runs.values() for e in ae.episodes if e.key in ref]
         est = bootstrap_ratio(
             [e.xpnl_sd for e in eps],
@@ -434,6 +441,7 @@ def _replicates(
                 "setup": base,
                 "first_run": next(iter(runs)),
                 "runs": rows,
+                "later_pairs": later_pairs,
                 "pooled": {
                     "edge_captured": est.value,
                     "edge_lo": est.lo,
@@ -841,6 +849,15 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
         "llrrrrr",
     )
     lines += [""]
+    rows = [
+        [f"`{st['setup']}`", f"r{c['run_a']} minus r{c['run_b']}", *_diff_cell(c)]
+        for st in rep["setups"]
+        for c in st["later_pairs"]
+    ]
+    if rows:
+        lines += ["Later runs of one setup against each other (p not adjusted):", ""]
+        lines += _table(["setup", "runs", "difference, pp [95% CI]", "p"], rows, "llrr")
+        lines += [""]
     if rep["pairs"]:
         rows = [
             [

@@ -111,6 +111,12 @@ def test_replicate_tables(run_dir):
     assert alpha["pooled"]["run_sd"] == pytest.approx(statistics.stdev(edges))
     sd_beta = rep["setups"][1]["pooled"]["run_sd"]
     assert sd_beta == pytest.approx(statistics.stdev(eb))
+    # later runs against each other: only beta has a pair without its first run
+    assert alpha["later_pairs"] == []
+    (later,) = rep["setups"][1]["later_pairs"]
+    assert (later["run_a"], later["run_b"]) == (3, 2)
+    assert later["diff_value"] == pytest.approx(eb[2] - eb[1])
+    assert "| `fake:beta` | r3 minus r2 |" in render_markdown(r)
     pooled_rows = [x for x in render_markdown(r).splitlines() if "| pooled |" in x]
     assert pooled_rows[1].endswith(f"| {sd_beta:.1f} |")
 
