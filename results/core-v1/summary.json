@@ -11374,6 +11374,47 @@
   "replicates": {
     "setups": [
       {
+        "setup": "claude-cli:claude-fable-5-1@high",
+        "first_run": 1,
+        "runs": [
+          {
+            "run": 1,
+            "agent": "claude-cli:claude-fable-5-1@high",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 90.65661634551314,
+            "edge_lo": 87.51309407861811,
+            "edge_hi": 93.31055680432917,
+            "vs_first": null
+          },
+          {
+            "run": 2,
+            "agent": "claude-cli:claude-fable-5-1@high#r2",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 88.5532449066715,
+            "edge_lo": 85.22770690865865,
+            "edge_hi": 91.67658485224217,
+            "vs_first": {
+              "diff_value": -2.103371438841648,
+              "diff_lo": -3.716285896650797,
+              "diff_hi": -0.5921021996081443,
+              "diff_se": 0.805689738643126,
+              "p_value": 0.016698330166983303,
+              "n_episodes": 120,
+              "n_games": 60
+            }
+          }
+        ],
+        "pooled": {
+          "edge_captured": 89.60493062609231,
+          "edge_lo": 86.4766953380295,
+          "edge_hi": 92.37432978377078,
+          "episodes": 240,
+          "run_sd": 1.4873082077590352
+        }
+      },
+      {
         "setup": "claude-cli:claude-opus-5-5@high",
         "first_run": 1,
         "runs": [
@@ -11404,13 +11445,32 @@
               "n_episodes": 120,
               "n_games": 60
             }
+          },
+          {
+            "run": 3,
+            "agent": "claude-cli:claude-opus-5-5@high#r3",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 85.2999135519145,
+            "edge_lo": 81.04887521816424,
+            "edge_hi": 88.95532874529435,
+            "vs_first": {
+              "diff_value": -2.3898231697667898,
+              "diff_lo": -4.747600514619861,
+              "diff_hi": 0.1873802990325341,
+              "diff_se": 1.2697693401923278,
+              "p_value": 0.09379062093790622,
+              "n_episodes": 120,
+              "n_games": 60
+            }
           }
         ],
         "pooled": {
-          "edge_captured": 85.7293819443899,
-          "edge_lo": 81.94858616096344,
-          "edge_hi": 89.26358669825167,
-          "episodes": 240
+          "edge_captured": 85.58622581356478,
+          "edge_lo": 81.79155308342193,
+          "edge_hi": 88.9927246185426,
+          "episodes": 360,
+          "run_sd": 1.9759736552463587
         }
       },
       {
@@ -11444,27 +11504,311 @@
               "n_episodes": 120,
               "n_games": 60
             }
+          },
+          {
+            "run": 3,
+            "agent": "claude-cli:claude-haiku-5-5@high#r3",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 83.19474260529003,
+            "edge_lo": 77.91396072363503,
+            "edge_hi": 87.27374320851695,
+            "vs_first": {
+              "diff_value": 3.2966029311191942,
+              "diff_lo": -1.4094679478116587,
+              "diff_hi": 8.93924337443559,
+              "diff_se": 2.6604619487403554,
+              "p_value": 0.20587941205879412,
+              "n_episodes": 120,
+              "n_games": 60
+            }
           }
         ],
         "pooled": {
-          "edge_captured": 85.14228279883108,
-          "edge_lo": 80.78540948410073,
-          "edge_hi": 88.62690880822304,
-          "episodes": 240
+          "edge_captured": 84.49310273431742,
+          "edge_lo": 80.43644161947032,
+          "edge_hi": 87.86253437066428,
+          "episodes": 360,
+          "run_sd": 5.363333047686586
+        }
+      },
+      {
+        "setup": "claude-cli:claude-sonnet-5-5@high",
+        "first_run": 1,
+        "runs": [
+          {
+            "run": 1,
+            "agent": "claude-cli:claude-sonnet-5-5@high",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 69.1935887612274,
+            "edge_lo": 63.78404808894796,
+            "edge_hi": 74.8381609904117,
+            "vs_first": null
+          },
+          {
+            "run": 2,
+            "agent": "claude-cli:claude-sonnet-5-5@high#r2",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 71.91267805236724,
+            "edge_lo": 66.25833775191727,
+            "edge_hi": 77.00474537851517,
+            "vs_first": {
+              "diff_value": 2.7190892911398383,
+              "diff_lo": -0.9273688225942501,
+              "diff_hi": 6.314775755722811,
+              "diff_se": 1.87202549282709,
+              "p_value": 0.1583841615838416,
+              "n_episodes": 120,
+              "n_games": 60
+            }
+          }
+        ],
+        "pooled": {
+          "edge_captured": 70.55313340679733,
+          "edge_lo": 65.15833768612872,
+          "edge_hi": 75.59723601842033,
+          "episodes": 240,
+          "run_sd": 1.922686476416702
         }
       }
     ],
     "pairs": [
       {
-        "a": "claude-cli:claude-opus-5-5@high",
+        "a": "claude-cli:claude-fable-5-1@high",
+        "b": "claude-cli:claude-opus-5-5@high",
+        "runs_a": 2,
+        "runs_b": 3,
+        "diff_value": 4.018704812527538,
+        "diff_lo": 1.9579041922774756,
+        "diff_hi": 6.2608334146246305,
+        "diff_se": 1.0758991445531674,
+        "p_value": 9.999000099990002e-05,
+        "n_episodes": 120,
+        "n_games": 60,
+        "combinations": [
+          {
+            "run_a": 1,
+            "run_b": 1,
+            "diff_value": 2.9668796238318436,
+            "diff_lo": 1.084971751488668,
+            "diff_hi": 5.241989663890037,
+            "diff_se": 1.0758781897329777,
+            "p_value": 0.0023997600239976003,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 2,
+            "diff_value": 6.887589178414613,
+            "diff_lo": 4.076799734331252,
+            "diff_hi": 9.881814358774792,
+            "diff_se": 1.5091013442622458,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 3,
+            "diff_value": 5.356702793598634,
+            "diff_lo": 2.816995836212264,
+            "diff_hi": 8.19577413922512,
+            "diff_se": 1.3914843967200028,
+            "p_value": 0.00019998000199980003,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 1,
+            "diff_value": 0.863508184990195,
+            "diff_lo": -1.2647267794733403,
+            "diff_hi": 3.425154033144935,
+            "diff_se": 1.2299269756479094,
+            "p_value": 0.4771522847715228,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 2,
+            "diff_value": 4.784217739572964,
+            "diff_lo": 1.6903423398145776,
+            "diff_hi": 8.22626651783342,
+            "diff_se": 1.6736570461230056,
+            "p_value": 0.004299570042995701,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 3,
+            "diff_value": 3.2533313547569853,
+            "diff_lo": 0.6073838271250367,
+            "diff_hi": 5.961313834643937,
+            "diff_se": 1.3769534667470962,
+            "p_value": 0.028897110288971104,
+            "n_episodes": 120,
+            "n_games": 60
+          }
+        ],
+        "p_holm": 0.0005999400059994001
+      },
+      {
+        "a": "claude-cli:claude-fable-5-1@high",
         "b": "claude-cli:claude-haiku-5-5@high",
         "runs_a": 2,
+        "runs_b": 3,
+        "diff_value": 5.111827891774929,
+        "diff_lo": 0.8344623501816707,
+        "diff_hi": 9.701717796107781,
+        "diff_se": 2.261429872137113,
+        "p_value": 0.015198480151984802,
+        "n_episodes": 120,
+        "n_games": 60,
+        "combinations": [
+          {
+            "run_a": 1,
+            "run_b": 1,
+            "diff_value": 10.7584766713423,
+            "diff_lo": 4.832635666095892,
+            "diff_hi": 17.936850651824788,
+            "diff_se": 3.317004758992797,
+            "p_value": 0.00019998000199980003,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 2,
+            "diff_value": 0.2701904220218408,
+            "diff_lo": -3.6243762026665722,
+            "diff_hi": 3.538419715239628,
+            "diff_se": 1.8008830521608088,
+            "p_value": 0.9265073492650735,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 3,
+            "diff_value": 7.461873740223108,
+            "diff_lo": 2.942068544282173,
+            "diff_hi": 12.572948982106231,
+            "diff_se": 2.4275285086812026,
+            "p_value": 0.0015998400159984002,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 1,
+            "diff_value": 8.655105232500656,
+            "diff_lo": 2.204215724419892,
+            "diff_hi": 16.26003130124898,
+            "diff_se": 3.5575339248371978,
+            "p_value": 0.006799320067993201,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 2,
+            "diff_value": -1.833181016819807,
+            "diff_lo": -5.918201625729598,
+            "diff_hi": 1.942326134468326,
+            "diff_se": 2.0354234635939905,
+            "p_value": 0.47035296470352966,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 3,
+            "diff_value": 5.3585023013814626,
+            "diff_lo": 0.6396401309823818,
+            "diff_hi": 10.696917486742196,
+            "diff_se": 2.5713387915936705,
+            "p_value": 0.034396560343965606,
+            "n_episodes": 120,
+            "n_games": 60
+          }
+        ],
+        "p_holm": 0.030396960303969604
+      },
+      {
+        "a": "claude-cli:claude-fable-5-1@high",
+        "b": "claude-cli:claude-sonnet-5-5@high",
+        "runs_a": 2,
         "runs_b": 2,
-        "diff_value": 0.5870991455588446,
-        "diff_lo": -4.060535788624224,
-        "diff_hi": 5.747135484599343,
-        "diff_se": 2.5368544068822834,
-        "p_value": 0.8313168683131686,
+        "diff_value": 19.051797219294986,
+        "diff_lo": 15.347946805550983,
+        "diff_hi": 22.79867635339118,
+        "diff_se": 1.8518378690738895,
+        "p_value": 9.999000099990002e-05,
+        "n_episodes": 120,
+        "n_games": 60,
+        "combinations": [
+          {
+            "run_a": 1,
+            "run_b": 1,
+            "diff_value": 21.463027584285726,
+            "diff_lo": 17.252604881191527,
+            "diff_hi": 25.443190773237273,
+            "diff_se": 2.1175243051038315,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 2,
+            "diff_value": 18.743938293145888,
+            "diff_lo": 15.210373851887612,
+            "diff_hi": 22.647860336150682,
+            "diff_se": 1.9046779646423975,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 1,
+            "diff_value": 19.359656145444077,
+            "diff_lo": 14.866171183193467,
+            "diff_hi": 23.787386364088068,
+            "diff_se": 2.291572899351366,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 2,
+            "diff_value": 16.640566854304247,
+            "diff_lo": 12.619879375891035,
+            "diff_hi": 21.0101463371923,
+            "diff_se": 2.1231617200186226,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          }
+        ],
+        "p_holm": 0.0005999400059994001
+      },
+      {
+        "a": "claude-cli:claude-opus-5-5@high",
+        "b": "claude-cli:claude-haiku-5-5@high",
+        "runs_a": 3,
+        "runs_b": 3,
+        "diff_value": 1.093123079247389,
+        "diff_lo": -3.5077452282005286,
+        "diff_hi": 5.848795962750622,
+        "diff_se": 2.36602750168372,
+        "p_value": 0.6761323867613239,
         "n_episodes": 120,
         "n_games": 60,
         "combinations": [
@@ -11491,6 +11835,17 @@
             "n_games": 60
           },
           {
+            "run_a": 1,
+            "run_b": 3,
+            "diff_value": 4.494994116391267,
+            "diff_lo": 0.19744167342865593,
+            "diff_hi": 9.269981603785693,
+            "diff_se": 2.304804188321803,
+            "p_value": 0.055194480551944806,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
             "run_a": 2,
             "run_b": 1,
             "diff_value": 3.870887492927692,
@@ -11511,9 +11866,217 @@
             "p_value": 0.005099490050994901,
             "n_episodes": 120,
             "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 3,
+            "diff_value": 0.5742845618084966,
+            "diff_lo": -4.026650122929108,
+            "diff_hi": 5.796046487286974,
+            "diff_se": 2.5830475117283127,
+            "p_value": 0.8351164883511649,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 1,
+            "diff_value": 5.40177387774367,
+            "diff_lo": -1.6385775686148272,
+            "diff_hi": 13.416930915667146,
+            "diff_se": 3.769116404650235,
+            "p_value": 0.1426857314268573,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 2,
+            "diff_value": -5.086512371576792,
+            "diff_lo": -10.1441287424276,
+            "diff_hi": -0.7278484394219286,
+            "diff_se": 2.3771838325629706,
+            "p_value": 0.0484951504849515,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 3,
+            "diff_value": 2.105170946624476,
+            "diff_lo": -3.160551992680343,
+            "diff_hi": 7.7910206085582026,
+            "diff_se": 2.7722697458499073,
+            "p_value": 0.46305369463053697,
+            "n_episodes": 120,
+            "n_games": 60
           }
         ],
-        "p_holm": 0.8313168683131686
+        "p_holm": 0.6761323867613239
+      },
+      {
+        "a": "claude-cli:claude-opus-5-5@high",
+        "b": "claude-cli:claude-sonnet-5-5@high",
+        "runs_a": 3,
+        "runs_b": 2,
+        "diff_value": 15.033092406767452,
+        "diff_lo": 11.745280543264577,
+        "diff_hi": 18.20644446671982,
+        "diff_se": 1.6440269404827035,
+        "p_value": 9.999000099990002e-05,
+        "n_episodes": 120,
+        "n_games": 60,
+        "combinations": [
+          {
+            "run_a": 1,
+            "run_b": 1,
+            "diff_value": 18.496147960453886,
+            "diff_lo": 14.586366695103862,
+            "diff_hi": 22.238786805874234,
+            "diff_se": 1.9655778938962967,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 2,
+            "diff_value": 15.777058669314048,
+            "diff_lo": 12.148531931821115,
+            "diff_hi": 19.43010117725587,
+            "diff_se": 1.8589838790001847,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 1,
+            "diff_value": 14.575438405871118,
+            "diff_lo": 9.851271762683414,
+            "diff_hi": 18.567912224390177,
+            "diff_se": 2.2402660696794863,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 2,
+            "diff_value": 11.85634911473128,
+            "diff_lo": 7.206904432009824,
+            "diff_hi": 16.338265409266988,
+            "diff_se": 2.3157639846456384,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 1,
+            "diff_value": 16.106324790687093,
+            "diff_lo": 12.415415242165198,
+            "diff_hi": 19.815000258409537,
+            "diff_se": 1.8620449344560526,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 2,
+            "diff_value": 13.387235499547256,
+            "diff_lo": 9.609868742388537,
+            "diff_hi": 17.46979364675425,
+            "diff_se": 1.9918593951104264,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          }
+        ],
+        "p_holm": 0.0005999400059994001
+      },
+      {
+        "a": "claude-cli:claude-haiku-5-5@high",
+        "b": "claude-cli:claude-sonnet-5-5@high",
+        "runs_a": 3,
+        "runs_b": 2,
+        "diff_value": 13.93996932752006,
+        "diff_lo": 8.8089515846198,
+        "diff_hi": 19.37035948677081,
+        "diff_se": 2.704601722375287,
+        "p_value": 9.999000099990002e-05,
+        "n_episodes": 120,
+        "n_games": 60,
+        "combinations": [
+          {
+            "run_a": 1,
+            "run_b": 1,
+            "diff_value": 10.704550912943423,
+            "diff_lo": 3.12231125912211,
+            "diff_hi": 17.480785162561467,
+            "diff_se": 3.7047405680198704,
+            "p_value": 0.0091990800919908,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 1,
+            "run_b": 2,
+            "diff_value": 7.985461621803588,
+            "diff_lo": 0.9629240638648712,
+            "diff_hi": 14.495376292117701,
+            "diff_se": 3.4805881944990107,
+            "p_value": 0.041695830416958304,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 1,
+            "diff_value": 21.192837162263885,
+            "diff_lo": 15.776708887559325,
+            "diff_hi": 26.631053662912894,
+            "diff_se": 2.808021963444508,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 2,
+            "diff_value": 18.47374787112405,
+            "diff_lo": 13.648798055275298,
+            "diff_hi": 24.101209765487454,
+            "diff_se": 2.755159405524738,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 1,
+            "diff_value": 14.001153844062623,
+            "diff_lo": 7.391659283305177,
+            "diff_hi": 20.168912543357255,
+            "diff_se": 3.253781373716796,
+            "p_value": 0.00039996000399960006,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 3,
+            "run_b": 2,
+            "diff_value": 11.282064552922783,
+            "diff_lo": 5.28415429687524,
+            "diff_hi": 17.07407554946413,
+            "diff_se": 3.022356927733126,
+            "p_value": 0.0007999200079992001,
+            "n_episodes": 120,
+            "n_games": 60
+          }
+        ],
+        "p_holm": 0.0005999400059994001
       }
     ]
   }
