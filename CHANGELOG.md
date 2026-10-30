@@ -20,13 +20,19 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   load and score unchanged.
 - Run-to-run section: the sample SD (n - 1) of each setup's run edges, for any number of runs
   (`summary.json` key `replicates.setups[].pooled.run_sd`).
+- `core-v1` results: same-day replicates on Claude Code 2.1.308 (2026-10-30) of Fable 5.1 @high
+  (`#r2`, its first replicate), Haiku 5.5 @high (`#r3`), Opus 5.5 @high (`#r3`) and Sonnet 5.5
+  @high (`#r2`). SD across runs: Fable 1.5, Opus 2.0, Sonnet 1.9, Haiku 5.4 points. Pooled,
+  Fable leads Opus by 4.0 [2.0, 6.3] points; Haiku's 10.5-point jump in run 2 did not repeat
+  (run 3: +3.3 over run 1). README findings, run-to-run, cost and open questions updated.
 
 ### Changed
 
 - Effort figure: a line that skips an effort level with no run (Haiku and Sonnet at medium,
   Fable at medium) is dashed, so it no longer reads as a measurement at that level.
 - Effort figure: the subtitle lists the replicate runs found in the report instead of a fixed
-  list, so third and later runs are named.
+  list, so third and later runs are named, on a line of its own so a long list stays inside
+  the figure.
 
 ## [0.2.0] - 2026-10-10
 

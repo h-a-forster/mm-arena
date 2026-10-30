@@ -1,7 +1,8 @@
 # mm-arena 0.2.1
 
-Released 2026-10-30. Reporting and provenance changes. Scoring (`market.py`, `metrics.py`,
-`stats.py`, `decompose.py`) is unchanged from 0.2.0.
+Released 2026-10-30. Reporting and provenance changes, and same-day replicates of the four
+high-effort setups. Scoring (`market.py`, `metrics.py`, `stats.py`, `decompose.py`) is unchanged
+from 0.2.0.
 
 ## Added
 
@@ -13,15 +14,29 @@ Released 2026-10-30. Reporting and provenance changes. Scoring (`market.py`, `me
   (`variance.top_llm_pair` in `summary.json`).
 - Run-to-run section: the sample SD of each setup's run edges, for any number of replicate
   runs (`replicates.setups[].pooled.run_sd`).
+- Four `core-v1` replicates run on one day with one Claude Code version (2.1.308): Fable 5.1
+  @high r2 (its first replicate), Opus 5.5 @high r3, Haiku 5.5 @high r3 and Sonnet 5.5 @high r2.
+
+## Results
+
+- Run-to-run SD of edge captured: Fable 5.1 @high 1.5 points (2 runs), Opus 5.5 @high 2.0 (3),
+  Sonnet 5.5 @high 1.9 (2), Haiku 5.5 @high 5.4 (3).
+- Fable leads Opus at high effort in all six pairings of their runs (0.9 to 6.9 points): pooled
+  +4.0 [2.0, 6.3], same day and version +3.3 [0.6, 6.0].
+- Haiku's 10.5-point jump in its second run did not repeat: run 3 scored +3.3 [-1.4, 8.9] over
+  run 1. Whether Claude Code 2.1.296 suited Haiku or run 2 was a high draw is still open.
+- Pooled, Opus and Haiku at high effort are indistinguishable (+1.1 [-3.5, 5.8]); Haiku @high
+  beats Sonnet @high (+13.9 [8.8, 19.4]).
 
 ## Changed
 
 - Effort figure: lines that skip an effort level without a run are dashed, and the subtitle
-  lists the replicate runs found in the report.
+  lists the replicate runs found in the report on its own line.
 
 ## Upgrading
 
 No action needed. Rerun `mm-arena report <run_dir>` to add the new columns to an existing
-report. The committed `core-v1` traces are the same as in 0.2.0.
+report. The committed `core-v1` traces from 0.2.0 are unchanged; the four new replicate traces
+are added beside them.
 
 Full list: [CHANGELOG.md](../CHANGELOG.md).

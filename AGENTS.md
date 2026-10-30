@@ -72,25 +72,24 @@ Traces append per episode and reruns skip finished episodes.
 
 ## Status and next steps
 
-Updated: 2026-10-30 (v0.2.1 prepared on a branch, not tagged).
+Updated: 2026-10-30 (v0.2.1 prepared on branch `polish-2026-10-30`, not tagged).
 
 Done:
 - v0.2.0 (2026-10-10): 16 agents on `core-v1`, centring vs width, clustered inference,
   replicates of Opus 5.5 @high and Haiku 5.5 @high, effort curve, cost chart.
 - v0.2.1: trace version 2 (provenance, prompt hashes), top-two-LLM variance row, run-to-run SD
   per setup, effort-figure subtitle built from the report.
+- Same-day replicates on Claude Code 2.1.308 (2026-10-30) of the four high-effort setups
+  (Fable `#r2`, Haiku `#r3`, Opus `#r3`, Sonnet `#r2`) committed in `results/core-v1/`, report
+  and README updated. Every high-effort setup now has two or three runs.
 
 Open:
-1. Same-day replicates on one Claude Code version were started on 2026-10-30 in
-   `runs/core-v1`: Fable 5.1 @high `#r2` and Haiku 5.5 @high `#r3`, then Opus 5.5 @high `#r3`
-   and Sonnet 5.5 @high `#r2`. When complete, copy the traces to `results/core-v1/`, rerun
-   `mm-arena report results/core-v1` and `scripts/figures.py`, and update the README
-   (Findings, Run-to-run variability, Cost, Limitations, Open question 1), which still says
-   Fable @high was not replicated. The committed `REPORT.md` predates the run-SD column.
+1. Drift within one Claude Code version is unmeasured: every replicate also changed version or
+   day. Two same-day runs of one setup on one version would measure it (README Open question 1).
 2. Tag v0.2.1 after the branch is merged.
 3. Dependabot branches (checkout, setup-uv, anthropic, openai, ruff) are unmerged: diff each
    before merging. `origin/upgrades-2026-10-23` and `origin/claude/audit-fixes-2026-10-10`
    look squash-merged; delete them if so.
 4. CI pins actions by tag; pin them to commit SHAs.
-5. Research questions are listed under "Open questions" in the README (drift sources, Haiku
-   cards collapse, competitive-market prompt, recall vs computation, deeper headroom).
+5. Research questions are listed under "Open questions" in the README (within-version drift,
+   Haiku cards swings, competitive-market prompt, recall vs computation, deeper headroom).
