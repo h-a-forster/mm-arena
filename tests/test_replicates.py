@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import math
+import statistics
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from mmarena.agents.baselines import BASELINES
-from mmarena.report import build_report, split_replicate
+from mmarena.report import build_report, render_markdown, split_replicate
 from mmarena.runner import run_suite
 from mmarena.suite import Block, Suite
 
@@ -103,6 +107,12 @@ def test_replicate_tables(run_dir):
     first = pair["combinations"][0]
     assert (first["run_a"], first["run_b"]) == (1, 1)
     assert first["diff_value"] == pytest.approx(edges[0] - eb[0])
+    # run-to-run SD over all runs of a setup, 2 or 3 of them
+    assert alpha["pooled"]["run_sd"] == pytest.approx(statistics.stdev(edges))
+    sd_beta = rep["setups"][1]["pooled"]["run_sd"]
+    assert sd_beta == pytest.approx(statistics.stdev(eb))
+    pooled_rows = [x for x in render_markdown(r).splitlines() if "| pooled |" in x]
+    assert pooled_rows[1].endswith(f"| {sd_beta:.1f} |")
 
 
 def test_summary_json_has_replicates_and_decomposition(run_dir):
@@ -143,3 +153,19 @@ def test_top_llm_pair_variance(run_dir):
     assert top["n"] == r.variance["per_agent"][top["a"]]["n"]
     md = (run_dir / "REPORT.md").read_text(encoding="utf-8")
     assert f"`{top['a']}` - `{top['b']}` (top two LLM setups)" in md
+
+
+def test_effort_figure_names_every_replicate_run():
+    pytest.importorskip("matplotlib")
+    path = Path(__file__).parents[1] / "scripts" / "figures.py"
+    spec = importlib.util.spec_from_file_location("figures", path)
+    figures = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(figures)
+    runs = [{"run": n} for n in (1, 2, 3)]
+    setups = [
+        {"setup": "claude-cli:claude-opus-5-5@high", "runs": runs},
+        {"setup": "claude-cli:claude-haiku-5-5@high", "runs": runs[:2]},
+    ]
+    note = figures.replicate_note(SimpleNamespace(replicates={"setups": setups}))
+    assert "opus high r2/r3" in note and "haiku high r2)" in note
+    assert figures.replicate_note(SimpleNamespace(replicates={})) == ""

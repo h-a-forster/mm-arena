@@ -187,7 +187,8 @@ Bayes quote's value on the same states, so the "as played" column equals 100 × 
 - **Run-to-run variability.** Replicate runs are stored as `agent#rN`. The main tables use the
   first run. A separate section compares runs, paired over episodes, and pools them. The game
   bootstrap already covers sampling noise within a run. Replicates measure run-level drift
-  (date, server changes) that one run cannot.
+  (date, server changes) that one run cannot. With several runs the section also gives the
+  sample SD (n - 1) of a setup's run edges.
 - **Latency.** Seconds per quote is the provider-reported latency (`provider_latency_s`),
   measured through `claude -p`. It includes CLI start-up, and several calls run in parallel. It
   is not engine wall-clock time, which drops to about 0 on a cache replay.

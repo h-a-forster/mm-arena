@@ -6,6 +6,7 @@ import csv
 import json
 import math
 import re
+import statistics
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from itertools import combinations
@@ -438,6 +439,7 @@ def _replicates(
                     "edge_lo": est.lo,
                     "edge_hi": est.hi,
                     "episodes": len(eps),
+                    "run_sd": statistics.stdev(r["edge_captured"] for r in rows),
                 },
             }
         )
@@ -810,6 +812,7 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
                     str(run["episodes"]),
                     _ci(run["edge_captured"], run["edge_lo"], run["edge_hi"]),
                     *(["-", "-"] if first else _diff_cell(run["vs_first"])),
+                    "",
                 ]
             )
         pl = st["pooled"]
@@ -821,6 +824,7 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
                 _ci(pl["edge_captured"], pl["edge_lo"], pl["edge_hi"]),
                 "-",
                 "-",
+                _f(pl["run_sd"], 1),
             ]
         )
     lines += _table(
@@ -831,9 +835,10 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
             "edge captured % [95% CI]",
             "minus first run, pp [95% CI]",
             "p",
+            "SD across runs, pp",
         ],
         rows,
-        "llrrrr",
+        "llrrrrr",
     )
     lines += [""]
     if rep["pairs"]:
@@ -872,7 +877,8 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
         "server changes) that a single run cannot. Differences are in edge captured, percentage "
         "points, on episodes both runs played; p is a game-level sign-flip test. The pooled "
         "edge is 100 x total expected P&L over all runs / total Bayes expected P&L, with all "
-        "runs' episodes of a game resampled together. Pooled pairs score each episode by the "
+        "runs' episodes of a game resampled together. SD across runs is the sample standard "
+        "deviation (n - 1) of the runs' edges. Pooled pairs score each episode by the "
         "mean over a setup's runs; Holm correction within the pooled table.",
         "",
     ]

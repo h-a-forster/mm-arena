@@ -285,6 +285,18 @@ def plot_cost(rows: list[dict], static_edge: float, path: Path) -> None:
     save(fig, path)
 
 
+def replicate_note(report) -> str:
+    """Which replicate runs the effort figure shows as dots, e.g. ``opus high r2/r3``."""
+    parts = []
+    for st in (report.replicates or {}).get("setups", []):
+        extra = [r["run"] for r in st["runs"] if r["run"] >= 2]
+        if not extra:
+            continue
+        model, _, effort = short(st["setup"]).partition("@")
+        parts.append(f"{model.split()[0]} {effort} " + "/".join(f"r{n}" for n in extra))
+    return f"; small dots: replicate runs ({', '.join(parts)})" if parts else ""
+
+
 def plot_effort(report, path: Path) -> None:
     """Edge captured against reasoning effort, one line per model, replicate runs as small dots."""
     fig, (ax,) = _figure(7.5, 4.6)
@@ -340,8 +352,7 @@ def plot_effort(report, path: Path) -> None:
     _title(
         fig,
         "Edge rises with reasoning effort",
-        "Primary runs with 95% bootstrap intervals; "
-        "small dots: replicate runs (haiku high r2, opus high r2)",
+        "Primary runs with 95% bootstrap intervals" + replicate_note(report),
     )
     save(fig, path)
 
