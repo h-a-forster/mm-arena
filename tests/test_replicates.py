@@ -158,6 +158,8 @@ def test_top_llm_pair_variance(run_dir):
 def test_effort_figure_names_every_replicate_run():
     pytest.importorskip("matplotlib")
     path = Path(__file__).parents[1] / "scripts" / "figures.py"
+    if not path.exists():
+        pytest.skip("scripts/ is not in the sdist")
     spec = importlib.util.spec_from_file_location("figures", path)
     figures = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(figures)
