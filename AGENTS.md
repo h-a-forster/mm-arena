@@ -51,7 +51,7 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
 ```sh
 uv sync --all-extras --dev
 uv run pytest -m "not slow"        # what CI runs
-uv run pytest                      # plus slow tests
+uv run pytest --runslow            # plus slow tests
 uv run ruff check src tests scripts
 uv run ruff format --check src tests scripts
 uv run mm-arena run --agent bayes --suite smoke --out runs/ci && uv run mm-arena report runs/ci
