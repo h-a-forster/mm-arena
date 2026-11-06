@@ -57,7 +57,8 @@ traces; their token counts set them apart), which sends the answering model abou
 prompt tokens per quote (median +594 for Opus @high, +629 for Haiku @high, same step of the same
 episode), on top of a separately recorded auxiliary Haiku call. The five replicates of
 2026-10-30 used 2.1.308 (recorded in each trace), which sends about 200-260 more prompt tokens
-than the original version and made an auxiliary call on 1 of 4,300 quotes. Treat comparisons across versions as comparisons of slightly different setups.
+than the original version and made an auxiliary call on 1 of 4,300 quotes. Treat comparisons
+across versions as comparisons of slightly different setups.
 
 ![Leaderboard](docs/figures/leaderboard.png)
 
@@ -500,8 +501,8 @@ replies, so `mm-arena run` refuses an LLM `#rN` name (N >= 2) without `--no-cach
 - LLM scores depend on the prompt and provider settings. The prompt is fixed for a suite
   version, and the provider spec is in each run's file name. The `core-v1` traces from before
   2026-10-30 (trace version 1) do not record the Claude Code version or what it adds to the
-  prompt (see [Results](#results)). From trace version 2, each trace's `provenance` records the package
-  version, provider options, the Claude Code CLI or SDK version, and a SHA-256 of the step-0
+  prompt (see [Results](#results)). From trace version 2, each trace's `provenance` records the
+  package version, provider options, the Claude Code CLI or SDK version, and a SHA-256 of the step-0
   prompt; what Claude Code adds to the prompt is still not visible.
 - Sampling noise across games is in the bootstrap. Run-level drift is not. Replicates of the
   high-effort setups moved 2.1-4.7 points from run 1, except Haiku run 2 (+10.5), and SDs

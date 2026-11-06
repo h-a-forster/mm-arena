@@ -7,6 +7,7 @@
 - Branch `polish-2026-10-30` is merged through a pull request (merge commit or fast-forward, CI on the pull request).
 - v0.2.1 is tagged after the merge, with the release date in `CHANGELOG.md`, `CITATION.cff` and `docs/release-notes-0.2.1.md` matching the tag.
 - The version is decided: 0.2.1 as prepared, or 0.3.0 for strict semver because of trace version 2.
+- The 13 unpushed pre-audit commits on the branch carry a Claude `Co-Authored-By` trailer: kept, or stripped before the merge (history already on `main` stays as it is).
 - Dependabot pull requests #11 to #15 are diffed and merged or closed; #11 needs a rebase on the SHA pins.
 - Stale remote branches are deleted: `upgrades-2026-10-23`, `claude/audit-fixes-2026-10-10` (no unique code; holds the removed `AUDIT-TASKS.md`) and the superseded Dependabot branches.
 
