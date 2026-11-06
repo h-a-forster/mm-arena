@@ -97,3 +97,32 @@ def test_cli_name_needs_single_agent(tmp_path) -> None:
                 str(tmp_path),
             ]
         )
+
+
+def test_run_validates_every_agent_before_playing_any(tmp_path) -> None:
+    out = tmp_path / "run"
+    with pytest.raises(SystemExit, match="unknown agent spec"):
+        main(["run", "--agent", "static", "--agent", "nope", "--suite", "smoke", "--out", str(out)])
+    assert not out.exists()
+
+
+def test_replicate_name_needs_no_cache(tmp_path) -> None:
+    """A `#rN` run through the cache replays run 1 and reports a run-to-run SD of 0."""
+    spec, out = 'scripted:{"bid": 1, "ask": 2}', tmp_path / "run"
+    argv = ["run", "--agent", spec, "--name", f"{spec}#r2", "--suite", "smoke", "--out", str(out)]
+    with pytest.raises(SystemExit, match="--no-cache"):
+        main(argv)
+    assert not out.exists()
+    assert main([*argv, "--no-cache"]) == 0
+
+
+def test_show_rejects_an_episode_out_of_range(tmp_path) -> None:
+    out = tmp_path / "run"
+    main(["run", "--agent", "static", "--suite", "smoke", "--out", str(out)])
+    with pytest.raises(SystemExit, match="has 5 episodes"):
+        main(["show", str(out / "static.jsonl"), "--episode", "5"])
+
+
+def test_report_on_an_empty_directory_is_a_usage_error(tmp_path) -> None:
+    with pytest.raises(SystemExit, match="no \\*.jsonl trace files"):
+        main(["report", str(tmp_path)])

@@ -17,10 +17,14 @@ def _safe_name(name: str) -> str:
 
 def cmd_run(args: argparse.Namespace) -> int:
     from mmarena.agents.registry import make_agent_factory
+    from mmarena.report import is_llm, split_replicate
     from mmarena.runner import run_suite
     from mmarena.suite import load_suite
 
-    suite = load_suite(args.suite)
+    try:
+        suite = load_suite(args.suite)
+    except (FileNotFoundError, ValueError) as exc:
+        raise SystemExit(str(exc)) from exc
     if args.limit:
         from dataclasses import replace
 
@@ -38,9 +42,18 @@ def cmd_run(args: argparse.Namespace) -> int:
     }
     if args.name and len(args.agent) > 1:
         raise SystemExit("--name applies to a single --agent")
+    replicate = args.name and is_llm(args.agent[0]) and split_replicate(args.name)[1] >= 2
+    if replicate and not args.no_cache:
+        raise SystemExit(
+            f"{args.name!r} is a replicate run: add --no-cache, or it replays run 1's replies"
+        )
+    # Every spec is checked before the first episode, so a typo in the last one wastes no run.
+    try:
+        factories = [make_agent_factory(spec, **options) for spec in args.agent]
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     status = 0
-    for spec in args.agent:
-        factory = make_agent_factory(spec, **options)
+    for factory in factories:
         name = factory().name
         path = out_dir / f"{_safe_name(name)}.jsonl"
         n_total = len(suite.episodes_list())
@@ -75,7 +88,10 @@ def cmd_run(args: argparse.Namespace) -> int:
 def cmd_report(args: argparse.Namespace) -> int:
     from mmarena.report import build_report
 
-    report = build_report(args.run_dir)
+    try:
+        report = build_report(args.run_dir)
+    except FileNotFoundError as exc:
+        raise SystemExit(str(exc)) from exc
     if not args.no_plots:
         try:
             from mmarena.plots import plot_run
@@ -113,7 +129,10 @@ def _load_episode(path: str, index: int | None, game_id: str | None, seed: int |
         if not traces:
             raise SystemExit(f"no episode for game {game_id} seed {seed} in {path}")
         return traces[-1]
-    return traces[index or 0]
+    index = index or 0
+    if not -len(traces) <= index < len(traces):
+        raise SystemExit(f"{path} has {len(traces)} episodes; --episode {index} is out of range")
+    return traces[index]
 
 
 def cmd_show(args: argparse.Namespace) -> int:

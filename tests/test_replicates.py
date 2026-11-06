@@ -161,16 +161,21 @@ def test_top_llm_pair_variance(run_dir):
     assert f"`{top['a']}` - `{top['b']}` (top two LLM setups)" in md
 
 
+def _script(name: str):
+    path = Path(__file__).parents[1] / "scripts" / f"{name}.py"
+    if not path.exists():
+        pytest.skip("scripts/ is not in the sdist")
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def test_effort_figure_names_every_replicate_run(tmp_path, monkeypatch):
     pytest.importorskip("matplotlib")
     from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-    path = Path(__file__).parents[1] / "scripts" / "figures.py"
-    if not path.exists():
-        pytest.skip("scripts/ is not in the sdist")
-    spec = importlib.util.spec_from_file_location("figures", path)
-    figures = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(figures)
+    figures = _script("figures")
     runs = [{"run": n} for n in (1, 2, 3)]
     setups = [
         {"setup": "claude-cli:claude-opus-5-5@high", "runs": runs},
@@ -197,3 +202,13 @@ def test_effort_figure_names_every_replicate_run(tmp_path, monkeypatch):
     sub = fig.axes[0]._left_title  # _title() sets the subtitle with loc="left"
     assert "sonnet high r2/r3" in sub.get_text()
     assert sub.get_window_extent().x1 <= fig.bbox.x1
+
+
+def test_readme_numbers_welch_matches_closed_forms():
+    numbers = _script("readme_numbers")
+    # df 1 is Cauchy; df 2 has F(t) = 1/2 + t / (2 sqrt(2 + t^2)).
+    assert numbers.t_two_sided(1.5, 1) == pytest.approx(1 - 2 * math.atan(1.5) / math.pi, abs=1e-6)
+    assert numbers.t_two_sided(2.0, 2) == pytest.approx(1 - 2 / math.sqrt(6), abs=1e-6)
+    # Run means quoted in the README, Fable against Opus at high effort.
+    t, df, p = numbers.welch([90.6566, 88.5532], [87.6897, 83.7690, 85.2999])
+    assert (round(t, 2), round(df, 1), round(p, 3)) == (2.59, 2.8, 0.087)

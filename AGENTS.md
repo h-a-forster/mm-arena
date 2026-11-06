@@ -21,17 +21,19 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
   and counterparty draws depend only on (game id, seed), never on the agent.
 - Suites are versioned. A change that alters any game or the prompt ships as a new suite
   version; never edit a released suite TOML.
-- Replicate runs are named `agent#rN` (N >= 2) via `--name` and need `--no-cache`. Reports
-  keep primary runs in the main tables and pool replicates in Run-to-run variability.
+- Replicate runs are named `agent#rN` (N >= 2) via `--name` and need `--no-cache`, which
+  `mm-arena run` enforces for LLM agents. Reports keep primary runs in the main tables and pool
+  replicates in Run-to-run variability.
 - Tests: offline, no API keys (fake providers), `tmp_path` for files, `@pytest.mark.slow`
   for anything over a few seconds.
 - API keys come from environment variables only; never log, print or commit them.
-- Every README number must trace to `results/core-v1/REPORT.md`, `summary.json` or the
-  traces. Rescore with `mm-arena report`, never edit generated files by hand.
+- Every README number must trace to `results/core-v1/REPORT.md`, `summary.json` or, through
+  `scripts/readme_numbers.py`, the traces. Rescore with `mm-arena report`, never edit generated
+  files by hand.
 - Scratch files go in `tmp/` (gitignored); `runs/` is gitignored. No `.bak` copies.
-- Commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. The repository
-  is public: change it through pull requests with CI, not direct pushes to main. No personal
-  names, local user paths or machine details in committed files or logs.
+- The repository is public: change it through pull requests with CI, not direct pushes to
+  main. No personal names, local user paths or machine details in committed files or logs.
+- Open work lives in `backlog.md`, one line per item.
 
 ## Layout
 
@@ -44,6 +46,7 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
 | `src/mmarena/metrics.py`, `stats.py`, `decompose.py` | per-episode metrics, bootstrap and tests, centring vs width |
 | `src/mmarena/report.py`, `plots.py` | `summary.json`, `leaderboard.csv`, `REPORT.md`, plots |
 | `scripts/figures.py` | README figures from a run directory |
+| `scripts/readme_numbers.py` | README numbers that `REPORT.md` does not print |
 | `scripts/tune_k.py`, `scripts/headroom.py` | `bayes-mean` tuning, lookahead headroom |
 
 ## How to test
@@ -70,9 +73,10 @@ uv run python scripts/figures.py runs/core-v1 docs/figures
 LLM runs are long (a `core-v1` run is 860 quotes): run them in a resume-on-failure loop.
 Traces append per episode and reruns skip finished episodes.
 
-## Status and next steps
+## Status
 
-Updated: 2026-10-30 (v0.2.1 prepared on branch `polish-2026-10-30`, not tagged).
+Updated: 2026-11-06. v0.2.1 is prepared on branch `polish-2026-10-30`, not tagged. Open work is
+in `backlog.md`.
 
 Done:
 - v0.2.0 (2026-10-10): 16 agents on `core-v1`, centring vs width, clustered inference,
@@ -83,14 +87,3 @@ Done:
   (Fable `#r2`, Haiku `#r3`, Opus `#r3`, Sonnet `#r2`) committed in `results/core-v1/`, report
   and README updated. Haiku `#r4` (same version and day as `#r3`) added: the first
   within-version pair, +1.4 [-4.5, 6.8] points. Every high-effort setup has two to four runs.
-
-Open:
-1. Drift within one Claude Code version rests on one pair (Haiku @high r3/r4). More
-   same-version pairs, for other setups too, would make it an estimate (README Open question 1).
-2. Tag v0.2.1 after the branch is merged.
-3. Dependabot branches (checkout, setup-uv, anthropic, openai, ruff) are unmerged: diff each
-   before merging. `origin/upgrades-2026-10-23` and `origin/claude/audit-fixes-2026-10-10`
-   look squash-merged; delete them if so.
-4. CI pins actions by tag; pin them to commit SHAs.
-5. Research questions are listed under "Open questions" in the README (within-version drift,
-   Haiku cards swings, competitive-market prompt, recall vs computation, deeper headroom).

@@ -15,8 +15,8 @@ uv run mm-arena --help
 
 ```sh
 uv run pytest -m "not slow"
-uv run ruff check src tests
-uv run ruff format --check src tests
+uv run ruff check src tests scripts
+uv run ruff format --check src tests scripts
 ```
 
 CI runs these on Linux, macOS and Windows with Python 3.11 to 3.13, then runs the `smoke`

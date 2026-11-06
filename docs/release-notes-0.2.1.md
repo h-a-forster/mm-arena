@@ -41,6 +41,22 @@ from 0.2.0.
 
 - Effort figure: lines that skip an effort level without a run are dashed, and the subtitle
   lists the replicate runs found in the report on its own line.
+- `mm-arena run` refuses an LLM replicate name (`#rN`, N >= 2) without `--no-cache`. Through the
+  cache such a run replayed run 1's replies and reported a run-to-run SD of 0.
+- `mm-arena run` checks every `--agent` spec before the first episode, so a typo in a later spec
+  no longer stops the command after the earlier agents have run.
+- A bad agent spec or suite, a report on a directory without traces and `mm-arena show
+  --episode` out of range now end with a one-line error instead of a traceback.
+- `scripts/readme_numbers.py` recomputes the README numbers that `REPORT.md` does not print.
+- CI pins its actions to commit SHAs, installs with `uv sync --locked` and also lints `scripts/`.
+
+## Fixed in the docs
+
+- README: removed the claim that Claude Code 2.1.296 and 2.1.308 report costs within 5% of list
+  price. Traces since 0.2.0 store the list price, so the comparison was the list price with
+  itself.
+- README and methodology: `core-v1` games have 14 to 2,197 outcomes (median 85.5), not "a few
+  hundred" as a rule.
 
 ## Upgrading
 
@@ -48,4 +64,4 @@ No action needed. Rerun `mm-arena report <run_dir>` to add the new columns to an
 report. The committed `core-v1` traces from 0.2.0 are unchanged; the five new replicate traces
 are added beside them.
 
-Full list: [CHANGELOG.md](../CHANGELOG.md).
+Earlier releases: [CHANGELOG.md](../CHANGELOG.md).

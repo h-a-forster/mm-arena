@@ -52,12 +52,12 @@ for every agent. Claude 5.5 and Fable 5.1 models via Claude Code headless mode (
 tools), October 2026. 95% intervals from a bootstrap over games. 0 invalid replies and 0 provider
 errors in 13,760 LLM quotes (16 runs of 860). Three Claude Code versions are involved. The
 original eight runs used an earlier version (not recorded in the traces). The Opus 5.5 @medium
-run and the first two replicates (Opus and Haiku @high run 2) used 2.1.296, which sends the
-answering model about 600 more prompt tokens per quote (median +594 for Opus @high, +629 for
-Haiku @high, same step of the same episode), on top of a separately recorded auxiliary Haiku
-call. The five replicates of 2026-10-30 used 2.1.308 (recorded in each trace), which sends
-about 200-260 more prompt tokens than the original version and made an auxiliary call on 1 of
-4,300 quotes. Treat comparisons across versions as comparisons of slightly different setups.
+run and the first two replicates (Opus and Haiku @high run 2) used 2.1.296 (also not in their
+traces; their token counts set them apart), which sends the answering model about 600 more
+prompt tokens per quote (median +594 for Opus @high, +629 for Haiku @high, same step of the same
+episode), on top of a separately recorded auxiliary Haiku call. The five replicates of
+2026-10-30 used 2.1.308 (recorded in each trace), which sends about 200-260 more prompt tokens
+than the original version and made an auxiliary call on 1 of 4,300 quotes. Treat comparisons across versions as comparisons of slightly different setups.
 
 ![Leaderboard](docs/figures/leaderboard.png)
 
@@ -283,9 +283,9 @@ Costs are the list prices of the tokens each call used (`mmarena.pricing`, price
 - Latency is the provider-reported time per quote through `claude -p`, with CLI start-up and four
   calls in parallel.
 - In the original runs, Claude Code's own cost field priced Haiku 5.5 at Opus rates, 40 times
-  too high ($138.60 against $3.47 per 1,000 Haiku @high quotes). Versions 2.1.296 and 2.1.308
-  report within 5% of list price (Haiku @high run 3: $4.11 either way). mm-arena costs runs from
-  token counts regardless.
+  too high ($138.60 against $3.47 per 1,000 Haiku @high quotes). Traces since then store the
+  list price, not Claude Code's figure, so they do not show whether later versions fixed it.
+  mm-arena costs runs from token counts regardless.
 
 Full report: [results/core-v1/REPORT.md](results/core-v1/REPORT.md). Traces for every episode
 are in [results/core-v1/](results/core-v1/); `mm-arena report results/core-v1` rescores them.
@@ -310,8 +310,9 @@ each quote: one counterparty arrives
    noise (prob 1-α):  values at fair value + N(0, s), same rule
 ```
 
-- **Exact posterior.** Outcomes are enumerated (at most 250k, usually a few hundred). Reveals and
-  fills (and quiet steps) update the posterior by Bayes' rule under the disclosed trader model.
+- **Exact posterior.** Outcomes are enumerated (at most 250k; 14 to 2,197 in `core-v1`, median
+  85.5). Reveals and fills (and quiet steps) update the posterior by Bayes' rule under the
+  disclosed trader model.
 - **Exact score per quote.** For every quote, the simulator computes its expected one-step profit
   given public information, split into spread *capture* and *adverse* selection.
 - **xPnL, not P&L.** The headline score sums those expectations along the path the agent played.
@@ -459,8 +460,10 @@ uv run python scripts/figures.py runs/core-v1 docs/figures
 ```
 
 The response cache key holds the provider, model, options, `max_tokens`, prompts and a salt (game,
-episode, attempt), not the agent name. A replicate therefore needs an empty cache or `--no-cache`;
-otherwise it replays the first run's replies.
+episode, attempt), not the agent name. A replicate through the cache would replay the first run's
+replies, so `mm-arena run` refuses an LLM `#rN` name (N >= 2) without `--no-cache`.
+
+`scripts/readme_numbers.py` recomputes the README numbers that `REPORT.md` does not print.
 
 ## Open questions
 
@@ -495,9 +498,9 @@ otherwise it replays the first run's replies.
 - Most of the Bayes edge is monopoly spread, so a model that quotes tight from competitive-market
   habit is penalised here.
 - LLM scores depend on the prompt and provider settings. The prompt is fixed for a suite
-  version, and the provider spec is in each run's file name. The committed `core-v1` traces
-  (trace version 1) do not record the Claude Code version or what it adds to the prompt (see
-  [Results](#results)). From trace version 2, each trace's `provenance` records the package
+  version, and the provider spec is in each run's file name. The `core-v1` traces from before
+  2026-10-30 (trace version 1) do not record the Claude Code version or what it adds to the
+  prompt (see [Results](#results)). From trace version 2, each trace's `provenance` records the package
   version, provider options, the Claude Code CLI or SDK version, and a SHA-256 of the step-0
   prompt; what Claude Code adds to the prompt is still not visible.
 - Sampling noise across games is in the bootstrap. Run-level drift is not. Replicates of the

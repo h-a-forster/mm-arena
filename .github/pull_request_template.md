@@ -5,7 +5,7 @@
 ## Checklist
 
 - [ ] `uv run pytest -m "not slow"` passes
-- [ ] `uv run ruff check src tests` and `uv run ruff format --check src tests` pass
+- [ ] `uv run ruff check src tests scripts` and `uv run ruff format --check src tests scripts` pass
 - [ ] Tests added or updated (offline, no API keys, Windows-safe)
 - [ ] Documentation updated if behaviour or options changed
 - [ ] Entry added under "Unreleased" in `CHANGELOG.md` for user-visible changes

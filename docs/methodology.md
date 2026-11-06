@@ -31,7 +31,7 @@ benchmark tests reasoning under a known model, not guessing a hidden one.
 
 ## 2. Exact posterior
 
-`Ω` is enumerated (at most 250,000 outcomes; most games have a few hundred). The public
+`Ω` is enumerated (at most 250,000 outcomes; 14 to 2,197 in `core-v1`, median 85.5). The public
 posterior is a weight vector over `Ω`:
 
 - a reveal multiplies the weights by the indicator of consistency with the revealed value;
