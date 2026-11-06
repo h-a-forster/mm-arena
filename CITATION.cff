@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "If you use mm-arena, please cite it as below."
 title: mm-arena
 abstract: >-
-  Market-making games as a benchmark for LLM agents, scored exactly against a
-  Bayes-optimal quoter.
+  A benchmark of Bayesian reasoning for LLM agents in market-making games with a
+  fully disclosed trader model, scored exactly against a myopic Bayes quoter.
 type: software
 authors:
   - alias: h-a-forster

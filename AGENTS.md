@@ -6,8 +6,9 @@ changing scoring, statistics or the trace format.
 ## What this is
 
 A benchmark that puts an LLM (or any agent) in the market maker's seat in trading-interview
-games. Hidden state is finite and enumerated, so the simulator knows the exact public
-posterior at every step and scores each quote exactly against a myopic Bayes-optimal quoter.
+games with the trader model fully disclosed. Hidden state is finite and enumerated, so the
+simulator knows the exact public posterior at every step and scores each quote exactly against
+a myopic Bayes-optimal quoter.
 Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
 
 ## Conventions

@@ -4,17 +4,23 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
 
-Market-making games as a benchmark for LLM agents, scored exactly against a Bayes-optimal quoter.
+A benchmark of Bayesian reasoning for LLM agents in market-making games with a fully disclosed
+trader model, scored exactly against a myopic Bayes quoter.
 
 "Make me a market on the sum of three dice" is a standard trading-interview game. You quote a bid
 and an ask, information arrives, some counterparties know more than you, and you settle at the
 true value. Doing it well takes two skills: updating a belief from reveals *and from who trades
 with you*, and pricing the risk of trading against someone better informed (adverse selection).
 
-mm-arena puts an LLM in the market maker's seat. The hidden state is small enough to enumerate,
+mm-arena puts an LLM in the market maker's seat. The prompt states the trader model, including
+the informed share α and the noise scale s, and the hidden state is small enough to enumerate,
 so the simulator knows the exact public posterior at every step. Every quote gets an exact
-expected value, and every agent is compared with a Bayes-optimal quoter on the same dice and the
+expected value, and every agent is compared with a myopic Bayes quoter on the same dice and the
 same counterparties.
+
+So the scores measure Bayesian bookkeeping and quote pricing under full disclosure, not market
+making at large: nobody has to estimate α or s from the flow, and the score is expected P&L, so
+inventory risk goes unpriced. See [Limitations](#limitations).
 
 ## Findings
 
@@ -62,29 +68,30 @@ across versions as comparisons of slightly different setups.
 
 ![Leaderboard](docs/figures/leaderboard.png)
 
-| agent | edge captured % [95% CI] | width / Bayes | adverse / episode | β flow | β reveal | classic − perturbed | output tokens / quote |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `bayes-lookahead` | 100.8 [100.2, 101.5] | 1.00 | 0.45 | 1.00 | 1.00 | -1.2 [-2.3, -0.4] | - |
-| `bayes` | 100 | 1.00 | 0.41 | 1.00 | 1.00 | 0 | - |
-| **fable 5.1 @high** | 90.7 [87.5, 93.3] | 0.92 | 0.54 | 1.03 | 0.99 | +1.4 [-5.3, +7.7] | 2,101 |
-| `bayes-noflow` | 88.5 [83.9, 92.1] | 1.03 | 0.44 | 0.00 | 0.93 | -0.1 [-9.0, +9.0] | - |
-| **opus 5.5 @high** | 87.7 [83.7, 91.2] | 0.90 | 0.55 | 0.98 | 1.03 | +2.3 [-6.9, +11.2] | 1,750 |
-| `bayes-mean` | 86.3 [83.0, 89.0] | 1.06 | 0.39 | 1.01 | 0.98 | +2.5 [-4.3, +8.0] | - |
-| **haiku 5.5 @high** | 79.9 [72.9, 85.2] | 0.94 | 0.53 | 0.30 | 0.91 | +4.8 [-16.3, +19.5] | 6,516 |
-| **opus 5.5 @medium** | 72.7 [67.6, 77.1] | 0.77 | 0.68 | 1.03 | 0.96 | +6.7 [-4.8, +18.4] | 1,228 |
-| **sonnet 5.5 @high** | 69.2 [63.8, 74.8] | 0.80 | 0.67 | 0.66 | 0.90 | +12.5 [-2.3, +25.5] | 1,620 |
-| **opus 5.5 @low** | 60.0 [56.4, 63.7] | 0.61 | 0.83 | 0.84 | 0.94 | +9.6 [+1.8, +17.5] | 664 |
-| **fable 5.1 @low** | 59.8 [55.7, 64.0] | 0.61 | 0.81 | 0.98 | 0.94 | -1.3 [-10.2, +6.8] | 752 |
-| `static` | 47.4 [36.2, 56.3] | 1.07 | 0.56 | 0.00 | 0.00 | +4.9 [-18.5, +27.3] | - |
-| **sonnet 5.5 @low** | 14.8 [5.8, 22.1] | 0.43 | 0.93 | 0.33 | 0.83 | +21.5 [+8.1, +35.7] | 757 |
-| `glosten-milgrom` | 4.3 [3.7, 5.0] | 0.27 | 1.09 | 0.96 | 1.00 | +0.8 [-1.2, +2.8] | - |
-| **haiku 5.5 @low** | -0.4 [-13.7, 10.7] | 0.38 | 0.93 | 0.17 | 0.87 | +17.0 [-25.7, +45.4] | 1,706 |
-| `random` | -80.3 [-107.7, -58.1] | 0.56 | 0.77 | -0.02 | 0.15 | +20.5 [-38.3, +77.1] | - |
+| agent | edge captured % [95% CI] | width / Bayes | adverse / episode | β flow | β reveal | classic − perturbed | output tokens / quote | Claude Code |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :---: |
+| `bayes-lookahead` | 100.8 [100.2, 101.5] | 1.00 | 0.45 | 1.00 | 1.00 | -1.2 [-2.3, -0.4] | - | - |
+| `bayes` | 100 | 1.00 | 0.41 | 1.00 | 1.00 | 0 | - | - |
+| **fable 5.1 @high** | 90.7 [87.5, 93.3] | 0.92 | 0.54 | 1.03 | 0.99 | +1.4 [-5.3, +7.7] | 2,101 | earlier |
+| `bayes-noflow` | 88.5 [83.9, 92.1] | 1.03 | 0.44 | 0.00 | 0.93 | -0.1 [-9.0, +9.0] | - | - |
+| **opus 5.5 @high** | 87.7 [83.7, 91.2] | 0.90 | 0.55 | 0.98 | 1.03 | +2.3 [-6.9, +11.2] | 1,750 | earlier |
+| `bayes-mean` | 86.3 [83.0, 89.0] | 1.06 | 0.39 | 1.01 | 0.98 | +2.5 [-4.3, +8.0] | - | - |
+| **haiku 5.5 @high** | 79.9 [72.9, 85.2] | 0.94 | 0.53 | 0.30 | 0.91 | +4.8 [-16.3, +19.5] | 6,516 | earlier |
+| **opus 5.5 @medium** | 72.7 [67.6, 77.1] | 0.77 | 0.68 | 1.03 | 0.96 | +6.7 [-4.8, +18.4] | 1,228 | 2.1.296 |
+| **sonnet 5.5 @high** | 69.2 [63.8, 74.8] | 0.80 | 0.67 | 0.66 | 0.90 | +12.5 [-2.3, +25.5] | 1,620 | earlier |
+| **opus 5.5 @low** | 60.0 [56.4, 63.7] | 0.61 | 0.83 | 0.84 | 0.94 | +9.6 [+1.8, +17.5] | 664 | earlier |
+| **fable 5.1 @low** | 59.8 [55.7, 64.0] | 0.61 | 0.81 | 0.98 | 0.94 | -1.3 [-10.2, +6.8] | 752 | earlier |
+| `static` | 47.4 [36.2, 56.3] | 1.07 | 0.56 | 0.00 | 0.00 | +4.9 [-18.5, +27.3] | - | - |
+| **sonnet 5.5 @low** | 14.8 [5.8, 22.1] | 0.43 | 0.93 | 0.33 | 0.83 | +21.5 [+8.1, +35.7] | 757 | earlier |
+| `glosten-milgrom` | 4.3 [3.7, 5.0] | 0.27 | 1.09 | 0.96 | 1.00 | +0.8 [-1.2, +2.8] | - | - |
+| **haiku 5.5 @low** | -0.4 [-13.7, 10.7] | 0.38 | 0.93 | 0.17 | 0.87 | +17.0 [-25.7, +45.4] | 1,706 | earlier |
+| `random` | -80.3 [-107.7, -58.1] | 0.56 | 0.77 | -0.02 | 0.15 | +20.5 [-38.3, +77.1] | - | - |
 
-Edge captured: expected P&L as a share of the Bayes quoter's on the same episodes. Width,
-adverse selection and β are defined under [Metrics](#metrics). `@low` / `@medium` / `@high` is the
-reasoning-effort setting. The table shows each setup's first run; see
-[Run-to-run variability](#run-to-run-variability).
+Edge captured: expected P&L as a share of the myopic Bayes quoter's on the same episodes, with
+the trader model fully disclosed to every agent. Width, adverse selection and β are defined under
+[Metrics](#metrics). `@low` / `@medium` / `@high` is the reasoning-effort setting. The table shows
+each setup's first run, and the Claude Code column its version ("earlier" is not recorded in the
+traces); see [Run-to-run variability](#run-to-run-variability).
 
 The scale: 100 is the myopic Bayes quoter and 0 is never quoting. It is not anchored at a naive
 quoter. `static` (prior mean ± one sd, never updated) already scores 47.4, `bayes-mean` 86.3 and
@@ -215,7 +222,8 @@ Code versions: run 1 earlier (not recorded), Opus and Haiku run 2 on 2.1.296, an
   run 2 against Opus run 1 is +0.9 [-1.3, 3.4] (p 0.48). The pooled gap is two to three times
   either setup's SD across runs, but SDs from two and three runs are rough, and the pooled
   interval resamples games, not runs: a Welch t-test on the five run means (90.7, 88.6 against
-  87.7, 83.8, 85.3) gives p 0.087, so the lead is not established at the run level.
+  87.7, 83.8, 85.3) gives p 0.087 at full precision (0.085 from these rounded values), so the
+  lead is not established at the run level.
 - **Pooled, Opus and Haiku at high effort are indistinguishable:** Opus − Haiku is +1.1 [-2.7,
   5.4] (p 0.60), and +2.1 [-3.2, 7.8] and +0.7 [-4.1, 5.7] between Opus run 3 and Haiku runs 3
   and 4 (same day and version). Run against run their order flips: run 1 against run 1 is +7.8
@@ -494,8 +502,9 @@ replies, so `mm-arena run` refuses an LLM `#rN` name (N >= 2) without `--no-cach
 - The reference is myopic. It does not value the information a quote generates, so a score
   above 100 is possible. One-step lookahead scores 100.8, so the myopic reference leaves under
   about 1% at that horizon; a deeper horizon could add more.
-- The trader model is disclosed in full. The benchmark measures reasoning under a known model,
-  not estimating one.
+- The trader model is disclosed in full, including α and s. The benchmark measures reasoning
+  under a known model, not estimating one from flow, and the score is expected P&L, so managing
+  inventory risk over a horizon is not tested either.
 - Most of the Bayes edge is monopoly spread, so a model that quotes tight from competitive-market
   habit is penalised here.
 - LLM scores depend on the prompt and provider settings. The prompt is fixed for a suite
@@ -514,14 +523,15 @@ replies, so `mm-arena run` refuses an LLM `#rN` name (N >= 2) without `--no-cach
 
 Builds on Glosten and Milgrom (1985) for the market model and on DIVAT/AIVAT for luck-adjusted
 evaluation. Unlike LLM trading benchmarks that score realized P&L on market data (StockBench,
-InvestorBench, Alpha Arena), it measures belief updating and adverse-selection pricing where the
-optimal answer is known. See [docs/related-work.md](docs/related-work.md).
+InvestorBench, Alpha Arena), it measures belief updating and adverse-selection pricing under a
+disclosed trader model, where the reference quote is exact. See
+[docs/related-work.md](docs/related-work.md).
 
 ## Citation
 
 ```bibtex
 @software{mm_arena,
-  title  = {mm-arena: market-making games as a benchmark for LLM agents},
+  title  = {mm-arena: a benchmark of Bayesian reasoning for LLM agents in market-making games},
   author = {{h-a-forster}},
   year   = {2026},
   url    = {https://github.com/h-a-forster/mm-arena}

@@ -270,7 +270,10 @@ draws from the game id and seed. LLM agents see only the rendered prompt.
   under about 1% (section 4.1), but a deeper horizon could gain more, so the headroom is only
   bounded from below.
 - The model is fully disclosed. Real desks estimate `α` and `s`; the benchmark isolates
-  reasoning given them.
+  reasoning given them. With the state enumerable, the task is Bayesian bookkeeping plus
+  pricing each side of the quote, so a high score shows that skill, not market making at large.
+  Estimating the counterparty from flow is not tested, and the score is expected P&L, so neither
+  is managing inventory risk over a horizon.
 - Small state spaces only (exact enumeration). This is deliberate: every score is exact.
 - LLM results depend on prompt wording and provider settings. The prompt is fixed per suite
   version. Trace version 1 (the committed `core-v1` runs before 2026-10-30) does not record

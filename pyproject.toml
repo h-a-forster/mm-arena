@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "mm-arena"
 version = "0.2.1"
-description = "Market-making games as a benchmark for LLM agents, scored exactly against a Bayes-optimal quoter."
+description = "A benchmark of Bayesian reasoning for LLM agents in market-making games with a fully disclosed trader model, scored exactly against a myopic Bayes quoter."
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

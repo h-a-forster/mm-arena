@@ -8,9 +8,9 @@ page (arXiv record, publisher, RePEc or repository) in October 2026.
 LLM trading benchmarks score realized P&L on historical or live market data. That mixes
 forecasting, execution and luck, and the optimal policy is unknown. mm-arena isolates two
 skills a market maker needs, belief updating and pricing adverse selection, in games where the
-optimal quote is computable. Each component exists elsewhere. The combination is new: an open
-LLM benchmark with exact per-quote references, luck-adjusted P&L under common random numbers,
-and perturbed variants that test recall.
+trader model is disclosed and the myopic optimal quote is computable. Each component exists
+elsewhere. The combination is new: an open LLM benchmark with exact per-quote references,
+luck-adjusted P&L under common random numbers, and perturbed variants that test recall.
 
 ## Market microstructure
 
