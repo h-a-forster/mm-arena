@@ -45,3 +45,6 @@ jobs:
 
       - name: Report
         run: uv run mm-arena report runs/ci
+
+      - name: README and REPORT numbers agree with the traces
+        run: uv run python scripts/readme_numbers.py
