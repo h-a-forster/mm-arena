@@ -34,6 +34,7 @@ from mmarena.stats import (
     paired_difference,
     rank_probabilities,
     variance_reduction,
+    welch,
 )
 
 REF_AGENT = "bayes"
@@ -451,6 +452,7 @@ def _replicates(
                 },
             }
         )
+    run_edges = {s["setup"]: [r["edge_captured"] for r in s["runs"]] for s in out_setups}
     pairs = []
     for a, b in combinations(multi, 2):
         sa, sb = _pooled_scores(setups[a], ref), _pooled_scores(setups[b], ref)
@@ -480,6 +482,9 @@ def _replicates(
                 "runs_b": len(setups[b]),
                 **res.to_dict(),
                 "combinations": combos,
+                "runs_welch": dict(
+                    zip(("t", "df", "p_value"), welch(run_edges[a], run_edges[b]), strict=True)
+                ),
             }
         )
     for row, p in zip(pairs, holm([r["p_value"] for r in pairs]), strict=True):
@@ -805,6 +810,12 @@ def _diff_cell(d: Mapping[str, Any] | None) -> list[str]:
     return [_ci(d["diff_value"], d["diff_lo"], d["diff_hi"]), _p(d["p_value"])]
 
 
+def _welch_cells(w: Mapping[str, float]) -> list[str]:
+    if not math.isfinite(w["t"]):
+        return ["-", "-"]
+    return [f"{w['t']:.2f} ({w['df']:.1f})", _p(w["p_value"])]
+
+
 def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
     if not rep:
         return []
@@ -867,12 +878,24 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
                 str(p["n_games"]),
                 _p(p["p_value"]),
                 _p(p["p_holm"]),
+                *_welch_cells(p["runs_welch"]),
             ]
             for p in rep["pairs"]
         ]
         lines += ["Pooled comparison of setups with several runs (mean score over runs):", ""]
         lines += _table(
-            ["pair", "runs", "difference, pp [95% CI]", "games", "p", "p (Holm)"], rows, "lrrrrr"
+            [
+                "pair",
+                "runs",
+                "difference, pp [95% CI]",
+                "games",
+                "p",
+                "p (Holm)",
+                "runs as the unit: Welch t (df)",
+                "p (runs)",
+            ],
+            rows,
+            "lrrrrrrr",
         )
         lines += [""]
         rows = [
@@ -896,7 +919,10 @@ def _render_replicates(rep: Mapping[str, Any]) -> list[str]:
         "edge is 100 x total expected P&L over all runs / total Bayes expected P&L, with all "
         "runs' episodes of a game resampled together. SD across runs is the sample standard "
         "deviation (n - 1) of the runs' edges. Pooled pairs score each episode by the "
-        "mean over a setup's runs; Holm correction within the pooled table.",
+        "mean over a setup's runs; Holm correction within the pooled table. Its last two "
+        "columns take each run's edge as one observation, a Welch t-test on the run means "
+        "(two-sided, not adjusted): it asks whether the setups differ by more than their runs "
+        "drift, with only as many observations as runs.",
         "",
     ]
     return lines

@@ -1,50 +1,31 @@
-"""README numbers that REPORT.md does not print, recomputed from the committed traces.
+"""README numbers, recomputed from the committed traces.
 
     uv run python scripts/readme_numbers.py [results/core-v1]
 
-Prints the run-level test of Fable against Opus, Opus @high run 2 minus @medium (both on Claude
-Code 2.1.296), per-run token, cost and family figures, prompt-token gaps to run 1, and the
-Haiku run 3 and 4 comparison. Pooled cost and latency come from ``scripts/figures.py``.
+Prints the run-level test of Fable against Opus (REPORT.md prints it too; the script exits
+non-zero if the two disagree), Opus @high run 2 minus @medium (both on Claude Code 2.1.296),
+per-run token, cost and family figures, prompt-token gaps to run 1, and the Haiku run 3 and 4
+comparison. Pooled cost and latency come from ``scripts/figures.py``.
 """
 
 from __future__ import annotations
 
-import math
 import statistics
 import sys
-from collections.abc import Sequence
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from mmarena.metrics import _step_usage, bayes_reference, load_episodes
 from mmarena.report import _diff_row, is_llm, load_run, split_replicate
+from mmarena.stats import welch
 
 FABLE, OPUS, HAIKU = (
     "claude-cli:claude-fable-5-1@high",
     "claude-cli:claude-opus-5-5@high",
     "claude-cli:claude-haiku-5-5@high",
 )
-
-
-def t_two_sided(t: float, df: float) -> float:
-    """Two-sided p-value of Student's t, by integrating the tail (numpy is the only dependency)."""
-    if t == 0:
-        return 1.0
-    log_c = math.lgamma((df + 1) / 2) - math.lgamma(df / 2) - 0.5 * math.log(df * math.pi)
-    # Substituting x = 1 / u maps the tail [|t|, inf) to the finite interval (0, 1 / |t|].
-    h = 1.0 / abs(t) / 200_000
-    u = (np.arange(200_000) + 0.5) * h  # midpoint rule
-    y = np.exp(log_c - (df + 1) / 2 * np.log1p(1.0 / (df * u * u))) / (u * u)
-    return float(2 * y.sum() * h)
-
-
-def welch(a: Sequence[float], b: Sequence[float]) -> tuple[float, float, float]:
-    """Welch's t, its degrees of freedom and the two-sided p-value."""
-    va, vb = statistics.variance(a) / len(a), statistics.variance(b) / len(b)
-    t = (statistics.mean(a) - statistics.mean(b)) / math.sqrt(va + vb)
-    df = (va + vb) ** 2 / (va**2 / (len(a) - 1) + vb**2 / (len(b) - 1))
-    return t, df, t_two_sided(t, df)
 
 
 def prompt_tokens(step: dict[str, Any]) -> int:
@@ -70,6 +51,11 @@ def main(run_dir: str = "results/core-v1") -> None:
 
     t, df, p = welch(run_edges(FABLE), run_edges(OPUS))
     print(f"Fable vs Opus @high, run means: Welch t {t:.2f}, df {df:.1f}, p {p:.3f}")
+    cell = f"| {t:.2f} ({df:.1f}) | {p:.3f} |"
+    report = Path(run_dir, "REPORT.md").read_text(encoding="utf-8")
+    row = next(ln for ln in report.splitlines() if ln.startswith(f"| `{FABLE}` - `{OPUS}` |"))
+    if not row.endswith(cell):
+        sys.exit(f"REPORT.md disagrees with the traces: {row!r} should end with {cell!r}")
 
     medium = OPUS.replace("@high", "@medium")
     d = _diff_row(runs[f"{OPUS}#r2"].episodes, runs[medium].episodes, ref, 2000, 0)

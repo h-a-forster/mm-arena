@@ -204,6 +204,31 @@ def paired_difference(
     return PairedResult(est, p, len(diff), len(d_g))
 
 
+def t_two_sided(t: float, df: float) -> float:
+    """Two-sided p-value of Student's t, by integrating the tail (numpy is the only dependency)."""
+    if t == 0:
+        return 1.0
+    log_c = math.lgamma((df + 1) / 2) - math.lgamma(df / 2) - 0.5 * math.log(df * math.pi)
+    # Substituting x = 1 / u maps the tail [|t|, inf) to the finite interval (0, 1 / |t|].
+    h = 1.0 / abs(t) / 200_000
+    u = (np.arange(200_000) + 0.5) * h  # midpoint rule
+    y = np.exp(log_c - (df + 1) / 2 * np.log1p(1.0 / (df * u * u))) / (u * u)
+    return float(2 * y.sum() * h)
+
+
+def welch(a: Sequence[float], b: Sequence[float]) -> tuple[float, float, float]:
+    """Welch's t, its degrees of freedom and the two-sided p-value (NaNs if undefined)."""
+    if len(a) < 2 or len(b) < 2:
+        return math.nan, math.nan, math.nan
+    va = float(np.var(a, ddof=1)) / len(a)
+    vb = float(np.var(b, ddof=1)) / len(b)
+    if va + vb == 0:
+        return math.nan, math.nan, math.nan
+    t = (float(np.mean(a)) - float(np.mean(b))) / math.sqrt(va + vb)
+    df = (va + vb) ** 2 / (va**2 / (len(a) - 1) + vb**2 / (len(b) - 1))
+    return t, df, t_two_sided(t, df)
+
+
 def holm(p_values: Sequence[float]) -> list[float]:
     """Holm step-down adjusted p-values (NaNs are passed through and not counted)."""
     p = np.asarray(p_values, dtype=float)
