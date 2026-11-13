@@ -14,6 +14,7 @@ import pytest
 from mmarena.agents.baselines import BASELINES
 from mmarena.report import build_report, render_markdown, split_replicate
 from mmarena.runner import run_suite
+from mmarena.stats import t_two_sided, welch
 from mmarena.suite import Block, Suite
 
 SUITE = Suite(
@@ -204,11 +205,22 @@ def test_effort_figure_names_every_replicate_run(tmp_path, monkeypatch):
     assert sub.get_window_extent().x1 <= fig.bbox.x1
 
 
-def test_readme_numbers_welch_matches_closed_forms():
-    numbers = _script("readme_numbers")
+def test_welch_matches_closed_forms():
     # df 1 is Cauchy; df 2 has F(t) = 1/2 + t / (2 sqrt(2 + t^2)).
-    assert numbers.t_two_sided(1.5, 1) == pytest.approx(1 - 2 * math.atan(1.5) / math.pi, abs=1e-6)
-    assert numbers.t_two_sided(2.0, 2) == pytest.approx(1 - 2 / math.sqrt(6), abs=1e-6)
+    assert t_two_sided(1.5, 1) == pytest.approx(1 - 2 * math.atan(1.5) / math.pi, abs=1e-6)
+    assert t_two_sided(2.0, 2) == pytest.approx(1 - 2 / math.sqrt(6), abs=1e-6)
     # Run means quoted in the README, Fable against Opus at high effort.
-    t, df, p = numbers.welch([90.6566, 88.5532], [87.6897, 83.7690, 85.2999])
+    t, df, p = welch([90.6566, 88.5532], [87.6897, 83.7690, 85.2999])
     assert (round(t, 2), round(df, 1), round(p, 3)) == (2.59, 2.8, 0.087)
+    assert all(math.isnan(x) for x in welch([1.0, 1.0], [2.0, 2.0]))
+
+
+def test_run_level_welch_in_pooled_table(run_dir):
+    r = build_report(run_dir, n_boot=50)
+    edges = {s["setup"]: [x["edge_captured"] for x in s["runs"]] for s in r.replicates["setups"]}
+    pair = r.replicates["pairs"][0]
+    t, df, p = welch(edges[pair["a"]], edges[pair["b"]])
+    assert pair["runs_welch"] == {"t": t, "df": df, "p_value": p}
+    md = (run_dir / "REPORT.md").read_text(encoding="utf-8")
+    row = next(ln for ln in md.splitlines() if ln.startswith(f"| `{pair['a']}` - `{pair['b']}` |"))
+    assert row.endswith(f"| {t:.2f} ({df:.1f}) | {p:.3f} |")

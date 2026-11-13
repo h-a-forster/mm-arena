@@ -222,8 +222,9 @@ Code versions: run 1 earlier (not recorded), Opus and Haiku run 2 on 2.1.296, an
   run 2 against Opus run 1 is +0.9 [-1.3, 3.4] (p 0.48). The pooled gap is two to three times
   either setup's SD across runs, but SDs from two and three runs are rough, and the pooled
   interval resamples games, not runs: a Welch t-test on the five run means (90.7, 88.6 against
-  87.7, 83.8, 85.3) gives p 0.087 at full precision (0.085 from these rounded values), so the
-  lead is not established at the run level.
+  87.7, 83.8, 85.3) gives t 2.59, df 2.8, p 0.087 at full precision (0.085 from these rounded
+  values; REPORT.md's pooled table prints it for every pair), so the lead is not established at
+  the run level.
 - **Pooled, Opus and Haiku at high effort are indistinguishable:** Opus − Haiku is +1.1 [-2.7,
   5.4] (p 0.60), and +2.1 [-3.2, 7.8] and +0.7 [-4.1, 5.7] between Opus run 3 and Haiku runs 3
   and 4 (same day and version). Run against run their order flips: run 1 against run 1 is +7.8
@@ -472,7 +473,9 @@ The response cache key holds the provider, model, options, `max_tokens`, prompts
 episode, attempt), not the agent name. A replicate through the cache would replay the first run's
 replies, so `mm-arena run` refuses an LLM `#rN` name (N >= 2) without `--no-cache`.
 
-`scripts/readme_numbers.py` recomputes the README numbers that `REPORT.md` does not print.
+`scripts/readme_numbers.py` recomputes the README numbers that `REPORT.md` does not print, and
+exits non-zero if `REPORT.md`'s run-level Welch test for Fable against Opus disagrees with the
+traces.
 
 ## Open questions
 
