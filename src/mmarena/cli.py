@@ -208,7 +208,8 @@ def cmd_suites(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="mm-arena",
-        description="Market-making games as a benchmark for LLM agents.",
+        description="A benchmark of Bayesian reasoning for LLM agents in market-making games "
+        "with a fully disclosed trader model, scored exactly against a myopic Bayes quoter.",
     )
     p.add_argument("--version", action="version", version=f"mm-arena {__version__}")
     sub = p.add_subparsers(dest="command", required=True)

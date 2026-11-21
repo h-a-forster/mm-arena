@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import csv
+import importlib.util
 import json
+from pathlib import Path
 
 import pytest
 
@@ -24,6 +26,7 @@ SUITE = Suite(
     ),
 )
 AGENTS = ("bayes", "bayes-noflow", "static", "random")
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 
 
 @pytest.fixture(scope="module")
@@ -36,8 +39,8 @@ def run_dir(tmp_path_factory):
 
 def test_build_report_writes_files(run_dir):
     r = build_report(run_dir, n_boot=200)
-    for f in ("summary.json", "leaderboard.csv", "REPORT.md"):
-        assert (run_dir / f).exists()
+    for f in ("summary.json", "leaderboard.csv", "REPORT.md", "bayes.jsonl"):
+        assert b"\r\n" not in (run_dir / f).read_bytes()  # LF on every OS
     by = {row["agent"]: row for row in r.leaderboard}
     assert set(by) == set(AGENTS)
     assert by["bayes"]["edge_captured"] == pytest.approx(100.0)
@@ -102,3 +105,26 @@ def test_plots_render(run_dir, tmp_path):
     for p in paths:
         assert p.exists() and p.stat().st_size > 0
         assert p.with_suffix(".svg").exists()
+
+
+def test_rebuild_check_catches_edits_and_replay_mismatches(run_dir, tmp_path):
+    spec = importlib.util.spec_from_file_location("readme_numbers", SCRIPTS / "readme_numbers.py")
+    readme_numbers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(readme_numbers)
+    for name in ("bayes", "static"):
+        (tmp_path / f"{name}.jsonl").write_bytes((run_dir / f"{name}.jsonl").read_bytes())
+    build_report(tmp_path)
+    assert readme_numbers.check_report(str(tmp_path)) == []
+
+    board = tmp_path / "leaderboard.csv"
+    board.write_text(board.read_text(encoding="utf-8").replace(",100.0,", ",100.1,", 1))
+    assert readme_numbers.check_report(str(tmp_path))[0].startswith("leaderboard.csv")
+
+    # A trace whose recorded step value no longer replays, with a report rebuilt to match it.
+    trace = tmp_path / "static.jsonl"
+    lines = trace.read_text(encoding="utf-8").splitlines()
+    first = json.loads(lines[0])
+    first["steps"][0]["ev"] += 1.0
+    trace.write_text("\n".join([json.dumps(first), *lines[1:]]) + "\n", encoding="utf-8")
+    build_report(tmp_path)
+    assert readme_numbers.check_report(str(tmp_path)) == ["replay mismatches {'static': 1}"]

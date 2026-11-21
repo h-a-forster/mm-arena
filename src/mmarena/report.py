@@ -574,7 +574,7 @@ LEADERBOARD_COLUMNS = (
 def write_report(report: Report, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "summary.json").write_text(
-        json.dumps(_clean(report.to_dict()), indent=2) + "\n", encoding="utf-8"
+        json.dumps(_clean(report.to_dict()), indent=2) + "\n", encoding="utf-8", newline="\n"
     )
     with (out_dir / "leaderboard.csv").open("w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh, lineterminator="\n")
@@ -582,7 +582,7 @@ def write_report(report: Report, out_dir: Path) -> None:
         for row in report.leaderboard:
             vals = [row.get(c) for c in LEADERBOARD_COLUMNS]
             w.writerow(["" if isinstance(v, float) and not math.isfinite(v) else v for v in vals])
-    (out_dir / "REPORT.md").write_text(render_markdown(report), encoding="utf-8")
+    (out_dir / "REPORT.md").write_text(render_markdown(report), encoding="utf-8", newline="\n")
 
 
 def render_markdown(r: Report) -> str:

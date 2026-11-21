@@ -85,6 +85,7 @@ def test_unrebuildable_game_is_skipped(runs):
     assert math.isnan(d["as_played"])
 
 
+@pytest.mark.slow  # about 90 s; CI covers it: readme_numbers.py rebuilds summary.json's mismatches
 @pytest.mark.skipif(not CORE.exists(), reason="results/core-v1 not present")
 def test_real_traces_replay_exactly():
     traces = load_run(CORE)

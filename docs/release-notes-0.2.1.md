@@ -1,6 +1,6 @@
 # mm-arena 0.2.1
 
-Released 2026-10-30. Reporting and provenance changes, and same-day replicates of the four
+Released 2026-11-08. Reporting and provenance changes, and same-day replicates of the four
 high-effort setups, including a second same-version run of Haiku @high. Scoring (`market.py`, `metrics.py`, `stats.py`, `decompose.py`) is unchanged
 from 0.2.0.
 

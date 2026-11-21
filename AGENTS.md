@@ -34,7 +34,6 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
 - Scratch files go in `tmp/` (gitignored); `runs/` is gitignored. No `.bak` copies.
 - The repository is public: change it through pull requests with CI, not direct pushes to
   main. No personal names, local user paths or machine details in committed files or logs.
-- Open work lives in `backlog.md`, one line per item.
 
 ## Layout
 
@@ -47,7 +46,8 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
 | `src/mmarena/metrics.py`, `stats.py`, `decompose.py` | per-episode metrics, bootstrap and tests, centring vs width |
 | `src/mmarena/report.py`, `plots.py` | `summary.json`, `leaderboard.csv`, `REPORT.md`, plots |
 | `scripts/figures.py` | README figures from a run directory |
-| `scripts/readme_numbers.py` | README numbers that `REPORT.md` does not print |
+| `scripts/readme_numbers.py` | rebuilds every `results/*/` report and checks it; README numbers that `REPORT.md` does not print |
+| `scripts/open_weight.py` | open-weight arm: pinned GGUF on llama.cpp's server, run, report |
 | `scripts/tune_k.py`, `scripts/headroom.py` | `bayes-mean` tuning, lookahead headroom |
 
 ## How to test
@@ -76,8 +76,7 @@ Traces append per episode and reruns skip finished episodes.
 
 ## Status
 
-Updated: 2026-11-06. v0.2.1 is prepared on branch `polish-2026-10-30`, not tagged. Open work is
-in `backlog.md`.
+Updated: 2026-11-21. v0.2.1 is tagged (2026-11-08).
 
 Done:
 - v0.2.0 (2026-10-10): 16 agents on `core-v1`, centring vs width, clustered inference,
@@ -88,3 +87,5 @@ Done:
   (Fable `#r2`, Haiku `#r3`, Opus `#r3`, Sonnet `#r2`) committed in `results/core-v1/`, report
   and README updated. Haiku `#r4` (same version and day as `#r3`) added: the first
   within-version pair, +1.4 [-4.5, 6.8] points. Every high-effort setup has two to four runs.
+- Open-weight arm prepared (`scripts/open_weight.py`, Qwen3-14B Q4_K_M), not yet run; it
+  writes to `results/core-v1-open-weight/` so the `core-v1` Holm families stay unchanged.

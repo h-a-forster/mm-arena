@@ -2,23 +2,31 @@
 
     uv run python scripts/readme_numbers.py [results/core-v1]
 
-Prints the run-level test of Fable against Opus (REPORT.md prints it too; the script exits
-non-zero if the two disagree), Opus @high run 2 minus @medium (both on Claude Code 2.1.296),
-per-run token, cost and family figures, prompt-token gaps to run 1, and the Haiku run 3 and 4
-comparison. Pooled cost and latency come from ``scripts/figures.py``.
+First rebuilds ``REPORT.md``, ``summary.json`` and ``leaderboard.csv`` from the traces, in the
+given run directory or (without one) in every ``results/*/`` with a ``REPORT.md``, and exits
+non-zero if they differ from the committed files (floats in ``summary.json`` to a relative
+1e-9, so other platforms' last-digit rounding passes). Then prints the run-level test of Fable
+against Opus (REPORT.md prints it too; the script exits non-zero if the two disagree), Opus
+@high run 2 minus @medium (both on Claude Code 2.1.296), per-run token, cost and family figures,
+prompt-token gaps to run 1, and the Haiku run 3 and 4 comparison.
+Pooled cost and latency come from ``scripts/figures.py``.
 """
 
 from __future__ import annotations
 
+import csv
+import json
+import math
 import statistics
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from mmarena.metrics import _step_usage, bayes_reference, load_episodes
-from mmarena.report import _diff_row, is_llm, load_run, split_replicate
+from mmarena.report import _diff_row, build_report, is_llm, load_run, split_replicate
 from mmarena.stats import welch
 
 FABLE, OPUS, HAIKU = (
@@ -26,6 +34,65 @@ FABLE, OPUS, HAIKU = (
     "claude-cli:claude-opus-5-5@high",
     "claude-cli:claude-haiku-5-5@high",
 )
+FILES = ("REPORT.md", "summary.json", "leaderboard.csv")
+
+
+def _differs(a: Any, b: Any, path: str = "") -> str | None:
+    """Where two parsed JSON/CSV values first differ, or None; floats to a relative 1e-9."""
+    if isinstance(a, dict) and isinstance(b, dict):
+        if a.keys() != b.keys():
+            return f"{path}: keys {sorted(a.keys() ^ b.keys())}"
+        return next((d for k in a if (d := _differs(a[k], b[k], f"{path}.{k}"))), None)
+    if isinstance(a, list) and isinstance(b, list):
+        if len(a) != len(b):
+            return f"{path}: length {len(a)} != {len(b)}"
+        return next(
+            (
+                d
+                for i, (x, y) in enumerate(zip(a, b, strict=True))
+                if (d := _differs(x, y, f"{path}[{i}]"))
+            ),
+            None,
+        )
+    if isinstance(a, float) or isinstance(b, float):
+        try:
+            x, y = float(a), float(b)
+        except (TypeError, ValueError):
+            return f"{path}: {a!r} != {b!r}"
+        return (
+            None if math.isclose(x, y, rel_tol=1e-9, abs_tol=1e-12) else f"{path}: {a!r} != {b!r}"
+        )
+    return None if a == b else f"{path}: {a!r} != {b!r}"
+
+
+def _num(cell: str) -> Any:
+    try:
+        return float(cell)
+    except ValueError:
+        return cell
+
+
+def check_report(run_dir: str) -> list[str]:
+    """Rebuild the report files from the traces; what differs from the committed ones."""
+    problems = []
+    with tempfile.TemporaryDirectory() as tmp:
+        build_report(run_dir, out_dir=tmp)
+        new, old = Path(tmp), Path(run_dir)
+        text = {f: [(d / f).read_text(encoding="utf-8") for d in (new, old)] for f in FILES}
+        if len(set(text["REPORT.md"])) > 1:
+            problems.append("REPORT.md")
+        a, b = (json.loads(t) for t in text["summary.json"])
+        a.pop("run_dir"), b.pop("run_dir")
+        if d := _differs(a, b):
+            problems.append(f"summary.json{d}")
+        # Every trace must replay to the engine's recorded step values.
+        bad = {k: v["mismatches"] for k, v in a["decomposition"].items() if v["mismatches"]}
+        if bad:
+            problems.append(f"replay mismatches {bad}")
+        rows = [[[_num(c) for c in r] for r in csv.reader(t.splitlines())] for t in text[FILES[2]]]
+        if d := _differs(*rows):
+            problems.append(f"leaderboard.csv{d}")
+    return problems
 
 
 def prompt_tokens(step: dict[str, Any]) -> int:
@@ -37,7 +104,16 @@ def by_step(traces: list[dict[str, Any]]) -> dict[tuple[str, int, int], dict[str
     return {(t["game"]["id"], t["seed"], s["t"]): s for t in traces for s in t["steps"]}
 
 
-def main(run_dir: str = "results/core-v1") -> None:
+def main(run_dir: str | None = None) -> None:
+    dirs = (
+        [run_dir] if run_dir else [p.parent.as_posix() for p in Path("results").glob("*/REPORT.md")]
+    )
+    for d in sorted(dirs):
+        if problems := check_report(d):
+            sys.exit(f"{d}: report files differ from a rebuild from the traces: {problems}")
+        print(f"{d}: REPORT.md, summary.json and leaderboard.csv match a rebuild")
+    run_dir = run_dir or "results/core-v1"
+    print()
     traces = load_run(run_dir)
     ref, _ = bayes_reference(traces)
     runs = load_episodes(traces)

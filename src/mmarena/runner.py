@@ -55,7 +55,7 @@ def run_suite(
         with out.open("rb") as fh:
             fh.seek(-1, 2)
             if fh.read(1) != b"\n":  # interrupted write: start a fresh line
-                with out.open("a", encoding="utf-8") as fa:
+                with out.open("a", encoding="utf-8", newline="\n") as fa:
                     fa.write("\n")
     todo: list[tuple[Game, int]] = [
         (g, s) for g, s in suite.episodes_list() if (g.id, s) not in done
@@ -70,7 +70,7 @@ def run_suite(
 
     def record(trace: dict[str, Any]) -> None:
         with lock:
-            with out.open("a", encoding="utf-8") as fh:
+            with out.open("a", encoding="utf-8", newline="\n") as fh:
                 fh.write(json.dumps(trace, separators=(",", ":")) + "\n")
             results.append(trace)
             if on_episode:

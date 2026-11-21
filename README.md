@@ -473,9 +473,30 @@ The response cache key holds the provider, model, options, `max_tokens`, prompts
 episode, attempt), not the agent name. A replicate through the cache would replay the first run's
 replies, so `mm-arena run` refuses an LLM `#rN` name (N >= 2) without `--no-cache`.
 
-`scripts/readme_numbers.py` recomputes the README numbers that `REPORT.md` does not print, and
-exits non-zero if `REPORT.md`'s run-level Welch test for Fable against Opus disagrees with the
-traces.
+`scripts/readme_numbers.py` rebuilds `REPORT.md`, `summary.json` and `leaderboard.csv` in every
+`results/*/` from the traces and exits non-zero if they differ from the committed files or if
+`REPORT.md`'s run-level Welch test for Fable against Opus disagrees with the traces; then it
+prints the README numbers that `REPORT.md` does not. CI runs it.
+
+### Open-weight arm (prepared, not yet run)
+
+Every LLM result above comes from a Claude model. The first open-weight arm, Qwen3-14B (Q4_K_M
+GGUF, local, through llama.cpp's OpenAI-compatible server), is one command:
+
+```sh
+uv run python scripts/open_weight.py --gguf PATH/Qwen3-14B-Q4_K_M.gguf --server PATH/llama-server
+```
+
+It refuses to start if more than 2 GiB of GPU memory is already in use or the GGUF's SHA-256
+is not the pinned one, starts `llama-server` with pinned flags (Qwen3 thinking-mode sampling: temperature
+0.6, top-p 0.95, top-k 20; thinking capped at 8,192 tokens; 2 parallel slots), runs `bayes` and
+the model on `core-v1` into `results/core-v1-open-weight/` in a resume loop, records the
+llama.cpp build, flags and GGUF hash in `harness.json`, and writes the report. It is a separate
+directory on purpose: adding an agent to `results/core-v1` would change the Holm families and so
+the published p-values. Expect a run of several hours, since each quote may think for up to
+8,192 tokens; run `--suite smoke --out runs/open-weight-smoke` first to measure seconds per quote.
+One run gives no run-level variance, and runs are the unit here (see
+[Run-to-run variability](#run-to-run-variability)).
 
 ## Open questions
 
