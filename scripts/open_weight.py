@@ -109,6 +109,10 @@ def main() -> int:
     ap.add_argument("--attempts", type=int, default=4)
     ap.add_argument("--log-dir", type=Path, default=Path("tmp"))
     args = ap.parse_args()
+    from mmarena.suite import load_suite
+
+    if getattr(load_suite(args.suite), "format", 1) != 1:
+        raise SystemExit(f"{args.suite} is a session suite; this script runs core-v1 suites")
     if args.out is None:
         if args.base_url:
             raise SystemExit("--base-url (a dry run) needs an explicit --out")

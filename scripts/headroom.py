@@ -14,6 +14,7 @@ Usage: ``uv run python scripts/headroom.py [--suite core-v1] [--workers 4] [--ma
 from __future__ import annotations
 
 import argparse
+import sys
 import time
 from concurrent.futures import ProcessPoolExecutor
 
@@ -50,6 +51,8 @@ def main() -> None:
     args = ap.parse_args()
 
     suite = load_suite(args.suite)
+    if getattr(suite, "format", 1) != 1:
+        sys.exit(f"{args.suite} is a session suite; use scripts/headroom_v2.py")
     games = list(suite.games())[: args.max_games]
     jobs = [
         (f"{g.family}|{g.variant}|{g.seed}", args.steps, args.res, e)

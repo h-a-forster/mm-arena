@@ -594,6 +594,16 @@ One run gives no run-level variance, and runs are the unit here (see
   replicate also changed version or day. Low- and medium-effort setups, Fable 5.2 @low
   included, have one run.
 
+## Session suites (core-v2)
+
+A second suite family sits beside core-v1. In `core-v2` the market maker plays each game for six
+rounds against the same crowd, and the informed share is hidden: one of 0.05, 0.5 and 0.9 with
+a disclosed prior, to be learned from fills, quiet quotes and settlements. Scores are shares of
+a quoter that is told the informed share, with an estimated ceiling printed beside them. No LLM
+has been run on it yet. Design and scoring: [docs/methodology-v2.md](docs/methodology-v2.md);
+pre-registration: [docs/prereg-core-v2.md](docs/prereg-core-v2.md); baseline results:
+`results/core-v2/` and the extension `results/tight-v2/`. core-v1 and its results are unchanged.
+
 ## Related work
 
 Builds on Glosten and Milgrom (1985) for the market model and on DIVAT/AIVAT for luck-adjusted

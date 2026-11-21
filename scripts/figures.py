@@ -376,6 +376,10 @@ def plot_effort(report, path: Path) -> None:
 
 
 def main(run_dir: str, out_dir: str) -> None:
+    from mmarena.session_report import is_session_run
+
+    if is_session_run(run_dir):
+        sys.exit(f"{run_dir} holds session traces; these figures are for core-v1 runs")
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     report = build_report(run_dir, write=False)

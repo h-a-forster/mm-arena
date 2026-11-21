@@ -27,6 +27,7 @@ import numpy as np
 
 from mmarena.metrics import _step_usage, bayes_reference, load_episodes
 from mmarena.report import _diff_row, build_report, is_llm, load_run, split_replicate
+from mmarena.session_report import build_session_report, is_session_run
 from mmarena.stats import welch
 
 FABLE, OPUS, HAIKU = (
@@ -74,6 +75,8 @@ def _num(cell: str) -> Any:
 
 def check_report(run_dir: str) -> list[str]:
     """Rebuild the report files from the traces; what differs from the committed ones."""
+    if is_session_run(run_dir):
+        return check_session_report(run_dir)
     problems = []
     with tempfile.TemporaryDirectory() as tmp:
         build_report(run_dir, out_dir=tmp)
@@ -89,6 +92,25 @@ def check_report(run_dir: str) -> list[str]:
         bad = {k: v["mismatches"] for k, v in a["decomposition"].items() if v["mismatches"]}
         if bad:
             problems.append(f"replay mismatches {bad}")
+        rows = [[[_num(c) for c in r] for r in csv.reader(t.splitlines())] for t in text[FILES[2]]]
+        if d := _differs(*rows):
+            problems.append(f"leaderboard.csv{d}")
+    return problems
+
+
+def check_session_report(run_dir: str) -> list[str]:
+    """The same check for a run of session traces (``mmarena.session_report``)."""
+    problems = []
+    with tempfile.TemporaryDirectory() as tmp:
+        build_session_report(run_dir, out_dir=tmp)
+        new, old = Path(tmp), Path(run_dir)
+        text = {f: [(d / f).read_text(encoding="utf-8") for d in (new, old)] for f in FILES}
+        if len(set(text["REPORT.md"])) > 1:
+            problems.append("REPORT.md")
+        a, b = (json.loads(t) for t in text["summary.json"])
+        a.pop("run_dir"), b.pop("run_dir")
+        if d := _differs(a, b):
+            problems.append(f"summary.json{d}")
         rows = [[[_num(c) for c in r] for r in csv.reader(t.splitlines())] for t in text[FILES[2]]]
         if d := _differs(*rows):
             problems.append(f"leaderboard.csv{d}")

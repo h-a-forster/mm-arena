@@ -1,0 +1,73 @@
+format = 2
+name = "pilot-v2"
+description = "Pilot: 6 open and 6 mixed sessions of 6 rounds (288 quotes); hidden informed share."
+prompt = "v2.0"
+rounds = 6
+quotes_per_stage = 2
+reveal_groups = 1
+alpha = [0.05, 0.5, 0.9]
+alpha_prior = [1, 1, 1]
+
+[tiers]
+open = 0.85
+mixed = 0.7
+
+[[block]]
+family = "dice"
+tier = "open"
+seed = 30050
+regimes = [0, 1]
+
+[[block]]
+family = "cards"
+tier = "open"
+seed = 31050
+regimes = [2]
+
+[[block]]
+family = "transform"
+tier = "open"
+seed = 32050
+regimes = [2]
+
+[[block]]
+family = "coin"
+tier = "open"
+seed = 33050
+regimes = [1]
+
+[[block]]
+family = "urn"
+tier = "open"
+seed = 34050
+regimes = [0]
+
+[[block]]
+family = "dice"
+tier = "mixed"
+seed = 30150
+regimes = [0]
+
+[[block]]
+family = "cards"
+tier = "mixed"
+seed = 31150
+regimes = [0, 1]
+
+[[block]]
+family = "transform"
+tier = "mixed"
+seed = 32150
+regimes = [1]
+
+[[block]]
+family = "coin"
+tier = "mixed"
+seed = 33150
+regimes = [2]
+
+[[block]]
+family = "urn"
+tier = "mixed"
+seed = 34150
+regimes = [2]

@@ -12,6 +12,19 @@ trader model is disclosed and the myopic optimal quote is computable. Each compo
 elsewhere. The combination is new: an open LLM benchmark with exact per-quote references,
 luck-adjusted P&L under common random numbers, and perturbed variants that test recall.
 
+## Session suites (core-v2)
+
+The session suites hide the informed share and let the market maker learn it from fills, quiet
+quotes and settlements over several rounds. That is the learning problem of a Glosten-Milgrom
+dealer who does not know how much of the flow is informed (Das 2005 tracks the value; here the
+posterior also covers the counterparty model), and the myopic Bayes quote is again not optimal
+over the whole session (Das and Magdon-Ismail 2008): a quoter that never pays to probe can
+stop learning. core-v2 therefore anchors its score on a quoter that is told the informed share
+and prints an estimated ceiling for one that is not
+([methodology-v2.md](methodology-v2.md)). This section does not yet cover the prior work on
+learning the share of informed trading from order flow, on incomplete learning of greedy
+pricing policies, or on LLMs estimating hidden models in context.
+
 ## Market microstructure
 
 - Glosten, L. R. and Milgrom, P. R. (1985). Bid, ask and transaction prices in a specialist

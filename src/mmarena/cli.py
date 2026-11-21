@@ -1,4 +1,5 @@
-"""Command-line interface: ``mm-arena run | report | play | show | games | prompt | suites``."""
+"""Command-line interface: ``mm-arena run | report | play | show | games | prompt | suites |
+suite-hash``."""
 
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ def _safe_name(name: str) -> str:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    from mmarena.agents.registry import make_agent_factory
+    from mmarena.agents.registry import baseline_names, make_agent_factory
     from mmarena.report import is_llm, split_replicate
     from mmarena.runner import run_suite
     from mmarena.suite import load_suite
@@ -40,16 +41,19 @@ def cmd_run(args: argparse.Namespace) -> int:
         }.items()
         if v is not None
     }
-    if args.name and len(args.agent) > 1:
+    fmt = getattr(suite, "format", 1)
+    # ``baselines`` stands for every reference baseline of the suite's format
+    specs = [s for a in args.agent for s in (baseline_names(fmt) if a == "baselines" else [a])]
+    if args.name and len(specs) > 1:
         raise SystemExit("--name applies to a single --agent")
-    replicate = args.name and is_llm(args.agent[0]) and split_replicate(args.name)[1] >= 2
+    replicate = args.name and is_llm(specs[0]) and split_replicate(args.name)[1] >= 2
     if replicate and not args.no_cache:
         raise SystemExit(
             f"{args.name!r} is a replicate run: add --no-cache, or it replays run 1's replies"
         )
     # Every spec is checked before the first episode, so a typo in the last one wastes no run.
     try:
-        factories = [make_agent_factory(spec, **options) for spec in args.agent]
+        factories = [make_agent_factory(spec, suite_format=fmt, **options) for spec in specs]
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     status = 0
@@ -64,8 +68,9 @@ def cmd_run(args: argparse.Namespace) -> int:
             tag = "ok" if trace["status"] == "ok" else f"ERROR {trace.get('error')}"
             x = trace.get("xpnl")
             xs = f"xpnl {x:+.2f}" if x is not None else ""
+            unit = trace["session" if "session" in trace else "game"]["id"]
             print(
-                f"  [{name}] {done}/{todo} {trace['game']['id']} seed {trace['seed']} {tag} {xs}",
+                f"  [{name}] {done}/{todo} {unit} seed {trace['seed']} {tag} {xs}",
                 file=sys.stderr,
             )
 
@@ -87,7 +92,14 @@ def cmd_run(args: argparse.Namespace) -> int:
 
 def cmd_report(args: argparse.Namespace) -> int:
     from mmarena.report import build_report
+    from mmarena.session_report import build_session_report, is_session_run
 
+    if is_session_run(args.run_dir):
+        build_session_report(args.run_dir)
+        md = Path(args.run_dir) / "REPORT.md"
+        if not args.quiet:
+            print(md.read_text(encoding="utf-8"))
+        return 0
     try:
         report = build_report(args.run_dir)
     except FileNotFoundError as exc:
@@ -139,6 +151,8 @@ def cmd_show(args: argparse.Namespace) -> int:
     from mmarena.play import review
 
     trace = _load_episode(args.trace, args.episode, args.game, args.seed)
+    if int(trace.get("trace_version", 1)) >= 3:
+        raise SystemExit(f"{args.trace} holds session traces; show reviews core-v1 episodes")
     print(review(trace))
     if args.plot:
         from mmarena.plots import plot_episode
@@ -152,6 +166,8 @@ def cmd_games(args: argparse.Namespace) -> int:
     from mmarena.suite import load_suite
 
     suite = load_suite(args.suite)
+    if getattr(suite, "format", 1) == 2:
+        return _list_sessions(suite)
     rows = [("id", "variant", "outcomes", "prior mean", "prior sd", "alpha", "steps", "title")]
     for g in suite.games():
         rows.append(
@@ -166,10 +182,43 @@ def cmd_games(args: argparse.Namespace) -> int:
                 g.title,
             )
         )
+    _print_rows(rows)
+    print(f"\n{suite.name}: {len(rows) - 1} games x {suite.episodes} episodes", file=sys.stderr)
+    return 0
+
+
+def _print_rows(rows: list[tuple[str, ...]]) -> None:
     widths = [max(len(r[i]) for r in rows) for i in range(len(rows[0]))]
     for r in rows:
         print("  ".join(c.ljust(w) for c, w in zip(r, widths, strict=True)).rstrip())
-    print(f"\n{suite.name}: {len(rows) - 1} games x {suite.episodes} episodes", file=sys.stderr)
+
+
+def _list_sessions(suite) -> int:
+    header = ("#", "session", "tier", "outcomes", "prior mean", "prior sd", "noise", "alpha")
+    rows = [(*header, "quotes", "title")]
+    sessions = list(suite.sessions())
+    for i, s in enumerate(sessions):
+        g = s.game
+        rows.append(
+            (
+                str(i),
+                s.id,
+                s.tier,
+                str(len(g.prob)),
+                f"{g.prior_mean:.2f}",
+                f"{g.prior_std:.2f}",
+                f"{g.market.noise_scale:g}",
+                f"{s.alpha:g}",
+                str(s.spec.n_quotes),
+                g.title,
+            )
+        )
+    _print_rows(rows)
+    print(
+        f"\n{suite.name}: {len(sessions)} sessions x {suite.episodes} episodes, "
+        f"{suite.rounds} rounds each",
+        file=sys.stderr,
+    )
     return 0
 
 
@@ -178,6 +227,8 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     from mmarena.agents.prompt import render_prompt
     from mmarena.games import make_game
 
+    if args.suite:
+        return _session_prompt(args)
     game = make_game(args.family, args.seed, args.variant)
     obs = Observation(
         game=game,
@@ -195,13 +246,45 @@ def cmd_prompt(args: argparse.Namespace) -> int:
     return 0
 
 
+def _session_prompt(args: argparse.Namespace) -> int:
+    from mmarena.agents.prompt_v2 import render_prompt
+    from mmarena.sessions import SessionObservation
+    from mmarena.suite import load_suite
+
+    suite = load_suite(args.suite)
+    if getattr(suite, "format", 1) != 2:
+        raise SystemExit(f"{args.suite} is not a session suite; use --family/--seed/--variant")
+    sessions = list(suite.sessions())
+    if not 0 <= args.session < len(sessions):
+        raise SystemExit(f"{suite.name} has {len(sessions)} sessions; --session {args.session}")
+    s = sessions[args.session]
+    obs = SessionObservation(s.spec, s.id, 0, 0, 0, (), (), (), 0, 0.0, True, True)
+    system, user = render_prompt(obs)
+    print("=== system ===\n" + system + "\n\n=== user ===\n" + user)
+    return 0
+
+
 def cmd_suites(args: argparse.Namespace) -> int:
     from mmarena.suite import builtin_suites, load_suite
 
     for name in builtin_suites():
         s = load_suite(name)
         n = len(s.episodes_list())
-        print(f"{name:10s} {n:4d} episodes  {s.description}")
+        unit = "sessions" if getattr(s, "format", 1) == 2 else "episodes"
+        print(f"{name:10s} {n:4d} {unit:8s}  {s.description}")
+    return 0
+
+
+def cmd_suite_hash(args: argparse.Namespace) -> int:
+    from mmarena.sessions import suite_hash
+    from mmarena.suite import SUITE_DIR
+
+    path = Path(args.suite)
+    if not path.suffix:
+        path = SUITE_DIR / f"{args.suite}.toml"
+    if not path.exists():
+        raise SystemExit(f"no suite file {path}")
+    print(f"{suite_hash(path)}  {path.name}")
     return 0
 
 
@@ -220,7 +303,8 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         required=True,
         help="agent spec, repeatable: bayes, static, anthropic:claude-sonnet-5-5, "
-        "openai:gpt-5.1, openai:MODEL@BASE_URL, claude-cli:haiku, ...",
+        "openai:gpt-5.1, openai:MODEL@BASE_URL, claude-cli:haiku, ...; "
+        "baselines runs every reference baseline of the suite",
     )
     r.add_argument("--suite", default="core-v1", help="built-in suite name or TOML path")
     r.add_argument("--out", help="run directory (default runs/<suite>)")
@@ -262,10 +346,18 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--family", default="dice")
     pr.add_argument("--variant", default="perturbed", choices=["classic", "perturbed"])
     pr.add_argument("--seed", type=int, default=0)
+    pr.add_argument("--suite", help="a session suite: print the step-0 prompt of --session")
+    pr.add_argument("--session", type=int, default=0, help="session index (with --suite)")
     pr.set_defaults(func=cmd_prompt)
 
     s = sub.add_parser("suites", help="list built-in suites")
     s.set_defaults(func=cmd_suites)
+
+    h = sub.add_parser(
+        "suite-hash", help="SHA-256 of a suite file's content (formatting-independent)"
+    )
+    h.add_argument("suite", help="built-in suite name or TOML path")
+    h.set_defaults(func=cmd_suite_hash)
     return p
 
 

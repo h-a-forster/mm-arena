@@ -6,8 +6,12 @@ import tomllib
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from mmarena.games import FAMILIES, VARIANTS, Game, make_game
+
+if TYPE_CHECKING:
+    from mmarena.sessions import SessionSuite
 
 SUITE_DIR = Path(__file__).parent / "suites"
 
@@ -51,8 +55,12 @@ class Suite:
         return [(g, e) for g in self.games() for e in range(self.episodes)]
 
 
-def load_suite(name_or_path: str | Path) -> Suite:
-    """Load a built-in suite by name (``core-v1``) or a TOML file by path."""
+def load_suite(name_or_path: str | Path) -> Suite | SessionSuite:
+    """Load a built-in suite by name (``core-v1``) or a TOML file by path.
+
+    Format 1 (no ``format`` key) is a list of games and episodes; format 2 is a session suite
+    (``mmarena.sessions``).
+    """
     path = Path(name_or_path)
     if not path.suffix:
         path = SUITE_DIR / f"{name_or_path}.toml"
@@ -60,6 +68,13 @@ def load_suite(name_or_path: str | Path) -> Suite:
         builtin = sorted(p.stem for p in SUITE_DIR.glob("*.toml"))
         raise FileNotFoundError(f"suite {name_or_path!r} not found; built-in suites: {builtin}")
     data = tomllib.loads(path.read_text(encoding="utf-8"))
+    fmt = data.get("format", 1)
+    if fmt == 2:
+        from mmarena.sessions import suite_from_data
+
+        return suite_from_data(data, path)
+    if fmt != 1:
+        raise ValueError(f"{path}: unknown suite format {fmt!r}")
     blocks = []
     for raw in data.get("block", []):
         fam, var = raw["family"], raw.get("variant", "perturbed")

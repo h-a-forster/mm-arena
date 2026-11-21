@@ -1,0 +1,42 @@
+format = 2
+name = "tight-v2"
+description = "Extension: 15 tight sessions of 6 rounds (360 quotes); hidden informed share."
+prompt = "v2.0"
+rounds = 6
+quotes_per_stage = 2
+reveal_groups = 1
+alpha = [0.05, 0.5, 0.9]
+alpha_prior = [1, 1, 1]
+
+[tiers]
+tight = 0.5
+
+[[block]]
+family = "dice"
+tier = "tight"
+seed = 30200
+regimes = [0, 1, 2]
+
+[[block]]
+family = "cards"
+tier = "tight"
+seed = 31200
+regimes = [1, 0, 2]
+
+[[block]]
+family = "transform"
+tier = "tight"
+seed = 32200
+regimes = [1, 2, 0]
+
+[[block]]
+family = "coin"
+tier = "tight"
+seed = 33200
+regimes = [2, 1, 0]
+
+[[block]]
+family = "urn"
+tier = "tight"
+seed = 34200
+regimes = [0, 1, 2]

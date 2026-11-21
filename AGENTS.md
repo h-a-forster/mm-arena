@@ -1,7 +1,8 @@
 # AGENTS.md
 
 Guide for coding agents (and humans) working on mm-arena. Read `docs/methodology.md` before
-changing scoring, statistics or the trace format.
+changing scoring, statistics or the trace format, and `docs/methodology-v2.md` before touching
+the session suites.
 
 ## What this is
 
@@ -21,7 +22,9 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
   issue first and record it in the changelog. Common random numbers must hold: hidden outcome
   and counterparty draws depend only on (game id, seed), never on the agent.
 - Suites are versioned. A change that alters any game or the prompt ships as a new suite
-  version; never edit a released suite TOML.
+  version; never edit a released suite TOML. `core-v2`, `tight-v2` and `pilot-v2` are written by
+  `scripts/make_suites_v2.py`; `tests/test_v1_frozen.py` and `tests/test_sessions.py` pin the
+  released files. `docs/prereg-core-v2.md` changes only by dated amendment.
 - Replicate runs are named `agent#rN` (N >= 2) via `--name` and need `--no-cache`, which
   `mm-arena run` enforces for LLM agents. Reports keep primary runs in the main tables and pool
   replicates in Run-to-run variability.
@@ -49,6 +52,10 @@ Committed results: `results/core-v1/` (traces, `summary.json`, `REPORT.md`).
 | `scripts/readme_numbers.py` | rebuilds every `results/*/` report and checks it; README numbers that `REPORT.md` does not print |
 | `scripts/open_weight.py` | open-weight arm: pinned GGUF on llama.cpp's server, run, report |
 | `scripts/tune_k.py`, `scripts/headroom.py` | `bayes-mean` tuning, lookahead headroom |
+| `src/mmarena/joint.py`, `sessions.py` | session suites: joint posterior over (regime, outcome), session specs, suite format 2 |
+| `src/mmarena/session_engine.py`, `session_metrics.py`, `session_report.py` | sessions (trace version 3), per-session metrics, the session report |
+| `src/mmarena/agents/session_baselines.py`, `agents/prompt_v2.py` | session baselines (oracle, learner, lookahead, ...), prompt v2.0 |
+| `scripts/*_v2.py` | session suites: suite files and held-out suite, ladder, tuning, noise projection, learning-response calibration, ceiling |
 
 ## How to test
 
@@ -59,6 +66,9 @@ uv run pytest --runslow            # plus slow tests
 uv run ruff check src tests scripts
 uv run ruff format --check src tests scripts
 uv run mm-arena run --agent bayes --suite smoke --out runs/ci && uv run mm-arena report runs/ci
+uv run mm-arena run --agent bayes --suite smoke-v2 --out runs/ci2 && uv run mm-arena report runs/ci2
+uv run python scripts/make_suites_v2.py            # suite files match their generation rules
+uv run python scripts/readme_numbers.py
 ```
 
 ## How to run and report
@@ -73,6 +83,15 @@ uv run python scripts/figures.py runs/core-v1 docs/figures
 
 LLM runs are long (a `core-v1` run is 860 quotes): run them in a resume-on-failure loop.
 Traces append per episode and reruns skip finished episodes.
+
+A session-suite run directory gets the reference quoters first, then the LLM runs: the report
+reads a model's skill axes against their rows and names any that are absent.
+
+```sh
+uv run mm-arena run --agent baselines --suite pilot-v2 --out runs/pilot-v2
+uv run mm-arena run --agent claude-cli:claude-opus-5-5@high --suite pilot-v2 --out runs/pilot-v2
+uv run mm-arena report runs/pilot-v2
+```
 
 ## Status
 
@@ -92,3 +111,7 @@ Done:
   little room left to separate strong models, so no higher-effort Fable 5.2 runs were made on it.
 - Open-weight arm prepared (`scripts/open_weight.py`, Qwen3-14B Q4_K_M), not yet run; it
   writes to `results/core-v1-open-weight/` so the `core-v1` Holm families stay unchanged.
+- Session suites built beside core-v1 (no LLM run yet): `core-v2` (15 open + 30 mixed
+  sessions, hidden informed share), the extension `tight-v2`, `pilot-v2` and `smoke-v2`;
+  baseline results in `results/core-v2/` and `results/tight-v2/`; pre-registration in
+  `docs/prereg-core-v2.md`. Next: the two-stage LLM pilot on `pilot-v2`.

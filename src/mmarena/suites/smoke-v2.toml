@@ -1,0 +1,31 @@
+format = 2
+name = "smoke-v2"
+description = "Three short sessions (2 rounds, 8 quotes each), one per regime. For CI and quick checks."
+prompt = "v2.0"
+rounds = 2
+quotes_per_stage = 2
+reveal_groups = 1
+alpha = [0.05, 0.5, 0.9]
+alpha_prior = [1, 1, 1]
+
+[tiers]
+open = 1
+mixed = 0.7
+
+[[block]]
+family = "dice"
+tier = "open"
+seed = 35000
+regimes = [0]
+
+[[block]]
+family = "coin"
+tier = "mixed"
+seed = 35100
+regimes = [2]
+
+[[block]]
+family = "urn"
+tier = "mixed"
+seed = 35200
+regimes = [1]

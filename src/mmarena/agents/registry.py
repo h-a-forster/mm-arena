@@ -5,7 +5,8 @@ Spec grammar::
     SPEC := BASELINE | PROVIDER ":" MODEL ["@" BASE_URL] ["@" EFFORT]
 
 - ``BASELINE``: one of ``bayes``, ``bayes-noflow``, ``bayes-mean``, ``bayes-lookahead``,
-  ``glosten-milgrom``, ``static``, ``random``.
+  ``glosten-milgrom``, ``static``, ``random``. Session suites (format 2) have their own set
+  (``agents.session_baselines.SESSION_BASELINES``), chosen by ``suite_format``.
 - ``anthropic:MODEL`` - Anthropic API (``ANTHROPIC_API_KEY``), e.g. ``anthropic:claude-sonnet-5-5``.
 - ``openai:MODEL`` - OpenAI API (``OPENAI_API_KEY``), e.g. ``openai:gpt-5.1``.
 - ``openai:MODEL@BASE_URL`` - any OpenAI-compatible server, e.g.
@@ -37,6 +38,7 @@ from typing import Any
 from mmarena.agents.base import Agent
 from mmarena.agents.baselines import BASELINES
 from mmarena.agents.llm import LLMAgent
+from mmarena.agents.session_baselines import SESSION_BASELINES
 from mmarena.cache import DEFAULT_DIR, CachedProvider, ResponseCache
 from mmarena.providers.base import Provider
 
@@ -51,10 +53,15 @@ _EXTRA = {
 }
 
 
-def list_agent_kinds() -> list[tuple[str, str]]:
+def baseline_names(suite_format: int = 1) -> list[str]:
+    """Every reference baseline of a suite format (what ``--agent baselines`` runs)."""
+    return list(SESSION_BASELINES if suite_format == 2 else BASELINES)
+
+
+def list_agent_kinds(suite_format: int = 1) -> list[tuple[str, str]]:
     """(spec pattern, description) pairs for help text."""
     return [
-        *((name, "reference baseline") for name in BASELINES),
+        *((name, "reference baseline") for name in baseline_names(suite_format)),
         ("anthropic:MODEL", "Anthropic API, key from ANTHROPIC_API_KEY"),
         ("openai:MODEL", "OpenAI API, key from OPENAI_API_KEY"),
         ("openai:MODEL@BASE_URL", "OpenAI-compatible server (OpenRouter, vLLM, Ollama, LM Studio)"),
@@ -67,11 +74,12 @@ def list_agent_kinds() -> list[tuple[str, str]]:
 def parse_spec(spec: str) -> dict[str, Any]:
     """Split a spec into kind, model, base_url and effort. Raises ValueError."""
     spec = spec.strip()
-    if spec in BASELINES:
+    if spec in BASELINES or spec in SESSION_BASELINES:
         return {"kind": "baseline", "model": spec, "base_url": None, "effort": None}
     kind, sep, rest = spec.partition(":")
     if not sep or kind not in PROVIDERS:
-        known = ", ".join([*BASELINES, *(f"{p}:MODEL" for p in PROVIDERS)])
+        names = [*BASELINES, *(n for n in SESSION_BASELINES if n not in BASELINES)]
+        known = ", ".join([*names, *(f"{p}:MODEL" for p in PROVIDERS)])
         raise ValueError(f"unknown agent spec {spec!r}; expected one of {known}")
     if kind == "scripted":
         return {"kind": kind, "model": rest, "base_url": None, "effort": None}
@@ -131,19 +139,29 @@ def make_provider(
     raise ValueError(f"unknown provider {kind!r}")
 
 
-def make_agent_factory(spec: str, **options: Any) -> Callable[[], Agent]:
+def make_agent_factory(spec: str, suite_format: int = 1, **options: Any) -> Callable[[], Agent]:
     """A zero-argument factory that builds a fresh agent per episode.
 
-    One provider (and one response cache) is shared by all agents from the factory; both are
+    ``suite_format`` is the format of the suite the agent will play: 1 (games and episodes) or
+    2 (sessions). Baselines exist per format; a baseline of the other format is refused. One
+    provider (and one response cache) is shared by all agents from the factory; both are
     thread-safe. Building an agent makes no network call.
     """
+    if suite_format not in (1, 2):
+        raise ValueError(f"unknown suite format {suite_format!r}")
     parsed = parse_spec(spec)
     kind = parsed["kind"]
     opts = {k: v for k, v in options.items() if v is not None}
     name = opts.pop("name", None)
 
     if kind == "baseline":
-        base = BASELINES[parsed["model"]]
+        table = SESSION_BASELINES if suite_format == 2 else BASELINES
+        if parsed["model"] not in table:
+            kinds = "session suites" if suite_format == 2 else "format-1 suites"
+            raise ValueError(
+                f"{spec!r} is not a baseline for {kinds}; choose from {', '.join(table)}"
+            )
+        base = table[parsed["model"]]
         if name is None:
             return base
 
@@ -179,9 +197,19 @@ def make_agent_factory(spec: str, **options: Any) -> Callable[[], Agent]:
     max_tokens = int(opts.get("max_tokens", 8192))
     repair_attempts = int(opts.get("repair_attempts", 1))
 
+    extra: dict[str, Any] = {}
+    if suite_format == 2:
+        from mmarena.agents.prompt_v2 import render_prompt_parts
+
+        extra["renderer"] = render_prompt_parts
+
     def make_llm() -> Agent:
         return LLMAgent(
-            provider, name=agent_name, max_tokens=max_tokens, repair_attempts=repair_attempts
+            provider,
+            name=agent_name,
+            max_tokens=max_tokens,
+            repair_attempts=repair_attempts,
+            **extra,
         )
 
     return make_llm

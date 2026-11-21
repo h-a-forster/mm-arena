@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from typing import Any
 
 from mmarena.agents.base import AgentError, InfraError, Observation, Quote
@@ -49,14 +50,18 @@ class LLMAgent:
         name: str | None = None,
         max_tokens: int = 8192,
         repair_attempts: int = 1,
+        renderer: Callable[[Any], tuple[str, list[str]]] = render_prompt_parts,
     ):
+        """``renderer`` maps an observation to ``(system, user segments)``; the default is
+        core-v1's prompt, session suites pass ``prompt_v2.render_prompt_parts``."""
         self.provider = provider
+        self.renderer = renderer
         self.name = name or f"{provider.name}:{provider.model}"
         self.max_tokens = max_tokens
         self.repair_attempts = max(0, repair_attempts)
         self._first_prompt: str | None = None
 
-    def reset(self, game: Game) -> None:
+    def reset(self, game: Game | Any) -> None:
         self._first_prompt = None
 
     def provenance(self) -> dict[str, Any]:
@@ -75,7 +80,7 @@ class LLMAgent:
         }
 
     def act(self, obs: Observation) -> Quote:
-        system, parts = render_prompt_parts(obs)
+        system, parts = self.renderer(obs)
         user = list(parts)
         digest = prompt_hash(system, parts)
         if self._first_prompt is None:
@@ -86,7 +91,8 @@ class LLMAgent:
         for attempt in range(self.repair_attempts + 1):
             extra: dict[str, Any] = {}
             if isinstance(self.provider, CachedProvider):
-                extra["salt"] = f"{obs.game.id}/{obs.episode_seed}/{attempt}"
+                unit = getattr(obs, "session_id", None) or obs.game.id
+                extra["salt"] = f"{unit}/{obs.episode_seed}/{attempt}"
             try:
                 comp = self.provider.complete(system, user, max_tokens=self.max_tokens, **extra)
             except (AgentError, InfraError):
