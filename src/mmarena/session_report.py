@@ -198,8 +198,9 @@ def build_session_report(
     def share(vals: Mapping[Key, float], ts: Sequence[str]) -> dict[str, float]:
         num = sum(vals[k] for t in ts for k in by_tier[t])
         den = sum(o_tot[t] for t in ts)
-        draws = 100 * boot.sums(vals, ts) / sum(o_draw[t] for t in ts)
-        return _interval(100 * num / den, draws)
+        # ratio first: the oracle then scores exactly 100 in every draw on every machine
+        draws = 100 * (boot.sums(vals, ts) / sum(o_draw[t] for t in ts))
+        return _interval(100 * (num / den), draws)
 
     # ceiling lines: per tier and pooled (oracle-weighted)
     ceiling: dict[str, Any] = {"tag": CEILING_TAG}
@@ -232,8 +233,8 @@ def build_session_report(
         a["pooled"] = share(x, tiers)
         a["tiers"] = {t: share(x, [t]) for t in tiers}
         if "open" in tiers and "mixed" in tiers:
-            d_open = 100 * boot.sums(x, ["open"]) / o_draw["open"]
-            d_mixed = 100 * boot.sums(x, ["mixed"]) / o_draw["mixed"]
+            d_open = 100 * (boot.sums(x, ["open"]) / o_draw["open"])
+            d_mixed = 100 * (boot.sums(x, ["mixed"]) / o_draw["mixed"])
             gap = a["tiers"]["open"]["value"] - a["tiers"]["mixed"]["value"]
             a["gradient"] = _interval(gap, d_open - d_mixed)
         if REF_PUBLIC in runs:

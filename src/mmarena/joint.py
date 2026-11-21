@@ -63,7 +63,12 @@ class Regimes:
 
     @property
     def mean_alpha(self) -> float:
-        return float(self.prior @ self.alpha)
+        # Plain floats, left to right: a BLAS dot product (and sum() on Python 3.12+) rounds
+        # differently by machine, and this value feeds every session id and so every draw.
+        total = 0.0
+        for p, a in zip(self.prior.tolist(), self.alpha.tolist(), strict=True):
+            total += p * a
+        return total
 
     def to_dict(self) -> dict[str, list[float]]:
         return {"alpha": self.alpha.tolist(), "prior": self.prior.tolist()}

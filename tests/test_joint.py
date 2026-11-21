@@ -226,3 +226,5 @@ def test_regimes_validate() -> None:
     r = joint.Regimes.of(ALPHAS, [1, 1, 2])
     assert r.prior.tolist() == [0.25, 0.25, 0.5]
     assert math.isclose(r.mean_alpha, (0.05 + 0.5) / 4 + 0.9 / 2)
+    # bit-exact on every machine: it is hashed into the session ids
+    assert joint.Regimes.of(ALPHAS).mean_alpha == 0.4833333333333333

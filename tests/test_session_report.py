@@ -90,6 +90,11 @@ def test_committed_reports_use_the_joint_regression() -> None:
     for suite in ("core-v2", "tight-v2"):
         summary = json.loads((root / suite / "summary.json").read_text(encoding="utf-8"))
         lr = {a["agent"]: a["learning_response"]["value"] for a in summary["agents"]}
+        # the oracle is exact, so its p-values do not depend on how the machine rounds
+        o = next(a for a in summary["agents"] if a["agent"] == "oracle")
+        assert {o["tiers"][t]["value"] for t in o["tiers"]} == {100.0}
+        if "gradient" in o:  # two tiers
+            assert o["gradient"] == {"value": 0.0, "lo": 0.0, "hi": 0.0, "p_le0": 1.0}
         assert lr["bayes"] == pytest.approx(1.0)
         assert abs(lr["static"]) < 0.05 and abs(lr["random"]) < 0.05, suite
 
