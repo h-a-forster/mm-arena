@@ -74,6 +74,7 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "p_rank1": 0.9995
@@ -144,9 +145,81 @@
         0.0,
         0.0,
         0.0,
+        0.0,
         0.0
       ],
       "p_rank1": 0.0005
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "n_error": 0,
+      "episodes": 120,
+      "games": 60,
+      "steps": 860,
+      "edge_captured": 97.36621834271337,
+      "edge_episodes": 120,
+      "xpnl_sd": 1.470981811205278,
+      "pnl_sd": 1.2418684720548745,
+      "bayes_xpnl_sd": 1.5107722537067831,
+      "local_efficiency": 0.9718781176078919,
+      "capture_sd": 1.911483450532543,
+      "adverse_sd": 0.440501639327265,
+      "pnl_informed_sd": -0.2134251966244758,
+      "pnl_noise_sd": 1.4552936686793503,
+      "fills_per_episode": 2.075,
+      "informed_fill_share": 0.21686746987951808,
+      "mid_abs_z": 0.15486725590183079,
+      "mid_bias_z": 0.03064435158822877,
+      "mid_rmse_z": 0.2599832401253384,
+      "width_sd": 1.872828093297535,
+      "bayes_width_sd": 1.9122335847890413,
+      "beta_flow": 0.933536944558793,
+      "beta_reveal": 0.9644778887160906,
+      "beta_flow_mu": 0.7364681700104938,
+      "beta_reveal_mu": 0.9509113917006962,
+      "fill_response": 0.8082191780821918,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0011627906976744186,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.00813953488372093,
+      "abs_final_position": 1.075,
+      "tokens_per_episode": 9775.375,
+      "cost_usd": 60.646936000000004,
+      "cost_usd_per_episode": 0.5053911333333334,
+      "latency_s_per_step": 16.238961627906978,
+      "edge_lo": 96.54311208064024,
+      "edge_hi": 98.11744107611581,
+      "edge_se": 0.4011067595629352,
+      "xpnl_sd_lo": 1.2609413192802668,
+      "xpnl_sd_hi": 1.6998701439666453,
+      "rank": 3,
+      "rank_probs": [
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "p_rank1": 0.0
     },
     {
       "agent": "claude-cli:claude-fable-5-1@high",
@@ -197,8 +270,9 @@
       "edge_se": 1.47358774954735,
       "xpnl_sd_lo": 1.1758847803431254,
       "xpnl_sd_hi": 1.580981782372959,
-      "rank": 3,
+      "rank": 4,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.8335,
@@ -267,8 +341,9 @@
       "edge_se": 2.1008123886923076,
       "xpnl_sd_lo": 1.1061573011296133,
       "xpnl_sd_hi": 1.5790257104269128,
-      "rank": 4,
+      "rank": 5,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.151,
@@ -337,8 +412,9 @@
       "edge_se": 1.9540038534077862,
       "xpnl_sd_lo": 1.1308263743803462,
       "xpnl_sd_hi": 1.5295439318770132,
-      "rank": 5,
+      "rank": 6,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.001,
@@ -407,8 +483,9 @@
       "edge_se": 1.4859817141143143,
       "xpnl_sd_lo": 1.1073705913027496,
       "xpnl_sd_hi": 1.5238878587548472,
-      "rank": 6,
+      "rank": 7,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0145,
@@ -477,8 +554,9 @@
       "edge_se": 3.13253662653035,
       "xpnl_sd_lo": 0.9625723489690998,
       "xpnl_sd_hi": 1.4610804510838744,
-      "rank": 7,
+      "rank": 8,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -547,8 +625,9 @@
       "edge_se": 2.470818913533468,
       "xpnl_sd_lo": 0.9271454543628204,
       "xpnl_sd_hi": 1.274144235518548,
-      "rank": 8,
+      "rank": 9,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -617,8 +696,9 @@
       "edge_se": 2.834744968805917,
       "xpnl_sd_lo": 0.8840706828891792,
       "xpnl_sd_hi": 1.218489602695873,
-      "rank": 9,
+      "rank": 10,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -687,8 +767,9 @@
       "edge_se": 1.8910208333762952,
       "xpnl_sd_lo": 0.7616683887002268,
       "xpnl_sd_hi": 1.059218796060442,
-      "rank": 10,
+      "rank": 11,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -757,8 +838,9 @@
       "edge_se": 2.1528069229933178,
       "xpnl_sd_lo": 0.7793829226841452,
       "xpnl_sd_hi": 1.0405430904757431,
-      "rank": 11,
+      "rank": 12,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -827,8 +909,9 @@
       "edge_se": 5.1194997761082925,
       "xpnl_sd_lo": 0.4863682741045604,
       "xpnl_sd_hi": 0.9385038798416494,
-      "rank": 12,
+      "rank": 13,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -897,8 +980,9 @@
       "edge_se": 4.208080443273692,
       "xpnl_sd_lo": 0.07958593238220739,
       "xpnl_sd_hi": 0.3651318043905315,
-      "rank": 13,
+      "rank": 14,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -967,8 +1051,9 @@
       "edge_se": 0.334659753973614,
       "xpnl_sd_lo": 0.05319913735902465,
       "xpnl_sd_hi": 0.07846283816775387,
-      "rank": 14,
+      "rank": 15,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -1037,8 +1122,9 @@
       "edge_se": 6.164346786888933,
       "xpnl_sd_lo": -0.19225718563278724,
       "xpnl_sd_hi": 0.17011191487023064,
-      "rank": 15,
+      "rank": 16,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -1107,8 +1193,9 @@
       "edge_se": 12.511428097379605,
       "xpnl_sd_lo": -1.4821944002435388,
       "xpnl_sd_hi": -0.9529426977056362,
-      "rank": 16,
+      "rank": 17,
       "rank_probs": [
+        0.0,
         0.0,
         0.0,
         0.0,
@@ -4069,6 +4156,496 @@
       "edge_lo": 42.378044474608735,
       "edge_hi": 81.39722891737965,
       "edge_se": 10.033279029096278
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "cards",
+      "variant": "classic",
+      "episodes": 8,
+      "games": 4,
+      "steps": 54,
+      "edge_captured": 92.69994621929463,
+      "edge_episodes": 8,
+      "xpnl_sd": 0.9755549954677819,
+      "pnl_sd": 0.7595558632052329,
+      "bayes_xpnl_sd": 1.052379246434481,
+      "local_efficiency": 0.9368679496706863,
+      "capture_sd": 1.6515520564194879,
+      "adverse_sd": 0.6759970609517059,
+      "pnl_informed_sd": -0.4171653963717858,
+      "pnl_noise_sd": 1.1767212595770187,
+      "fills_per_episode": 2.75,
+      "informed_fill_share": 0.4090909090909091,
+      "mid_abs_z": 0.13763730395698218,
+      "mid_bias_z": 0.027346227597968724,
+      "mid_rmse_z": 0.22367926556249534,
+      "width_sd": 1.6255165969036185,
+      "bayes_width_sd": 1.6876103980407184,
+      "beta_flow": 0.920871207131252,
+      "beta_reveal": 1.1216595077033873,
+      "beta_flow_mu": 0.7981372305504895,
+      "beta_reveal_mu": 1.1247718093215828,
+      "fill_response": 0.8571428571428571,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 1.5,
+      "tokens_per_episode": 8886.0,
+      "cost_usd": 3.673667,
+      "cost_usd_per_episode": 0.459208375,
+      "latency_s_per_step": 16.101,
+      "edge_lo": 89.88794661068765,
+      "edge_hi": 96.089614621621,
+      "edge_se": 1.747110092246691
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "cards",
+      "variant": "perturbed",
+      "episodes": 16,
+      "games": 8,
+      "steps": 96,
+      "edge_captured": 96.30350005722885,
+      "edge_episodes": 16,
+      "xpnl_sd": 0.8534659439628789,
+      "pnl_sd": 0.5310179757668727,
+      "bayes_xpnl_sd": 0.8862252601989569,
+      "local_efficiency": 0.9593617291294525,
+      "capture_sd": 1.3297323294753622,
+      "adverse_sd": 0.4762663855124835,
+      "pnl_informed_sd": -0.21466844165476673,
+      "pnl_noise_sd": 0.7456864174216394,
+      "fills_per_episode": 1.4375,
+      "informed_fill_share": 0.34782608695652173,
+      "mid_abs_z": 0.18255291694990594,
+      "mid_bias_z": 0.02349870420158483,
+      "mid_rmse_z": 0.3529742616915647,
+      "width_sd": 1.9235681567076743,
+      "bayes_width_sd": 1.9439126248248957,
+      "beta_flow": 0.8048311635650643,
+      "beta_reveal": 0.9511035936963111,
+      "beta_flow_mu": 0.6742206974827902,
+      "beta_reveal_mu": 1.1690674918265203,
+      "fill_response": 0.8666666666666667,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.010416666666666666,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 0.8125,
+      "tokens_per_episode": 9182.625,
+      "cost_usd": 7.3384094,
+      "cost_usd_per_episode": 0.4586505875,
+      "latency_s_per_step": 18.23509375,
+      "edge_lo": 93.38596290242832,
+      "edge_hi": 98.01173484957617,
+      "edge_se": 1.1987627643516001
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "coin",
+      "variant": "classic",
+      "episodes": 8,
+      "games": 4,
+      "steps": 60,
+      "edge_captured": 98.15478252376009,
+      "edge_episodes": 8,
+      "xpnl_sd": 1.59083406991134,
+      "pnl_sd": 1.5516288484471195,
+      "bayes_xpnl_sd": 1.6207402522910697,
+      "local_efficiency": 0.9797190782598036,
+      "capture_sd": 1.8545211721058867,
+      "adverse_sd": 0.26368710219454705,
+      "pnl_informed_sd": -0.14433756729740646,
+      "pnl_noise_sd": 1.6959664157445258,
+      "fills_per_episode": 2.0,
+      "informed_fill_share": 0.125,
+      "mid_abs_z": 0.21353002194862852,
+      "mid_bias_z": -0.05754288338121833,
+      "mid_rmse_z": 0.30736940158373904,
+      "width_sd": 1.7724653264121513,
+      "bayes_width_sd": 1.7647673228229561,
+      "beta_flow": 1.0335276967930032,
+      "beta_reveal": 1.0395467915894978,
+      "beta_flow_mu": 0.5115270793307662,
+      "beta_reveal_mu": 0.8551238319838396,
+      "fill_response": 0.7,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 1.0,
+      "tokens_per_episode": 9548.375,
+      "cost_usd": 4.0341768,
+      "cost_usd_per_episode": 0.5042721,
+      "latency_s_per_step": 15.292416666666668,
+      "edge_lo": 95.78470751066375,
+      "edge_hi": 100.07374072677426,
+      "edge_se": 1.1693522631173598
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "coin",
+      "variant": "perturbed",
+      "episodes": 16,
+      "games": 8,
+      "steps": 128,
+      "edge_captured": 98.2675815762991,
+      "edge_episodes": 16,
+      "xpnl_sd": 2.0057502858080127,
+      "pnl_sd": 1.9255806546903724,
+      "bayes_xpnl_sd": 2.041110866507551,
+      "local_efficiency": 0.9819926961894326,
+      "capture_sd": 2.3760997106017108,
+      "adverse_sd": 0.37034942479369837,
+      "pnl_informed_sd": -0.2007458847939626,
+      "pnl_noise_sd": 2.126326539484335,
+      "fills_per_episode": 2.125,
+      "informed_fill_share": 0.11764705882352941,
+      "mid_abs_z": 0.09894908394580827,
+      "mid_bias_z": 0.015304106951701396,
+      "mid_rmse_z": 0.1521232516834507,
+      "width_sd": 1.9018714104568453,
+      "bayes_width_sd": 1.9432333675420281,
+      "beta_flow": 1.360257056005907,
+      "beta_reveal": 1.0301008928023063,
+      "beta_flow_mu": 1.1290512134230675,
+      "beta_reveal_mu": 0.9616606755446315,
+      "fill_response": 0.7777777777777778,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 1.0,
+      "tokens_per_episode": 10567.3125,
+      "cost_usd": 8.8623362,
+      "cost_usd_per_episode": 0.5538960125,
+      "latency_s_per_step": 15.6135703125,
+      "edge_lo": 97.3607232095708,
+      "edge_hi": 99.32715603207876,
+      "edge_se": 0.5213003925616899
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "dice",
+      "variant": "classic",
+      "episodes": 8,
+      "games": 4,
+      "steps": 66,
+      "edge_captured": 96.63952814885252,
+      "edge_episodes": 8,
+      "xpnl_sd": 2.291664295414123,
+      "pnl_sd": 2.345303056871633,
+      "bayes_xpnl_sd": 2.371352943574294,
+      "local_efficiency": 0.9776057985681487,
+      "capture_sd": 2.715214760116077,
+      "adverse_sd": 0.4235504647019547,
+      "pnl_informed_sd": -0.021128856368212913,
+      "pnl_noise_sd": 2.3664319132398464,
+      "fills_per_episode": 2.0,
+      "informed_fill_share": 0.0625,
+      "mid_abs_z": 0.16422021747746374,
+      "mid_bias_z": 0.021111340719619467,
+      "mid_rmse_z": 0.28120299505808105,
+      "width_sd": 2.0340912555342943,
+      "bayes_width_sd": 2.0314907809043605,
+      "beta_flow": 0.9027921406411586,
+      "beta_reveal": 1.097683349851338,
+      "beta_flow_mu": 0.9708292589625228,
+      "beta_reveal_mu": 1.1197184295242557,
+      "fill_response": 0.7,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.015151515151515152,
+      "abs_final_position": 0.5,
+      "tokens_per_episode": 8196.5,
+      "cost_usd": 3.7373236,
+      "cost_usd_per_episode": 0.46716545,
+      "latency_s_per_step": 12.488439393939393,
+      "edge_lo": 96.0843426688837,
+      "edge_hi": 97.05101316618496,
+      "edge_se": 0.25377428386529816
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "dice",
+      "variant": "perturbed",
+      "episodes": 16,
+      "games": 8,
+      "steps": 118,
+      "edge_captured": 97.23989354701699,
+      "edge_episodes": 16,
+      "xpnl_sd": 1.3016768990717558,
+      "pnl_sd": 0.7685817908346192,
+      "bayes_xpnl_sd": 1.338624356311512,
+      "local_efficiency": 0.9644118756636245,
+      "capture_sd": 1.8694116250884831,
+      "adverse_sd": 0.5677347260167274,
+      "pnl_informed_sd": -0.1602885300528888,
+      "pnl_noise_sd": 0.9288703208875079,
+      "fills_per_episode": 1.9375,
+      "informed_fill_share": 0.25806451612903225,
+      "mid_abs_z": 0.1803327790037151,
+      "mid_bias_z": 0.09139369672277572,
+      "mid_rmse_z": 0.3019996653047543,
+      "width_sd": 1.8729787817751968,
+      "bayes_width_sd": 1.9633429789634713,
+      "beta_flow": 0.9205586420455767,
+      "beta_reveal": 0.8063901114736223,
+      "beta_flow_mu": 0.6031197391391286,
+      "beta_reveal_mu": 0.909780212752946,
+      "fill_response": 0.8,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 1.3125,
+      "tokens_per_episode": 10886.9375,
+      "cost_usd": 8.931965,
+      "cost_usd_per_episode": 0.5582478125,
+      "latency_s_per_step": 17.915686440677966,
+      "edge_lo": 95.78659817513281,
+      "edge_hi": 98.41453167813515,
+      "edge_se": 0.6689994937792425
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "transform",
+      "variant": "classic",
+      "episodes": 8,
+      "games": 4,
+      "steps": 36,
+      "edge_captured": 99.01688159939674,
+      "edge_episodes": 8,
+      "xpnl_sd": 1.2225687713914177,
+      "pnl_sd": 1.646662435836332,
+      "bayes_xpnl_sd": 1.2347074071042712,
+      "local_efficiency": 0.9905262501710572,
+      "capture_sd": 1.5246107416594634,
+      "adverse_sd": 0.3020419702680455,
+      "pnl_informed_sd": -0.006989229354144024,
+      "pnl_noise_sd": 1.653651665190476,
+      "fills_per_episode": 1.75,
+      "informed_fill_share": 0.07142857142857142,
+      "mid_abs_z": 0.10280310648751635,
+      "mid_bias_z": 0.01186028463477437,
+      "mid_rmse_z": 0.15578728865575078,
+      "width_sd": 2.102670822142262,
+      "bayes_width_sd": 2.125036356075523,
+      "beta_flow": 1.0919424096994188,
+      "beta_reveal": 1.0668149624029368,
+      "beta_flow_mu": 1.1600051702596612,
+      "beta_reveal_mu": 1.0452212435206258,
+      "fill_response": 0.7142857142857143,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 0.75,
+      "tokens_per_episode": 5699.25,
+      "cost_usd": 2.3514604,
+      "cost_usd_per_episode": 0.29393255,
+      "latency_s_per_step": 15.449611111111109,
+      "edge_lo": 97.53807959324747,
+      "edge_hi": 99.74926018725871,
+      "edge_se": 0.5988708649580791
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "transform",
+      "variant": "perturbed",
+      "episodes": 16,
+      "games": 8,
+      "steps": 86,
+      "edge_captured": 98.24077388467242,
+      "edge_episodes": 16,
+      "xpnl_sd": 1.239345035068668,
+      "pnl_sd": 0.7033314600658019,
+      "bayes_xpnl_sd": 1.2615383471261838,
+      "local_efficiency": 0.9754954212171913,
+      "capture_sd": 1.5342723376569416,
+      "adverse_sd": 0.2949273025882734,
+      "pnl_informed_sd": -0.16690618328364062,
+      "pnl_noise_sd": 0.8702376433494425,
+      "fills_per_episode": 1.25,
+      "informed_fill_share": 0.2,
+      "mid_abs_z": 0.18324727608196784,
+      "mid_bias_z": 0.08204942113561557,
+      "mid_rmse_z": 0.23938437854467065,
+      "width_sd": 2.006676963233035,
+      "bayes_width_sd": 1.9837809358834164,
+      "beta_flow": 0.45544178966485294,
+      "beta_reveal": 0.7957429954325338,
+      "beta_flow_mu": 0.3708738696447897,
+      "beta_reveal_mu": 0.8281262972804614,
+      "fill_response": 0.42857142857142855,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0,
+      "abs_final_position": 0.875,
+      "tokens_per_episode": 6418.6875,
+      "cost_usd": 5.406654400000001,
+      "cost_usd_per_episode": 0.33791590000000005,
+      "latency_s_per_step": 14.41281395348837,
+      "edge_lo": 97.26104805932829,
+      "edge_hi": 99.2724585836713,
+      "edge_se": 0.5257151787460872
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "urn",
+      "variant": "classic",
+      "episodes": 8,
+      "games": 4,
+      "steps": 88,
+      "edge_captured": 96.19040496163157,
+      "edge_episodes": 8,
+      "xpnl_sd": 2.2679831633580902,
+      "pnl_sd": 2.261028527020391,
+      "bayes_xpnl_sd": 2.357806024688994,
+      "local_efficiency": 0.9712112676561003,
+      "capture_sd": 2.9322687468483895,
+      "adverse_sd": 0.6642855834902992,
+      "pnl_informed_sd": -0.7075596264626749,
+      "pnl_noise_sd": 2.968588153483066,
+      "fills_per_episode": 4.25,
+      "informed_fill_share": 0.29411764705882354,
+      "mid_abs_z": 0.13323771191679085,
+      "mid_bias_z": -0.04654846490064355,
+      "mid_rmse_z": 0.2183918368307346,
+      "width_sd": 1.584115091411407,
+      "bayes_width_sd": 1.6495928406101876,
+      "beta_flow": 0.9361804801544213,
+      "beta_reveal": 0.9552046141170007,
+      "beta_flow_mu": 0.8952708496402805,
+      "beta_reveal_mu": 0.9058732703807174,
+      "fill_response": 0.9,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.03409090909090909,
+      "abs_final_position": 1.5,
+      "tokens_per_episode": 16839.375,
+      "cost_usd": 6.865276000000001,
+      "cost_usd_per_episode": 0.8581595000000001,
+      "latency_s_per_step": 17.63506818181818,
+      "edge_lo": 92.12988556398577,
+      "edge_hi": 98.7181404235326,
+      "edge_se": 1.911527331900136
+    },
+    {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "family": "urn",
+      "variant": "perturbed",
+      "episodes": 16,
+      "games": 8,
+      "steps": 128,
+      "edge_captured": 98.18309800718487,
+      "edge_episodes": 16,
+      "xpnl_sd": 1.4578227723568933,
+      "pnl_sd": 1.1034122933635384,
+      "bayes_xpnl_sd": 1.4848001356101153,
+      "local_efficiency": 0.9655042284003955,
+      "capture_sd": 1.8875261375969221,
+      "adverse_sd": 0.4297033652400286,
+      "pnl_informed_sd": -0.2094895969711977,
+      "pnl_noise_sd": 1.3129018903347363,
+      "fills_per_episode": 2.4375,
+      "informed_fill_share": 0.1794871794871795,
+      "mid_abs_z": 0.15391609197009073,
+      "mid_bias_z": 0.06979454451389054,
+      "mid_rmse_z": 0.26166285102056286,
+      "width_sd": 1.9135810014554862,
+      "bayes_width_sd": 1.9820576795192855,
+      "beta_flow": 1.0291392327071438,
+      "beta_reveal": 1.0187204111515697,
+      "beta_flow_mu": 1.1556717690280005,
+      "beta_reveal_mu": 0.9234801209243187,
+      "fill_response": 0.92,
+      "invalid_rate": 0.0,
+      "invalid_by_kind": {
+        "format": 0.0,
+        "exception": 0.0,
+        "nonfinite": 0.0,
+        "crossed": 0.0
+      },
+      "one_sided_rate": 0.0,
+      "no_quote_rate": 0.0,
+      "dominated_rate": 0.0,
+      "limit_step_rate": 0.0234375,
+      "abs_final_position": 1.4375,
+      "tokens_per_episode": 11675.0,
+      "cost_usd": 9.445667199999999,
+      "cost_usd_per_episode": 0.5903541999999999,
+      "latency_s_per_step": 16.74640625,
+      "edge_lo": 93.7293505003786,
+      "edge_hi": 101.55199862860415,
+      "edge_se": 1.9663171610181835
     },
     {
       "agent": "claude-cli:claude-haiku-5-5@high",
@@ -9075,6 +9652,23 @@
       "gap_p_holm": 1.0
     },
     {
+      "agent": "claude-cli:claude-fable-5-2@low",
+      "edge_cards": 94.96101021342356,
+      "edge_coin": 98.23552490726615,
+      "edge_dice": 96.9578989768156,
+      "edge_transform": 98.49578213374531,
+      "edge_urn": 97.30117096667189,
+      "edge_classic": 96.66109702210625,
+      "clusters_classic": 5,
+      "edge_perturbed": 97.80046415249328,
+      "clusters_perturbed": 38,
+      "gap": -1.1393671303870034,
+      "gap_lo": -2.863175516393791,
+      "gap_hi": 0.450366294337676,
+      "gap_p": 0.161,
+      "gap_p_holm": 1.0
+    },
+    {
       "agent": "claude-cli:claude-haiku-5-5@high",
       "edge_cards": 43.79122867570211,
       "edge_coin": 87.7256128379915,
@@ -9140,7 +9734,7 @@
       "gap_lo": 1.8064304197478347,
       "gap_hi": 17.47673741318843,
       "gap_p": 0.009,
-      "gap_p_holm": 0.072
+      "gap_p_holm": 0.08099999999999999
     },
     {
       "agent": "claude-cli:claude-opus-5-5@medium",
@@ -9174,7 +9768,7 @@
       "gap_lo": -2.2904101837936395,
       "gap_hi": 25.493576746590424,
       "gap_p": 0.092,
-      "gap_p_holm": 0.644
+      "gap_p_holm": 0.736
     },
     {
       "agent": "claude-cli:claude-sonnet-5-5@low",
@@ -9191,7 +9785,7 @@
       "gap_lo": 8.056232126137678,
       "gap_hi": 35.6863248179229,
       "gap_p": 0.006,
-      "gap_p_holm": 0.054
+      "gap_p_holm": 0.06
     },
     {
       "agent": "glosten-milgrom",
@@ -9256,7 +9850,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9268,7 +9862,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9292,7 +9886,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9304,7 +9898,19 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "bayes-lookahead",
+      "b": "claude-cli:claude-fable-5-2@low",
+      "diff_value": 3.4245299789400963,
+      "diff_lo": 2.647454871903764,
+      "diff_hi": 4.2837210360113245,
+      "diff_se": 0.424223523769595,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9316,7 +9922,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9328,7 +9934,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9340,7 +9946,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9352,7 +9958,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9364,7 +9970,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9376,7 +9982,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9388,7 +9994,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9400,7 +10006,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9412,7 +10018,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-lookahead",
@@ -9424,7 +10030,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9448,7 +10054,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9472,7 +10078,19 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "bayes-mean",
+      "b": "claude-cli:claude-fable-5-2@low",
+      "diff_value": -11.096257244188712,
+      "diff_lo": -14.343315668880601,
+      "diff_hi": -8.36800658341845,
+      "diff_se": 1.4925176076413362,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9496,7 +10114,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9520,7 +10138,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9532,7 +10150,7 @@
       "p_value": 0.00019998000199980003,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9544,7 +10162,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9556,7 +10174,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9568,7 +10186,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9580,7 +10198,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-mean",
@@ -9592,7 +10210,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9604,7 +10222,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9628,7 +10246,19 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "bayes-noflow",
+      "b": "claude-cli:claude-fable-5-2@low",
+      "diff_value": -8.858934946303089,
+      "diff_lo": -13.026595067802225,
+      "diff_hi": -5.51396442422201,
+      "diff_se": 1.9098927165972537,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9640,7 +10270,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9652,7 +10282,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9676,7 +10306,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9688,7 +10318,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9700,7 +10330,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9712,7 +10342,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9724,7 +10354,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9736,7 +10366,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes-noflow",
@@ -9748,7 +10378,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9760,7 +10390,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9772,7 +10402,19 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "bayes",
+      "b": "claude-cli:claude-fable-5-2@low",
+      "diff_value": 2.633781657286636,
+      "diff_lo": 1.8825589238841784,
+      "diff_hi": 3.4568879193597435,
+      "diff_se": 0.40110675956293584,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9784,7 +10426,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9796,7 +10438,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9808,7 +10450,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9820,7 +10462,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9832,7 +10474,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9844,7 +10486,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9856,7 +10498,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9868,7 +10510,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9880,7 +10522,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "bayes",
@@ -9892,7 +10534,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9904,7 +10546,19 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-1@high",
+      "b": "claude-cli:claude-fable-5-2@low",
+      "diff_value": -6.709601997200227,
+      "diff_lo": -9.45809165064852,
+      "diff_hi": -4.4220561150482425,
+      "diff_se": 1.3105900325768458,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9916,7 +10570,7 @@
       "p_value": 0.00019998000199980003,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9928,7 +10582,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9952,7 +10606,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9964,7 +10618,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9976,7 +10630,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -9988,7 +10642,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -10000,7 +10654,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -10012,7 +10666,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@high",
@@ -10024,7 +10678,19 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-1@low",
+      "b": "claude-cli:claude-fable-5-2@low",
+      "diff_value": -37.53303183849166,
+      "diff_lo": -41.46768510775813,
+      "diff_hi": -33.57364538435436,
+      "diff_se": 2.0471888369717686,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10036,7 +10702,7 @@
       "p_value": 0.00019998000199980003,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10048,7 +10714,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10060,7 +10726,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10084,7 +10750,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10108,7 +10774,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10120,7 +10786,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10132,7 +10798,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-fable-5-1@low",
@@ -10147,6 +10813,126 @@
       "p_holm": 0.1287871212878712
     },
     {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-haiku-5-5@high",
+      "diff_value": 17.468078668542528,
+      "diff_lo": 12.468673147659066,
+      "diff_hi": 24.09829749750872,
+      "diff_se": 2.9679896942638893,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-haiku-5-5@low",
+      "diff_value": 97.80169430458712,
+      "diff_lo": 86.91109882918073,
+      "diff_hi": 110.7340808237135,
+      "diff_se": 6.056170036765447,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-opus-5-5@high",
+      "diff_value": 9.676481621032071,
+      "diff_lo": 6.4666151466901045,
+      "diff_hi": 13.241894923939117,
+      "diff_se": 1.7495682710585954,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-opus-5-5@low",
+      "diff_value": 37.3475830727874,
+      "diff_lo": 33.66432750990567,
+      "diff_hi": 40.92889412563413,
+      "diff_se": 1.8572594071368793,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-opus-5-5@medium",
+      "diff_value": 24.71413199974651,
+      "diff_lo": 20.527313492603053,
+      "diff_hi": 29.458112602230948,
+      "diff_se": 2.312046643571129,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-sonnet-5-5@high",
+      "diff_value": 28.172629581485957,
+      "diff_lo": 22.59497859416541,
+      "diff_hi": 33.29090433297426,
+      "diff_se": 2.743965083140126,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-sonnet-5-5@low",
+      "diff_value": 82.58022165798263,
+      "diff_lo": 75.53164070958535,
+      "diff_hi": 91.22084911875852,
+      "diff_se": 4.06902395874269,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "glosten-milgrom",
+      "diff_value": 93.03691779485247,
+      "diff_lo": 91.95836856044652,
+      "diff_hi": 93.99970994487244,
+      "diff_se": 0.5179163873225884,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "random",
+      "diff_value": 177.65013733871396,
+      "diff_lo": 155.59181138139633,
+      "diff_hi": 204.88928671659494,
+      "diff_se": 12.409965283753674,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "static",
+      "diff_value": 49.99671094399002,
+      "diff_lo": 41.02385421887561,
+      "diff_hi": 60.91694098921141,
+      "diff_se": 4.994012262778063,
+      "p_value": 9.999000099990002e-05,
+      "n_episodes": 120,
+      "n_games": 60,
+      "p_holm": 0.013598640135986401
+    },
+    {
       "a": "claude-cli:claude-haiku-5-5@high",
       "b": "claude-cli:claude-haiku-5-5@low",
       "diff_value": 80.33361563604461,
@@ -10156,7 +10942,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@high",
@@ -10180,7 +10966,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@high",
@@ -10216,7 +11002,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@high",
@@ -10228,7 +11014,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@high",
@@ -10240,7 +11026,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@high",
@@ -10252,7 +11038,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10264,7 +11050,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10276,7 +11062,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10288,7 +11074,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10300,7 +11086,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10312,7 +11098,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10336,7 +11122,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-haiku-5-5@low",
@@ -10348,7 +11134,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10360,7 +11146,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10372,7 +11158,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10384,7 +11170,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10396,7 +11182,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10408,7 +11194,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10420,7 +11206,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@high",
@@ -10432,7 +11218,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@low",
@@ -10444,7 +11230,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@low",
@@ -10456,7 +11242,7 @@
       "p_value": 0.00039996000399960006,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@low",
@@ -10468,7 +11254,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@low",
@@ -10480,7 +11266,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@low",
@@ -10492,7 +11278,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@low",
@@ -10528,7 +11314,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@medium",
@@ -10540,7 +11326,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@medium",
@@ -10552,7 +11338,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-opus-5-5@medium",
@@ -10564,7 +11350,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-sonnet-5-5@high",
@@ -10576,7 +11362,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-sonnet-5-5@high",
@@ -10588,7 +11374,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-sonnet-5-5@high",
@@ -10600,7 +11386,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-sonnet-5-5@high",
@@ -10612,7 +11398,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-sonnet-5-5@low",
@@ -10636,7 +11422,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "claude-cli:claude-sonnet-5-5@low",
@@ -10648,7 +11434,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "glosten-milgrom",
@@ -10660,7 +11446,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "glosten-milgrom",
@@ -10672,7 +11458,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     },
     {
       "a": "random",
@@ -10684,7 +11470,7 @@
       "p_value": 9.999000099990002e-05,
       "n_episodes": 120,
       "n_games": 60,
-      "p_holm": 0.011998800119988003
+      "p_holm": 0.013598640135986401
     }
   ],
   "variance": {
@@ -10774,6 +11560,20 @@
         "episodes_needed_pnl": 2605.0,
         "episodes_needed_xpnl": 247.0,
         "episodes_ratio": 10.580475102074903
+      },
+      "claude-cli:claude-fable-5-2@low": {
+        "n": 120,
+        "mean_pnl": 1.2418684720548745,
+        "mean_xpnl": 1.4709818112052777,
+        "sd_pnl": 1.8345160743732845,
+        "sd_xpnl": 0.9016417886893893,
+        "se_pnl": 0.17850514484240124,
+        "se_xpnl": 0.11639335470691589,
+        "se_ratio": 1.5336369098724394,
+        "delta": 0.1,
+        "episodes_needed_pnl": 2642.0,
+        "episodes_needed_xpnl": 639.0,
+        "episodes_ratio": 4.139758239114318
       },
       "claude-cli:claude-haiku-5-5@high": {
         "n": 120,
@@ -10987,6 +11787,20 @@
         "episodes_needed_xpnl": 216.0,
         "episodes_ratio": 7.546271791054072
       },
+      "claude-cli:claude-fable-5-2@low": {
+        "n": 120,
+        "mean_pnl": -0.035118507028933044,
+        "mean_xpnl": 0.03979044250150518,
+        "sd_pnl": 0.5829151280480085,
+        "sd_xpnl": 0.06560681447548086,
+        "se_pnl": 0.055107088090360905,
+        "se_xpnl": 0.006267222748999117,
+        "se_ratio": 8.792904017838136,
+        "delta": 0.1,
+        "episodes_needed_pnl": 267.0,
+        "episodes_needed_xpnl": 4.0,
+        "episodes_ratio": 78.94284077316773
+      },
       "claude-cli:claude-haiku-5-5@high": {
         "n": 120,
         "mean_pnl": 0.23572211380573566,
@@ -11129,20 +11943,20 @@
       }
     },
     "top_llm_pair": {
-      "a": "claude-cli:claude-fable-5-1@high",
-      "b": "claude-cli:claude-opus-5-5@high",
+      "a": "claude-cli:claude-fable-5-2@low",
+      "b": "claude-cli:claude-fable-5-1@high",
       "n": 120,
-      "mean_pnl": 0.14956755866929985,
-      "mean_xpnl": 0.04482279415773167,
-      "sd_pnl": 0.7513797228455268,
-      "sd_xpnl": 0.1771203753490137,
-      "se_pnl": 0.06692324451283463,
-      "se_xpnl": 0.015922427887629338,
-      "se_ratio": 4.203080396101496,
+      "mean_pnl": -0.015177922771333778,
+      "mean_xpnl": 0.10136680530785717,
+      "sd_pnl": 0.735643873721496,
+      "sd_xpnl": 0.2189733548424614,
+      "se_pnl": 0.06766733600304366,
+      "se_xpnl": 0.02363426454489633,
+      "se_ratio": 2.863103096544461,
       "delta": 0.1,
-      "episodes_needed_pnl": 444.0,
-      "episodes_needed_xpnl": 25.0,
-      "episodes_ratio": 17.99624486663786
+      "episodes_needed_pnl": 425.0,
+      "episodes_needed_xpnl": 38.0,
+      "episodes_ratio": 11.286328869785716
     }
   },
   "decomposition": {
@@ -11227,6 +12041,20 @@
       "width_ratio": 0.6117703114142565,
       "steps": 860,
       "covered_steps": 825,
+      "mismatches": 0,
+      "unreplayed_episodes": 0
+    },
+    "claude-cli:claude-fable-5-2@low": {
+      "as_played": 97.18781176078929,
+      "agent_mid_bayes_width": 97.68073056001143,
+      "bayes_mid_agent_width": 98.43974027848351,
+      "mu_agent_width": 98.05233260607052,
+      "covered_share": 99.06976744186046,
+      "mid_bias_z": 0.03064435158822877,
+      "mid_abs_z": 0.15486725590183079,
+      "width_ratio": 0.9793929508377223,
+      "steps": 860,
+      "covered_steps": 852,
       "mismatches": 0,
       "unreplayed_episodes": 0
     },
@@ -11464,6 +12292,24 @@
               "n_episodes": 120,
               "n_games": 60
             }
+          },
+          {
+            "run": 4,
+            "agent": "claude-cli:claude-opus-5-5@high#r4",
+            "episodes": 120,
+            "games": 60,
+            "edge_captured": 86.39183579096465,
+            "edge_lo": 82.76248648876825,
+            "edge_hi": 89.62072305693229,
+            "vs_first": {
+              "diff_value": -1.297900930716639,
+              "diff_lo": -3.125856823399979,
+              "diff_hi": 0.8149157409004387,
+              "diff_se": 0.999793088153382,
+              "p_value": 0.22057794220577942,
+              "n_episodes": 120,
+              "n_games": 60
+            }
           }
         ],
         "later_pairs": [
@@ -11477,14 +12323,36 @@
             "p_value": 0.2712728727127287,
             "n_episodes": 120,
             "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 2,
+            "diff_value": 2.6228086238661295,
+            "diff_lo": 0.2904443832251121,
+            "diff_hi": 5.184059636559012,
+            "diff_se": 1.2515607626830636,
+            "p_value": 0.045495450454954504,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 3,
+            "diff_value": 1.091922239050151,
+            "diff_lo": -0.6695862889973674,
+            "diff_hi": 2.86340607016619,
+            "diff_se": 0.9061820924769477,
+            "p_value": 0.25437456254374563,
+            "n_episodes": 120,
+            "n_games": 60
           }
         ],
         "pooled": {
-          "edge_captured": 85.58622581356478,
-          "edge_lo": 81.79155308342193,
-          "edge_hi": 88.9927246185426,
-          "episodes": 360,
-          "run_sd": 1.9759736552463587
+          "edge_captured": 85.78762830791476,
+          "edge_lo": 82.08948022835503,
+          "edge_hi": 89.08625816486281,
+          "episodes": 480,
+          "run_sd": 1.6628990096835892
         }
       },
       {
@@ -11647,12 +12515,12 @@
         "a": "claude-cli:claude-fable-5-1@high",
         "b": "claude-cli:claude-opus-5-5@high",
         "runs_a": 2,
-        "runs_b": 3,
-        "diff_value": 4.018704812527538,
-        "diff_lo": 1.9579041922774756,
-        "diff_hi": 6.2608334146246305,
-        "diff_se": 1.0758991445531674,
-        "p_value": 9.999000099990002e-05,
+        "runs_b": 4,
+        "diff_value": 3.8173023181775694,
+        "diff_lo": 1.8780288833347794,
+        "diff_hi": 5.942598668113659,
+        "diff_se": 1.0348003371615868,
+        "p_value": 0.00019998000199980003,
         "n_episodes": 120,
         "n_games": 60,
         "combinations": [
@@ -11690,6 +12558,17 @@
             "n_games": 60
           },
           {
+            "run_a": 1,
+            "run_b": 4,
+            "diff_value": 4.264780554548482,
+            "diff_lo": 2.1903080282172476,
+            "diff_hi": 6.494241752741305,
+            "diff_se": 1.1104055365901029,
+            "p_value": 0.00029997000299970003,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
             "run_a": 2,
             "run_b": 1,
             "diff_value": 0.863508184990195,
@@ -11721,12 +12600,23 @@
             "p_value": 0.028897110288971104,
             "n_episodes": 120,
             "n_games": 60
+          },
+          {
+            "run_a": 2,
+            "run_b": 4,
+            "diff_value": 2.1614091157068342,
+            "diff_lo": -0.2456297269957029,
+            "diff_hi": 4.594481847985386,
+            "diff_se": 1.220985521991597,
+            "p_value": 0.0781921807819218,
+            "n_episodes": 120,
+            "n_games": 60
           }
         ],
         "runs_welch": {
-          "t": 2.5900010444332007,
-          "df": 2.799740250088254,
-          "p_value": 0.08698156401457689
+          "t": 2.847344996702009,
+          "df": 2.336462887869314,
+          "p_value": 0.08737912585491142
         },
         "p_holm": 0.0005999400059994001
       },
@@ -11907,13 +12797,13 @@
       {
         "a": "claude-cli:claude-opus-5-5@high",
         "b": "claude-cli:claude-haiku-5-5@high",
-        "runs_a": 3,
+        "runs_a": 4,
         "runs_b": 4,
-        "diff_value": 1.0680156925621085,
-        "diff_lo": -2.703272235525065,
-        "diff_hi": 5.364759130439519,
-        "diff_se": 2.038709183121808,
-        "p_value": 0.6040395960403959,
+        "diff_value": 1.2694181869120773,
+        "diff_lo": -2.4650493080496436,
+        "diff_hi": 5.524398628226014,
+        "diff_se": 2.0247049195474025,
+        "p_value": 0.5341465853414659,
         "n_episodes": 120,
         "n_games": 60,
         "combinations": [
@@ -12048,24 +12938,68 @@
             "p_value": 0.7795220477952205,
             "n_episodes": 120,
             "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 1,
+            "diff_value": 6.493696116793823,
+            "diff_lo": 0.16683794299914018,
+            "diff_hi": 14.203620016236435,
+            "diff_se": 3.545134890943526,
+            "p_value": 0.052894710528947106,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 2,
+            "diff_value": -3.994590132526641,
+            "diff_lo": -8.305279281235844,
+            "diff_hi": -0.19450496605139633,
+            "diff_se": 2.0747917870256027,
+            "p_value": 0.07789221077892211,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 3,
+            "diff_value": 3.197093185674628,
+            "diff_lo": -1.5386372535381774,
+            "diff_hi": 8.510142869201937,
+            "diff_se": 2.5019497818095524,
+            "p_value": 0.21527847215278473,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 4,
+            "diff_value": 1.798303509906149,
+            "diff_lo": -2.789351550784943,
+            "diff_hi": 6.602312702351564,
+            "diff_se": 2.3663726323531766,
+            "p_value": 0.4547545245475452,
+            "n_episodes": 120,
+            "n_games": 60
           }
         ],
         "runs_welch": {
-          "t": 0.4325565382938143,
-          "df": 4.367017548384154,
-          "p_value": 0.6858509464506721
+          "t": 0.5419639426163073,
+          "df": 3.847446862468616,
+          "p_value": 0.6176988433264522
         },
-        "p_holm": 0.6040395960403959
+        "p_holm": 0.5341465853414659
       },
       {
         "a": "claude-cli:claude-opus-5-5@high",
         "b": "claude-cli:claude-sonnet-5-5@high",
-        "runs_a": 3,
+        "runs_a": 4,
         "runs_b": 2,
-        "diff_value": 15.033092406767452,
-        "diff_lo": 11.745280543264577,
-        "diff_hi": 18.20644446671982,
-        "diff_se": 1.6440269404827035,
+        "diff_value": 15.23449490111742,
+        "diff_lo": 11.962047037697063,
+        "diff_hi": 18.4005519071087,
+        "diff_se": 1.6647590968547032,
         "p_value": 9.999000099990002e-05,
         "n_episodes": 120,
         "n_games": 60,
@@ -12135,12 +13069,34 @@
             "p_value": 9.999000099990002e-05,
             "n_episodes": 120,
             "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 1,
+            "diff_value": 17.19824702973725,
+            "diff_lo": 13.086875448963987,
+            "diff_hi": 21.269639464121557,
+            "diff_se": 2.080964350585631,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
+          },
+          {
+            "run_a": 4,
+            "run_b": 2,
+            "diff_value": 14.479157738597412,
+            "diff_lo": 10.648297324723547,
+            "diff_hi": 18.380065937258742,
+            "diff_se": 2.038224827904062,
+            "p_value": 9.999000099990002e-05,
+            "n_episodes": 120,
+            "n_games": 60
           }
         ],
         "runs_welch": {
-          "t": 8.470386629633717,
-          "df": 2.3271606215393636,
-          "p_value": 0.008474658648101468
+          "t": 9.559593427475004,
+          "df": 1.8037993939153318,
+          "p_value": 0.014892103705370993
         },
         "p_holm": 0.0005999400059994001
       },

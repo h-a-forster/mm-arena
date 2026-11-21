@@ -10,9 +10,14 @@ from mmarena.pricing import PRICES, list_cost, price_for
 def test_price_lookup():
     assert price_for("claude-opus-5-5") == PRICES["claude-opus-5-5"]
     assert price_for("claude-haiku-4-5-20251001") == PRICES["claude-haiku-4-5"]
-    # The longest base id wins: an Opus 5.5 snapshot is not priced as Opus 5.
+    # A dated snapshot maps to its own base id: an Opus 5.5 snapshot is not priced as Opus 5.
     assert price_for("claude-opus-5-5-20261001") == PRICES["claude-opus-5-5"]
     assert price_for("gpt-5.1") is None
+    # Only a dated snapshot suffix maps to a base id: a newer version is not priced as the
+    # family it extends (claude-fable-5-2 is not claude-fable-5).
+    assert price_for("claude-fable-5-2") == PRICES["claude-fable-5-2"]
+    assert price_for("claude-fable-5-9") is None
+    assert price_for("claude-opus-5-5-preview") is None
     assert price_for(None) is None
 
 

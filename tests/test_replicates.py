@@ -183,7 +183,7 @@ def test_effort_figure_names_every_replicate_run(tmp_path, monkeypatch):
         {"setup": "claude-cli:claude-haiku-5-5@high", "runs": runs[:2]},
     ]
     note = figures.replicate_note(SimpleNamespace(replicates={"setups": setups}))
-    assert "opus high r2/r3" in note and "haiku high r2)" in note
+    assert "opus 5.5 high r2/r3" in note and "haiku 5.5 high r2)" in note
     assert figures.replicate_note(SimpleNamespace(replicates={})) == ""
 
     # Four replicated setups (the committed core-v1): the subtitle must stay inside the figure.
@@ -201,15 +201,38 @@ def test_effort_figure_names_every_replicate_run(tmp_path, monkeypatch):
     fig = figs[0]
     FigureCanvasAgg(fig).draw()
     sub = fig.axes[0]._left_title  # _title() sets the subtitle with loc="left"
-    assert "sonnet high r2/r3" in sub.get_text()
+    assert "sonnet 5.5 high r2/r3" in sub.get_text()
     assert sub.get_window_extent().x1 <= fig.bbox.x1
+
+
+def test_figures_keep_model_versions_apart(tmp_path, monkeypatch):
+    pytest.importorskip("matplotlib")
+    figures = _script("figures")
+    assert figures.short("claude-cli:claude-fable-5-2@low#r3") == "fable 5.2@low r3"
+    assert figures.file_tag("claude-cli:claude-fable-5-2@high") != figures.file_tag(
+        "claude-cli:claude-fable-5-1@high"
+    )
+    # Fable 5.1 and 5.2 are separate series in the effort figure, not one line through both.
+    names = ["claude-cli:claude-fable-5-1@low", "claude-cli:claude-fable-5-1@high"]
+    names.append("claude-cli:claude-fable-5-2@low")
+    row = {"edge_captured": 80.0, "edge_lo": 75.0, "edge_hi": 85.0}
+    report = SimpleNamespace(leaderboard=[{"agent": n, **row} for n in names], replicates={})
+    figs = []
+    monkeypatch.setattr(figures, "save", lambda fig, path: figs.append(fig))
+    figures.plot_effort(report, tmp_path / "effort")
+    labels = [t.get_text() for t in figs[0].axes[0].get_legend().get_texts()]
+    assert labels == ["fable 5.1", "fable 5.2"]
+    # A model with no assigned color fails loudly instead of dropping out of the figures.
+    report.leaderboard.append({"agent": "claude-cli:claude-fable-6-0@low", **row})
+    with pytest.raises(ValueError, match="fable 6.0"):
+        figures.plot_effort(report, tmp_path / "effort")
 
 
 def test_welch_matches_closed_forms():
     # df 1 is Cauchy; df 2 has F(t) = 1/2 + t / (2 sqrt(2 + t^2)).
     assert t_two_sided(1.5, 1) == pytest.approx(1 - 2 * math.atan(1.5) / math.pi, abs=1e-6)
     assert t_two_sided(2.0, 2) == pytest.approx(1 - 2 / math.sqrt(6), abs=1e-6)
-    # Run means quoted in the README, Fable against Opus at high effort.
+    # Run means of Fable 5.1 @high against Opus 5.5 @high runs 1-3.
     t, df, p = welch([90.6566, 88.5532], [87.6897, 83.7690, 85.2999])
     assert (round(t, 2), round(df, 1), round(p, 3)) == (2.59, 2.8, 0.087)
     assert all(math.isnan(x) for x in welch([1.0, 1.0], [2.0, 2.0]))

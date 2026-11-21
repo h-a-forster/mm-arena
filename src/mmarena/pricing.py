@@ -14,7 +14,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any, NamedTuple
 
-PRICES_AS_OF = "2026-10-10"
+PRICES_AS_OF = "2026-11-21"
 
 
 class Price(NamedTuple):
@@ -26,6 +26,7 @@ class Price(NamedTuple):
 
 
 PRICES: dict[str, Price] = {
+    "claude-fable-5-2": Price(8.0, 40.0, 0.20, 10.0, 16.0),
     "claude-fable-5-1": Price(10.0, 50.0, 0.25, 12.5, 20.0),
     "claude-fable-5": Price(10.0, 50.0, 1.0, 12.5, 20.0),
     "claude-opus-5-5": Price(4.0, 20.0, 0.20, 5.0, 8.0),
@@ -47,10 +48,11 @@ def price_for(model: str | None) -> Price | None:
         return None
     if model in PRICES:
         return PRICES[model]
-    # Longest base id first, so claude-opus-5-5-... is not matched by claude-opus-5.
-    for base in sorted(PRICES, key=len, reverse=True):
-        if model.startswith(base + "-"):
-            return PRICES[base]
+    # Only a dated snapshot suffix (-YYYYMMDD) maps to its base id; any other suffix is a
+    # different model (claude-fable-5-2 is not claude-fable-5) and stays unpriced.
+    base, sep, suffix = model.rpartition("-")
+    if sep and len(suffix) == 8 and suffix.isdigit() and base in PRICES:
+        return PRICES[base]
     return None
 
 

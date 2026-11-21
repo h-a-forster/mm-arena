@@ -87,5 +87,8 @@ Done:
   (Fable `#r2`, Haiku `#r3`, Opus `#r3`, Sonnet `#r2`) committed in `results/core-v1/`, report
   and README updated. Haiku `#r4` (same version and day as `#r3`) added: the first
   within-version pair, +1.4 [-4.5, 6.8] points. Every high-effort setup has two to four runs.
+- Fable 5.2 @low and Opus 5.5 @high `#r4` on Claude Code 2.1.330 committed in
+  `results/core-v1/` (17 agents). Fable 5.2 @low scores 97.4, 2.6 below `bayes`: `core-v1` has
+  little room left to separate strong models, so no higher-effort Fable 5.2 runs were made on it.
 - Open-weight arm prepared (`scripts/open_weight.py`, Qwen3-14B Q4_K_M), not yet run; it
   writes to `results/core-v1-open-weight/` so the `core-v1` Holm families stay unchanged.

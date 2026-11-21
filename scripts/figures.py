@@ -53,6 +53,7 @@ LABEL_OFFSETS = {
     "haiku 5.5@high": (16, -26, "left"),
     "opus 5.5@medium": (-24, 20, "right"),
     "fable 5.1@high": (-6, 22, "right"),
+    "fable 5.2@low": (-10, 30, "right"),
     "bayes": (-14, 14, "right"),
     "bayes-lookahead": (20, 12, "left"),
     "bayes-mean": (20, -22, "left"),
@@ -64,7 +65,8 @@ LABEL_OFFSETS = {
 
 
 def short(name: str) -> str:
-    out = name.replace("claude-cli:claude-", "").replace("-5-5", " 5.5").replace("-5-1", " 5.1")
+    """Display name: ``claude-cli:claude-fable-5-2@low#r2`` -> ``fable 5.2@low r2``."""
+    out = re.sub(r"-(\d+)-(\d+)(?=@|#|$)", r" \1.\2", name.replace("claude-cli:claude-", ""))
     return re.sub(r"#r(\d+)$", r" r\1", out)
 
 
@@ -73,8 +75,8 @@ def is_baseline(name: str) -> bool:
 
 
 def file_tag(name: str) -> str:
-    """Short, file-name-safe tag: no spaces, '@', '#' or ':'."""
-    tag = short(name).replace(" 5.5", "").replace(" 5.1", "").replace("@", "-").replace(" ", "-")
+    """Short, file-name-safe tag (model version kept): no spaces, '@', '#' or ':'."""
+    tag = short(name).replace("@", "-").replace(" ", "-")
     return re.sub(r"[^A-Za-z0-9._-]", "", tag)
 
 
@@ -115,7 +117,7 @@ def plot_spread(report, path: Path) -> None:
             else None,
         )
     ax.set_xlim(0.2, 1.22)
-    ax.set_ylim(-90, 118)
+    ax.set_ylim(-90, 128)
     ax.axhline(0, color=INK_2, linewidth=0.8)
     ax.axvline(1, color=SERIES_2, linewidth=1, linestyle="--")
     ax.text(1.0, ax.get_ylim()[0], " Bayes width", color=SERIES_2, fontsize=8.5, va="bottom")
@@ -125,27 +127,43 @@ def plot_spread(report, path: Path) -> None:
     _title(
         fig,
         "Edge tracks quote width",
-        "Low effort: quotes far too narrow. High effort: centring errors cost nearly as much as "
-        "width (see Centring vs width)",
+        "Most setups quote far too narrow at low effort. High effort: centring costs nearly as "
+        "much as width",
     )
     save(fig, path)
 
 
-MODEL_COLORS = {"haiku": "#3a9e6f", "sonnet": "#7a5cc7", "opus": SERIES_1, "fable": SERIES_2}
+# One series per model version: a newer version of a model is a different model.
+MODEL_COLORS = {
+    "haiku 5.5": "#3a9e6f",
+    "sonnet 5.5": "#7a5cc7",
+    "opus 5.5": SERIES_1,
+    "fable 5.1": SERIES_2,
+    "fable 5.2": "#a32d2d",
+}
 # Label placement for the cost chart, per panel: (dx, dy in points, horizontal alignment).
 COST_OFFSETS = {
     "usd_1k": {
-        "opus medium": (12, -14, "left"),
-        "sonnet high": (-9, 5, "right"),
-        "opus low": (8, -14, "left"),
+        "opus 5.5 medium": (12, -14, "left"),
+        "sonnet 5.5 high": (-9, 5, "right"),
+        "opus 5.5 low": (8, -14, "left"),
+        "opus 5.5 high": (8, -14, "left"),
     },
     "sec": {
-        "opus low": (6, 7, "left"),
-        "opus medium": (-10, 10, "right"),
-        "sonnet high": (26, -26, "left"),
-        "fable low": (10, -14, "left"),
+        "opus 5.5 low": (4, 10, "left"),
+        "opus 5.5 medium": (-10, 10, "right"),
+        "sonnet 5.5 high": (26, -26, "left"),
+        "fable 5.1 low": (10, -14, "left"),
     },
 }
+
+
+def model_of(name: str) -> str:
+    """Model and version of an LLM agent, ``fable 5.2``; fails loudly for one with no color."""
+    model = short(name).partition("@")[0]
+    if model not in MODEL_COLORS:
+        raise ValueError(f"no color for model {model!r} ({name}); add it to MODEL_COLORS")
+    return model
 
 
 def llm_costs(report, traces) -> list[dict]:
@@ -175,11 +193,11 @@ def llm_costs(report, traces) -> list[dict]:
             if isinstance(usage, dict):
                 five = list_cost(info.get("model"), {**usage, "cache_write_1h_tokens": 0})
             cost5 += five if five is not None else (_step_usage(info, ttl)[1] or 0.0)
-        model, _, effort = short(name).partition("@")
+        effort = short(name).partition("@")[2]
         rows.append(
             {
                 "name": name,
-                "model": model.split()[0],
+                "model": model_of(name),
                 "effort": effort,
                 "runs": len(runs),
                 "edge": pooled[name]["edge_captured"] if name in pooled else row["edge_captured"],
@@ -293,7 +311,7 @@ def replicate_note(report) -> str:
         if not extra:
             continue
         model, _, effort = short(st["setup"]).partition("@")
-        parts.append(f"{model.split()[0]} {effort} " + "/".join(f"r{n}" for n in extra))
+        parts.append(f"{model} {effort} " + "/".join(f"r{n}" for n in extra))
     return f"small dots: replicate runs ({', '.join(parts)})" if parts else ""
 
 
@@ -308,8 +326,8 @@ def plot_effort(report, path: Path) -> None:
         color = MODEL_COLORS[model]
         pts = []
         for name, row in rows.items():
-            m, _, effort = short(name).partition("@")
-            if is_baseline(name) or m.split()[0] != model or effort not in pos:
+            effort = short(name).partition("@")[2]
+            if is_baseline(name) or model_of(name) != model or effort not in pos:
                 continue
             pts.append((pos[effort], row, name))
         pts.sort(key=lambda p: p[0])
