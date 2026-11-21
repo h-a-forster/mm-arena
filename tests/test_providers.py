@@ -415,6 +415,18 @@ def test_cli_attributes_reply_to_requested_model_not_auxiliary_call():
     assert comp.cost_usd == pytest.approx(main + aux)
 
 
+def test_cli_reply_from_another_model_is_never_scored_as_the_requested_one():
+    # e.g. Claude Code falling back to another model when the requested one's limit is reached
+    model_usage = {
+        "claude-haiku-5-5": {"inputTokens": 1171, "outputTokens": 21},
+        "claude-opus-5-5": {"inputTokens": 2, "outputTokens": 300},
+    }
+    out = _cli_json(usage={"input_tokens": 2, "output_tokens": 300}, modelUsage=model_usage)
+    with pytest.raises(InfraError, match="answered by claude-opus-5-5, not claude-fable-5-2"):
+        parse_cli_output(out, "", 0, "claude-fable-5-2")
+    assert parse_cli_output(out, "", 0, "claude-opus-5-5").model == "claude-opus-5-5"
+
+
 def test_cli_auxiliary_call_on_the_same_model_is_split_out():
     usage = {"input_tokens": 2, "output_tokens": 300}
     model_usage = {"claude-haiku-5-5": {"inputTokens": 1173, "outputTokens": 321}}

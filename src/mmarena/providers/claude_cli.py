@@ -120,6 +120,19 @@ def _main_model(model_usage: Mapping[str, Any], requested: str | None) -> str:
     return max(keys, key=lambda k: out[k])
 
 
+def _answered_by(model_usage: Mapping[str, Any], requested: str) -> bool:
+    """Whether ``modelUsage`` shows a call on the requested model (by id or canonical id)."""
+    for k, entry in model_usage.items():
+        entry = entry if isinstance(entry, Mapping) else {}
+        if isinstance(k, str) and (
+            k == requested
+            or k.startswith(requested + "-")
+            or entry.get("canonicalModel") == requested
+        ):
+            return True
+    return False
+
+
 def _aux_usage(
     model_usage: Mapping[str, Any], main: str, usage: Mapping[str, int]
 ) -> tuple[int, int, float | None]:
@@ -195,6 +208,18 @@ def parse_cli_output(
     model_usage = obj.get("modelUsage")
     model_usage = model_usage if isinstance(model_usage, Mapping) else {}
     model = _main_model(model_usage, requested_model)
+    if (
+        requested_model
+        and requested_model.startswith("claude-")
+        and model_usage
+        and not _answered_by(model_usage, requested_model)
+    ):
+        # A reply from another model (e.g. a fallback when a model's usage limit is reached)
+        # must never be scored as the requested one.
+        raise InfraError(
+            f"claude-cli: answered by {model}, not {requested_model} "
+            "(possible fallback at a usage limit)"
+        )
     reported = float(cost) if isinstance(cost, (int, float)) and cost >= 0 else None
     listed = list_cost(model, usage, default_write_ttl="1h")
     aux_in, aux_out, aux_cost = _aux_usage(model_usage, model, usage)
