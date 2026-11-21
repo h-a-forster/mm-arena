@@ -146,7 +146,11 @@ def learning_response(half: np.ndarray, bayes: np.ndarray, prior: np.ndarray) ->
         return math.nan
     design = np.column_stack([np.ones(len(half)), bayes, prior])
     beta, _, rank, _ = np.linalg.lstsq(design, half, rcond=None)
-    return float(beta[1]) if rank == 3 else math.nan
+    if rank < 3:
+        return math.nan
+    # A width that is exactly linear in the prior-regime width gives 0 up to rounding, whose
+    # sign varies by machine; real coefficients are far above this (none below 1e-7 seen).
+    return 0.0 if abs(beta[1]) < 1e-9 else float(beta[1])
 
 
 def _one_sided_flip(d: Sequence[float], n_perm: int = N_PERM, seed: int = 0) -> float:

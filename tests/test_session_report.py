@@ -79,7 +79,9 @@ def test_learning_response_is_the_coefficient_on_the_bayes_width() -> None:
     bayes = 0.6 * prior + rng.uniform(0.0, 1.0, 200)  # correlated with the prior-regime width
     noise = rng.normal(0, 0.01, 200)
     assert learning_response(bayes, bayes, prior) == pytest.approx(1.0)
-    assert learning_response(prior, bayes, prior) == pytest.approx(0.0, abs=1e-9)
+    # exactly 0, not rounding noise of either sign, so p-values agree across machines
+    assert learning_response(prior, bayes, prior) == 0.0
+    assert learning_response(0.3 + 0.5 * prior, bayes, prior) == 0.0
     assert learning_response(np.full(200, 0.8) + noise, bayes, prior) == pytest.approx(0, abs=0.01)
     assert learning_response(0.3 * bayes + 0.7 * prior, bayes, prior) == pytest.approx(0.3)
     assert math.isnan(learning_response(prior, prior, prior))  # the widths never differ
