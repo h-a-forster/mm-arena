@@ -176,3 +176,63 @@ four learning quoters but one. It is also below 0.05 in 33 and 18 of 40 runs of
 `bayes-nolearn`, whose width still moves a little with the evidence (0.12 to 0.19): the first
 clause shows that a setup's widths respond to the evidence at all, and the second clause is
 what separates a setup from `bayes-nolearn`.
+
+### 2026-11-21: replicate count, budget and run plan (after pilot stage 2)
+
+Made after the pilot and before any LLM run on `core-v2`, `holdout-v2` or `tight-v2`.
+
+**Pilot.** Stage 1 ran Fable 5.2, Opus 5.5 and Haiku 5.5 at high effort on `pilot-v2`, plus
+Sonnet 5.5 at high effort as an extra check of the run path (not in the stage-1 plan; like every
+pilot trace, it enters no test). Every session of every run had status `ok` and no quote was
+unreadable. Stage-1 decision rule: Fable 5.2's learning response was 0.95 with 95% interval
+[0.88, 0.97], above 0.25, so stage 2 ran (a second run of Fable 5.2 and Opus 5.5 at high
+effort, without the response cache).
+
+**Code changed since the freeze.** Two commits landed after pilot stage 1 started and before
+stage 2: 0262290 computes the prior mean of the informed share in plain floats, left to right,
+because a BLAS dot product rounded its last bit differently by machine and the value is hashed
+into every session id; with the new code the session ids equal the published ones and those of
+every pilot trace, so no game and no score changed. 0262290 and 5f67b30 also make the report
+divide before scaling (the oracle scores exactly 100 in every bootstrap draw) and report a
+learning response below 1e-9 as exactly 0. Only p-values of statistics that are exactly zero in
+exact arithmetic changed; no suite changed, and no score beyond floating-point rounding.
+
+**Run-to-run SD.** With the formula of the pilot section (`O` = 110.61, the oracle's total on
+`core-v2`), the projected `core-v2` run SD of the pooled score is `sigma` = 1.20 pooled points
+(1.16 if the pilot variance is scaled per tier, 15/6 open and 30/6 mixed; the formula as written
+is used).
+
+**Replicates.** `delta` = 3 pooled points, so `n = 2 x (2.8 x 1.20 / 3)^2` rounded up = 3 runs
+each for the two top setups, Fable 5.2 @high and Opus 5.5 @high, as the Setups section and H1
+say; the Replicates section's "each setup in family A" is read as those two, since the Setups
+section gives every other setup one run. A replicate count is never raised after results are
+seen. With `n_a` and `n_b` runs, a pooled difference below `2.8 x 1.20 x sqrt(1/n_a + 1/n_b)`
+is reported as not separated: 2.74 points for three runs against three, 3.88 for three against
+one, 4.75 for one against one.
+
+**Runs, in start order.** `core-v2`: Opus 5.5 @high runs 1 to 3, Fable 5.2 @high runs 1 to 3
+(`#r2` and `#r3` without the response cache), Sonnet 5.5 and Haiku 5.5 @high, then Opus,
+Sonnet, Haiku and Fable @low, one run each. `holdout-v2`: one run each of Opus 5.5 and Fable 5.2
+@high. `tight-v2` (for its descriptive section): one run each of Opus 5.5 and Fable 5.2 @high.
+Runs start in this order, at most three at a time, except that a run waits until the earlier run
+of its setup on the same suite has ended, a low-effort run until the same model's high-effort
+runs on `core-v2` have ended, and a Fable 5.2 run until the weekly usage limit allows it; while a
+run waits, runs listed after it may start. Two runs of one setup on one suite never
+run side by side. The reference quoters are written to each run directory first.
+
+**Pinned harness.** Every run uses Claude Code 2.1.330, the pilot's version, from a frozen copy
+of that release; a run is started only if that copy reports `2.1.330`, and each trace records the
+version.
+
+**Budget cap.** All runs above together, at most 1,400 USD at list price as computed by
+`mmarena` from each call's tokens (estimate from the pilot's cost per session, taking a
+low-effort run to cost no more than the same model's high-effort run: about 1,240 USD). Before
+each run starts, the projected total is compared with the cap: the cost so far plus the estimate
+for what every started and every not-yet-started run still needs. While it exceeds the cap,
+low-effort runs not yet started are cut in the order Haiku, Sonnet, Opus, Fable; if it still
+exceeds the cap, no further run starts. A run already started is completed, so its own overrun of
+its estimate is the only way the total can pass the cap. Every cut is reported.
+
+**Completion.** A started run is completed: usage limits are waited out; other provider failures
+are retried, and a run that makes no progress after six attempts is resumed by hand. No failure
+is scored. No run is stopped, repeated or added because of a score.
