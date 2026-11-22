@@ -236,3 +236,26 @@ its estimate is the only way the total can pass the cap. Every cut is reported.
 **Completion.** A started run is completed: usage limits are waited out; other provider failures
 are retried, and a run that makes no progress after six attempts is resumed by hand. No failure
 is scored. No run is stopped, repeated or added because of a score.
+
+### 2026-11-22: first release with part of the run plan (deviation)
+
+Made while the runs above were in progress, before any report of an LLM run on `core-v2` had been
+generated, and not because of a score: the remaining Fable 5.2 runs depend on a weekly usage limit,
+and the results are released now rather than after all of them.
+
+**Run.** On `core-v2`: Opus 5.5 @high runs 1 to 3, Fable 5.2 @high runs 1 and 2, Sonnet 5.5 and
+Haiku 5.5 @high, and Opus 5.5 @low, one run each. Every session of every run has status `ok`, no
+quote was unreadable, and every trace records Claude Code 2.1.330. Cost at list price: 549 USD.
+Runs that had started were completed; the third Opus 5.5 run had ended before the decision and
+is included, as planned.
+
+**Deferred.** Fable 5.2 @high run 3; Sonnet 5.5, Haiku 5.5 and Fable 5.2 @low; both `holdout-v2`
+runs; both `tight-v2` runs. They are not dropped: they will run later, on the same pinned
+harness, and the report will then be regenerated over all runs.
+
+**Effect on the analysis until then.** H1 compares two Fable 5.2 runs with three Opus 5.5 runs
+(run SD with three degrees of freedom; a gap below `2.8 x 1.20 x sqrt(1/2 + 1/3)` = 3.07 pooled
+points would be reported as not separated). Families A to C hold the tests among the setups run so
+far, Holm-adjusted within those, so their adjusted p-values will change when the deferred setups
+are added; H5 has Opus 5.5 only. The held-out comparison and the `tight-v2` section are not yet
+available. Every confirmatory result in this release is provisional until the plan is complete.

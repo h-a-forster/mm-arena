@@ -599,10 +599,26 @@ One run gives no run-level variance, and runs are the unit here (see
 A second suite family sits beside core-v1. In `core-v2` the market maker plays each game for six
 rounds against the same crowd, and the informed share is hidden: one of 0.05, 0.5 and 0.9 with
 a disclosed prior, to be learned from fills, quiet quotes and settlements. Scores are shares of
-a quoter that is told the informed share, with an estimated ceiling printed beside them. No LLM
-has been run on it yet. Design and scoring: [docs/methodology-v2.md](docs/methodology-v2.md);
-pre-registration: [docs/prereg-core-v2.md](docs/prereg-core-v2.md); baseline results:
-`results/core-v2/` and the extension `results/tight-v2/`. core-v1 and its results are unchanged.
+a quoter that is told the informed share, with an estimated ceiling printed beside them.
+Design and scoring: [docs/methodology-v2.md](docs/methodology-v2.md); pre-registration:
+[docs/prereg-core-v2.md](docs/prereg-core-v2.md). core-v1 and its results are unchanged.
+
+First results, part of the pre-registered run plan (the rest follows; see the 2026-11-22
+amendment), pooled share of the oracle on `core-v2`:
+
+| setup | runs | pooled |
+| --- | ---: | --- |
+| Fable 5.2 @high | 2 | 86.5, 86.0 |
+| `bayes` (myopic Bayesian learner) | - | 78.2 |
+| Opus 5.5 @high | 3 | 64.6, 60.5, 68.2 |
+| Haiku 5.5 @high | 1 | 54.8 |
+| Opus 5.5 @low | 1 | 17.0 |
+| Sonnet 5.5 @high | 1 | -1.2 |
+
+The ceiling estimate is about 91. Fable 5.2 and Opus 5.5 @high are separated (gap 21.8 pooled
+points, Welch p = 0.010); the confirmatory tests are provisional until the deferred runs are in.
+Full report: [results/core-v2/REPORT.md](results/core-v2/REPORT.md); baseline extension:
+`results/tight-v2/`; pilot traces, which enter no test: `results/pilot-v2/`.
 
 ## Related work
 
